@@ -1,0 +1,12 @@
+{
+  "Name": "DruidCatForm",
+  "Infinite": true,
+  "Debuff": false,
+  "OverlapBehavior": "Replace",
+  "StatModifiers": {
+    "hytale:movement_speed": 50.0,
+    "hytale:night_vision": true
+  },
+  "ValueType": "Percent",
+  "ModelChange": "hytale:cat"
+}

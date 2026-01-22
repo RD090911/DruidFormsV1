@@ -1,0 +1,11 @@
+{
+  "Name": "DruidAntelopeForm",
+  "Infinite": true,
+  "Debuff": false,
+  "OverlapBehavior": "Replace",
+  "StatModifiers": {
+    "hytale:movement_speed": 100.0
+  },
+  "ValueType": "Percent",
+  "ModelChange": "hytale:antelope"
+}

@@ -1,0 +1,12 @@
+{
+  "Name": "DruidRamForm",
+  "Infinite": true,
+  "Debuff": false,
+  "OverlapBehavior": "Replace",
+  "StatModifiers": {
+    "hytale:mining_efficiency": 200.0,
+    "hytale:attack_damage": 50.0
+  },
+  "ValueType": "Percent",
+  "ModelChange": "hytale:ram"
+}

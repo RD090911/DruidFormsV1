@@ -1,0 +1,22 @@
+{
+    "Group": "Druid",
+    "Name": "DruidFormsV1",
+    "Version": "1.0.0",
+    "Description": "Become a Druid and explore Hytale!",
+    "Authors": [
+        {
+            "Name": "RD"
+        }
+    ],
+    "Website": "",
+    "ServerVersion": "*",
+    "Dependencies": {
+        
+    },
+    "OptionalDependencies": {
+        
+    },
+    "DisabledByDefault": false,
+    "Main": "me.druid.v1.DruidPlugin",
+    "IncludesAssetPack": true
+}

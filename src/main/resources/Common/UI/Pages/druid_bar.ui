@@ -1,0 +1,20 @@
+$Common = "Common.ui";
+
+@antelope_tex = PatchStyle(TexturePath: "Textures/UI/Druid/antelope64.png");
+@penguin_tex = PatchStyle(TexturePath: "Textures/UI/Druid/penguin64.png");
+@hawk_tex = PatchStyle(TexturePath: "Textures/UI/Druid/hawk64.png");
+@ram_tex = PatchStyle(TexturePath: "Textures/UI/Druid/ram64.png");
+@dog_tex = PatchStyle(TexturePath: "Textures/UI/Druid/dog64.png");
+@cat_tex = PatchStyle(TexturePath: "Textures/UI/Druid/cat64.png");
+@duck_tex = PatchStyle(TexturePath: "Textures/UI/Druid/duck64.png");
+@jackalope_tex = PatchStyle(TexturePath: "Textures/UI/Druid/jackalope64.png");
+@glow_tex = PatchStyle(TexturePath: "Textures/UI/Druid/glow64.png");
+
+Group #druid_bar {
+  Background: $Common.@DialogBackground;
+  Anchor: (Bottom: 90, Height: 70, Width: 500, CenterX: 0);
+  LayoutMode: Horizontal;
+  Padding: (Left: 10, Right: 10);
+
+  ImageButton #antelope_btn { Width: 50; Height: 50; Margin: (Right: 8); Background: @antelope_tex; }
+  ImageButton #penguin_btn { Width: 50; Height: 50; Margin: (Right:
