@@ -3,6 +3,7 @@ package me.druid.v1;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.event.EventRegistry;
+import com.hypixel.hytale.server.core.event.EventHandler;
 import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
 import com.hypixel.hytale.logger.HytaleLogger;
 import javax.annotation.Nonnull;
@@ -18,7 +19,7 @@ public class DruidPlugin extends JavaPlugin {
     @Override
     protected void setup() {
         LOGGER.atInfo().log("DruidFormV1 is setting up...");
-        EventRegistry.register(this, this);
+        EventRegistry.register(this);
     }
 
     @Override
@@ -31,7 +32,7 @@ public class DruidPlugin extends JavaPlugin {
         LOGGER.atInfo().log("DruidFormV1 is shutting down.");
     }
 
-    // Notice: NO @Annotation here anymore!
+    @EventHandler
     public void onPlayerConnect(PlayerConnectEvent event) {
         LOGGER.atInfo().log("A Druid has connected to the server!");
     }
