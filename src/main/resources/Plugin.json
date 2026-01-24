@@ -1,0 +1,7 @@
+{
+  "id": "druidforms",
+  "name": "Druid Forms",
+  "version": "1.0.0",
+  "mainClass": "me.druid.v1.DruidPlugin",
+  "description": "A plugin that allows druids to shapeshift into various forms."
+}
