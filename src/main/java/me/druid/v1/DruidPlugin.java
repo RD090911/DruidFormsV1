@@ -4,16 +4,19 @@ import java.util.logging.Logger;
 
 public class DruidPlugin {
     private final Logger logger;
-    private ShapeshiftHandler handler; // This stores our "Brain"
+    private ShapeshiftHandler handler;
+    private ShapeshiftCommand command; // Add this line
 
     public DruidPlugin(Logger logger) {
         this.logger = logger;
     }
 
     public void onEnable() {
-        // We "initialize" the handler here
         this.handler = new ShapeshiftHandler(logger);
 
-        logger.info("Druid Plugin has been enabled!");
+        // Initialize the command and give it access to the handler
+        this.command = new ShapeshiftCommand(handler);
+
+        logger.info("Druid Plugin has been enabled with commands!");
     }
 }

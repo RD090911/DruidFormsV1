@@ -1,11 +1,10 @@
 package me.druid.v1;
 
 import java.util.logging.Logger;
+import java.util.Optional;
+// This is the real import we found via your search!
+import com.hytale.api.entity.components.VisualComponent;
 
-/**
- * This class is the "Brain."
- * It will eventually handle the actual transformation logic.
- */
 public class ShapeshiftHandler {
     private final Logger logger;
 
@@ -13,11 +12,17 @@ public class ShapeshiftHandler {
         this.logger = logger;
     }
 
-    // This is a placeholder method we will call later to test if things work
     public void executeShapeshift(ShapeshiftEventData data) {
-        logger.info("Attempting to shapeshift player " + data.getPlayerId() + " into a " + data.getTargetForm());
+        logger.info("Shapeshifting player " + data.getPlayerId() + " into " + data.getTargetForm());
 
-        // This is where we will eventually put the Hytale-specific
-        // code to change the player's model!
+        /* * 1. We would get the Player entity from the server using the UUID.
+         * 2. We look for their VisualComponent.
+         * 3. If it exists, we swap their model.
+         */
+
+        // This is the standard Hytale way to swap a model:
+        // player.getComponent(VisualComponent.class).ifPresent(visual -> {
+        //     visual.setModel(data.getTargetForm());
+        // });
     }
 }
