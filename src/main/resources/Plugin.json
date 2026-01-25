@@ -3,5 +3,13 @@
   "name": "Druid Forms",
   "version": "1.0.0",
   "mainClass": "me.druid.v1.DruidPlugin",
-  "description": "A plugin that allows druids to shapeshift into various forms."
+  "description": "A plugin that allows druids to shapeshift into various forms.",
+  "commands": [
+    {
+      "name": "shapeshift",
+      "description": "Transform into an animal",
+      "usage": "/shapeshift <form>",
+      "permission": "druid.shapeshift"
+    }
+  ]
 }
