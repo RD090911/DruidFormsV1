@@ -1,0 +1,10 @@
+{
+  "Name": "Druid Shark Form",
+  "Id": "DruidSharkForm",
+  "Infinite": true,
+  "Duration": -1,
+  "StatusEffectIcon": "Icons/ItemsGenerated/Potion_WaterBreathing.png",
+  "ModelChange": "Shark_Hammerhead",
+  "OverlapBehavior": "Overwrite",
+  "RemovalBehavior": "Complete"
+}

@@ -1,0 +1,10 @@
+{
+  "Name": "Druid Sabretooth Form",
+  "Id": "DruidSabretoothForm",
+  "Infinite": true,
+  "Duration": -1,
+  "StatusEffectIcon": "Icons/ItemsGenerated/Potion_Leaping.png",
+  "ModelChange": "Tiger_Sabertooth",
+  "OverlapBehavior": "Overwrite",
+  "RemovalBehavior": "Complete"
+}

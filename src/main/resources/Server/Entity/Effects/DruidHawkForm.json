@@ -1,0 +1,10 @@
+{
+  "Name": "Druid Hawk Form",
+  "Id": "DruidHawkForm",
+  "Infinite": true,
+  "Duration": -1,
+  "StatusEffectIcon": "Icons/ItemsGenerated/Potion_SlowFalling.png",
+  "ModelChange": "Hawk",
+  "OverlapBehavior": "Overwrite",
+  "RemovalBehavior": "Complete"
+}

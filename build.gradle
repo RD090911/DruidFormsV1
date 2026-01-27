@@ -34,7 +34,8 @@ else if (!file(project.findProperty('hytaleHome')).exists()) {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(java_version)
+    // --- FIX APPLIED HERE: FORCING JAVA 21 ---
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
     withSourcesJar()
     withJavadocJar()
 }
@@ -114,17 +115,17 @@ tasks.register('generateVSCodeLaunch') {
         }
         def programParams = createServerRunArguments("\${workspaceFolder}")
         def launchConfig = [
-            version: "0.2.0",
-            configurations: [
-                [
-                    type: "java",
-                    name: "HytaleServer",
-                    request: "launch",
-                    mainClass: "com.hypixel.hytale.Main",
-                    args: programParams,
-                    cwd: "\${workspaceFolder}/run"
+                version: "0.2.0",
+                configurations: [
+                        [
+                                type: "java",
+                                name: "HytaleServer",
+                                request: "launch",
+                                mainClass: "com.hypixel.hytale.Main",
+                                args: programParams,
+                                cwd: "\${workspaceFolder}/run"
+                        ]
                 ]
-            ]
         ]
         launchFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(launchConfig))
     }

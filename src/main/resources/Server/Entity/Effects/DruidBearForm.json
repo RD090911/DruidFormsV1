@@ -1,0 +1,10 @@
+{
+  "Name": "Druid Bear Form",
+  "Id": "DruidBearForm",
+  "Infinite": true,
+  "Duration": -1,
+  "StatusEffectIcon": "Icons/ItemsGenerated/Potion_Strength.png",
+  "ModelChange": "Bear_Grizzly",
+  "OverlapBehavior": "Overwrite",
+  "RemovalBehavior": "Complete"
+}

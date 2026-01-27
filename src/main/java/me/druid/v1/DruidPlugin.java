@@ -4,29 +4,31 @@ import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import java.util.logging.Logger;
 
+// --- NEW IMPORT: The Manager you just found ---
+import com.hypixel.hytale.server.core.command.system.CommandManager;
+
 public class DruidPlugin extends JavaPlugin {
     private ShapeshiftHandler handler;
     private ShapeshiftCommand command;
     private Logger logger;
 
-    // The Constructor: The "Key" the server uses to start us.
     public DruidPlugin(JavaPluginInit init) {
         super(init);
     }
 
-    // FIXED: The official Hytale API method is 'start()', NOT 'onStart'
     @Override
     public void start() {
-        // Create our own logger to be safe
         this.logger = Logger.getLogger("DruidFormsV1");
-
         this.logger.info("Initializing Druid Plugin...");
 
-        // Initialize the handler with our logger
         this.handler = new ShapeshiftHandler(this.logger);
-
-        // Initialize the command
         this.command = new ShapeshiftCommand(handler);
+
+        // --- THE FIX ---
+        // We found "public static CommandManager get()" in your source code.
+        // We found "public CommandRegistration register(...)" in your source code.
+        // So we chain them together:
+        CommandManager.get().register(this.command);
 
         this.logger.info("Druid Plugin has been enabled with commands!");
     }
