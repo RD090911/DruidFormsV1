@@ -12,12 +12,16 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class ShapeshiftHandler {
     private final Logger logger;
 
-    // --- LIST OF ALL FORMS TO CLEAN UP ---
+    // TRACKER: Maps PlayerName (String) -> FormID (String)
+    // We use "String" for the key because player.getUuid() was causing errors.
+    public static final ConcurrentHashMap<String, String> ACTIVE_FORMS = new ConcurrentHashMap<>();
+
     private static final String[] ALL_FORMS = {
             "DruidBearForm", "DruidSharkForm", "DruidSabretoothForm",
             "DruidHawkForm", "DruidAntelopeForm", "DruidRamForm",
@@ -29,7 +33,7 @@ public class ShapeshiftHandler {
     }
 
     public void shapeshift(Player player, String formId) {
-        // --- 0. HELP COMMAND (New!) ---
+        // --- 0. HELP COMMAND ---
         if (formId.equalsIgnoreCase("help")) {
             sendStatus(player, "=== Available Druid Forms ===");
             sendStatus(player, "- human");
@@ -43,12 +47,11 @@ public class ShapeshiftHandler {
         Ref<EntityStore> entityRef = player.getReference();
         Store<EntityStore> store = entityRef.getStore();
 
-        // Retrieve components from the store
         EffectControllerComponent effects = (EffectControllerComponent) store.getComponent(entityRef, EffectControllerComponent.getComponentType());
         MovementManager movement = (MovementManager) store.getComponent(entityRef, MovementManager.getComponentType());
-
-        // Retrieve the PlayerRef Component to get the username (Clean ECS way)
         PlayerRef playerInfo = (PlayerRef) store.getComponent(entityRef, PlayerRef.getComponentType());
+
+        // This is the variable we will use for tracking instead of UUID
         String playerName = (playerInfo != null) ? playerInfo.getUsername() : "Unknown";
 
         if (effects == null || movement == null) {
@@ -56,19 +59,25 @@ public class ShapeshiftHandler {
             return;
         }
 
-        // --- 2. CLEANUP (Remove all existing Druid effects) ---
+        // --- 2. CLEANUP (Remove old effects) ---
         for (String oldForm : ALL_FORMS) {
             EntityEffect oldAsset = (EntityEffect) EntityEffect.getAssetMap().getAsset(oldForm);
             if (oldAsset != null) {
-                // FIXED: Using .getIndex(oldForm) to get the Integer ID
                 int assetId = EntityEffect.getAssetMap().getIndex(oldForm);
                 effects.removeEffect(entityRef, assetId, store);
             }
         }
 
+        // Remove Water Breathing (Just in case they were a shark)
+        EntityEffect waterBreath = (EntityEffect) EntityEffect.getAssetMap().getAsset("Potion_WaterBreathing");
+        if (waterBreath != null) {
+            effects.removeEffect(entityRef, EntityEffect.getAssetMap().getIndex("Potion_WaterBreathing"), store);
+        }
+
         // --- 3. CHECK FOR HUMAN REVERT ---
         if (formId.equalsIgnoreCase("human")) {
-            applyMovementStats(movement, player, false, 5.5f, 10.32f); // Default Human Stats
+            ACTIVE_FORMS.remove(playerName); // FIXED: Using playerName
+            applyMovementStats(movement, player, false, 5.5f, 10.32f);
             sendStatus(player, "Returned to Human Form.");
             return;
         }
@@ -79,6 +88,10 @@ public class ShapeshiftHandler {
         if (effectAsset != null) {
             effects.addEffect(entityRef, effectAsset, store);
             this.logger.info("Applied visual effect: " + formId);
+
+            // NEW: Add to tracker so PassiveHandler knows about it
+            ACTIVE_FORMS.put(playerName, formId); // FIXED: Using playerName
+
             sendStatus(player, "Shapeshifted into: " + formId);
         } else {
             this.logger.warning("Could not find JSON asset for: " + formId);
@@ -94,28 +107,36 @@ public class ShapeshiftHandler {
         // Defaults (Human Speed)
         boolean canFly = false;
         float speed = 5.5f;        // Normal walk speed
-        float flySpeed = 10.32f;   // Normal fly speed (creative mode)
+        float flySpeed = 10.32f;   // Normal fly speed
 
         switch (formId) {
             case "DruidHawkForm":
                 canFly = true;
-                flySpeed = 15.0f; // FAST Flight
+                flySpeed = 15.0f; // Fast Flight
+                break;
+
+            case "DruidDuckForm":
+                canFly = true;
+                flySpeed = 7.0f;  // Slow Flight
                 break;
 
             case "DruidAntelopeForm":
-                speed = 11.0f;    // FAST Run (2x Human)
+                speed = 11.0f;    // Fast Run
                 break;
 
-            // Everyone else falls through to default (Human Speed)
+            case "DruidSharkForm":
+                speed = 11.0f;    // NEW: Fast Swim (2x Human)
+                break;
+
+            // Everyone else falls through to default
             case "DruidSabretoothForm":
             case "DruidBearForm":
-            case "DruidSharkForm":
+            case "DruidJackalopeForm":
             default:
                 speed = 5.5f;
                 break;
         }
 
-        // Apply the calculated stats
         applyMovementStats(movement, player, canFly, speed, flySpeed);
         this.logger.info("Applied stats for " + formId + " to " + username);
     }
@@ -125,19 +146,14 @@ public class ShapeshiftHandler {
         setField(settings, "canFly", canFly);
         setField(settings, "baseSpeed", speed);
         setField(settings, "horizontalFlySpeed", flySpeed);
-
-        // --- FIX: Commented out to resolve compilation error ---
-        // movement.update(player.getPlayerConnection());
     }
 
-    // --- HELPER: Send Chat Message ---
     private void sendStatus(Player player, String text) {
         FormattedMessage component = new FormattedMessage();
         component.rawText = text;
         player.sendMessage(new Message(component));
     }
 
-    // --- HELPER: Reflection for Movement ---
     private void setField(Object target, String fieldName, Object value) {
         try {
             Field field = target.getClass().getField(fieldName);
