@@ -1,0 +1,63 @@
+Group {
+    Alignment: BottomCenter;
+
+    Group #IconRow {
+        LayoutMode: Left;
+        Anchor: (Bottom: 85, Height: 54);
+
+        // 1. Bear
+        Group #WrapperBear {
+            Anchor: (Width: 50, Height: 50);
+            Margin: (Right: 4);
+            Image { Path: "assets/textures/bear64.png"; Anchor: (Full: 2); }
+        }
+
+        // 2. Sabretooth (Tiger)
+        Group #WrapperSabretooth {
+            Anchor: (Width: 50, Height: 50);
+            Margin: (Right: 4);
+            Image { Path: "assets/textures/tiger64.png"; Anchor: (Full: 2); }
+        }
+
+        // 3. Shark
+        Group #WrapperShark {
+            Anchor: (Width: 50, Height: 50);
+            Margin: (Right: 4);
+            Image { Path: "assets/textures/shark64.png"; Anchor: (Full: 2); }
+        }
+
+        // 4. Antelope
+        Group #WrapperAntelope {
+            Anchor: (Width: 50, Height: 50);
+            Margin: (Right: 4);
+            Image { Path: "assets/textures/antelope64.png"; Anchor: (Full: 2); }
+        }
+
+        // 5. Hawk
+        Group #WrapperHawk {
+            Anchor: (Width: 50, Height: 50);
+            Margin: (Right: 4);
+            Image { Path: "assets/textures/hawk64.png"; Anchor: (Full: 2); }
+        }
+
+        // 6. Ram
+        Group #WrapperRam {
+            Anchor: (Width: 50, Height: 50);
+            Margin: (Right: 4);
+            Image { Path: "assets/textures/ram64.png"; Anchor: (Full: 2); }
+        }
+
+        // 7. Jackalope
+        Group #WrapperRabbit {
+            Anchor: (Width: 50, Height: 50);
+            Margin: (Right: 4);
+            Image { Path: "assets/textures/jackalope64.png"; Anchor: (Full: 2); }
+        }
+
+        // 8. Duck
+        Group #WrapperDuck {
+            Anchor: (Width: 50, Height: 50);
+            Image { Path: "assets/textures/duck64.png"; Anchor: (Full: 2); }
+        }
+    }
+}
