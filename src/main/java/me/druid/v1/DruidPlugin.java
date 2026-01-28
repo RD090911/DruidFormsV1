@@ -4,7 +4,7 @@ import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import java.util.logging.Logger;
 
-// --- NEW IMPORT: The Manager you just found ---
+// --- THE CORRECT IMPORT (From your GitHub Save) ---
 import com.hypixel.hytale.server.core.command.system.CommandManager;
 
 public class DruidPlugin extends JavaPlugin {
@@ -25,9 +25,7 @@ public class DruidPlugin extends JavaPlugin {
         this.command = new ShapeshiftCommand(handler);
 
         // --- THE FIX ---
-        // We found "public static CommandManager get()" in your source code.
-        // We found "public CommandRegistration register(...)" in your source code.
-        // So we chain them together:
+        // We use the specific Manager found in your saved version.
         CommandManager.get().register(this.command);
 
         this.logger.info("Druid Plugin has been enabled with commands!");
