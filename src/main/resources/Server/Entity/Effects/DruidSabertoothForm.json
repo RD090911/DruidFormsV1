@@ -1,6 +1,6 @@
 {
-  "Name": "Druid Sabretooth Form",
-  "Id": "DruidSabretoothForm",
+  "Name": "Druid Sabertooth Form",
+  "Id": "DruidSabertoothForm",
   "Infinite": true,
   "Duration": -1,
   "StatusEffectIcon": "Icons/ItemsGenerated/Potion_Leaping.png",

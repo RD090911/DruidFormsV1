@@ -1,184 +1,236 @@
 package me.druid.v1;
 
 import com.hypixel.hytale.server.core.entity.entities.Player;
-import com.buuz135.mhud.MultipleHUD;
+import com.hypixel.hytale.server.core.asset.type.model.config.Model;
+import com.hypixel.hytale.server.core.asset.type.model.config.ModelAsset;
+import com.hypixel.hytale.server.core.modules.entity.component.ModelComponent;
 
-import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ShapeshiftHandler {
     private final Logger logger;
-
+    // Tracks which form a player is currently in
     public static final ConcurrentHashMap<String, String> activeForms = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, MovementStats> originalStats = new ConcurrentHashMap<>();
+
+    // Stores the player's original "Human" model (Key = Player Name)
+    private static final Map<String, Object> originalModels = new HashMap<>();
+
+    // --- THE WHITELIST ---
+    // Maps your command inputs to the REAL internal Hytale Asset IDs
+    private static final Map<String, String> ALLOWED_FORMS = new HashMap<>();
+    static {
+        // 1. Bear
+        ALLOWED_FORMS.put("bear", "Bear_Grizzly");
+        ALLOWED_FORMS.put("polar", "Bear_Polar");
+
+        // 2. Ram
+        ALLOWED_FORMS.put("ram", "Ram");
+
+        // 3. Duck
+        ALLOWED_FORMS.put("duck", "Duck");
+
+        // 4. Shark
+        ALLOWED_FORMS.put("shark", "Shark_Hammerhead");
+
+        // 5. Hawk
+        ALLOWED_FORMS.put("hawk", "Hawk");
+
+        // 6. Sabertooth (Accepts both spellings now!)
+        ALLOWED_FORMS.put("sabertooth", "Tiger_Sabertooth");
+        ALLOWED_FORMS.put("sabretooth", "Tiger_Sabertooth");
+
+        // 7. Jackalope (Uses Rabbit model)
+        ALLOWED_FORMS.put("jackalope", "Rabbit");
+
+        // 8. Antelope
+        ALLOWED_FORMS.put("antelope", "Antelope");
+    }
 
     public ShapeshiftHandler(Logger logger) {
         this.logger = logger;
     }
 
-    // --- MAIN TRANSFORMATION LOGIC ---
-    public void transform(Player player, String targetModel) {
-        String playerName = player.getDisplayName();
-        String currentForm = activeForms.get(playerName);
+    public void shapeshift(Player player, String formName) {
+        String cleanName = formName.toLowerCase();
 
-        // 1. TOGGLE CHECK
-        if (targetModel.equals(currentForm)) {
-            restoreHuman(player);
-            // FIX: Logging to console instead of chat to prevent version errors
-            logger.info(playerName + " reverted to Human Form!");
+        // DEV TOOL: Search registry (e.g. /shapeshift search:tiger)
+        if (cleanName.startsWith("search:")) {
+            performRegistrySearch(cleanName.split(":")[1]);
             return;
         }
 
-        // 2. SWITCH CHECK
-        if (currentForm == null) {
-            saveOriginalStats(player);
+        if (!ALLOWED_FORMS.containsKey(cleanName)) {
+            logger.warning("Invalid form requested: " + cleanName);
+            return;
         }
 
-        // 3. APPLY TRANSFORMATION
-        setModelSafe(player, targetModel);
-        activeForms.put(playerName, targetModel);
+        String targetID = ALLOWED_FORMS.get(cleanName);
+        transform(player, targetID, cleanName);
+    }
 
-        // 4. Apply Stats
-        applyFormStats(player, targetModel);
+    public void transform(Player player, String targetModelID, String shortName) {
+        String playerName = player.getDisplayName();
+        String currentForm = activeForms.get(playerName);
 
-        // 5. Update HUD
-        updateHUDSafe(player, targetModel);
+        // Toggle Logic: If already in this form, turn back to human
+        if (currentForm != null && currentForm.equals(targetModelID)) {
+            restoreHuman(player);
+            return;
+        }
 
-        // FIX: Logging to console
-        logger.info(playerName + " transformed into " + targetModel + "!");
+        // 1. Save Human Model (if we haven't already)
+        if (!activeForms.containsKey(playerName)) {
+            saveOriginalModel(player);
+        }
+
+        // 2. Perform the Transformation
+        if (swapModel(player, targetModelID)) {
+            activeForms.put(playerName, targetModelID);
+            logger.info(playerName + " transformed into " + shortName + " (" + targetModelID + ")!");
+
+            // NOTE: This is where we will add the code to apply the .json stats later
+            // applyDruidEffects(player, shortName);
+        }
     }
 
     public void restoreHuman(Player player) {
         String playerName = player.getDisplayName();
 
-        if (activeForms.containsKey(playerName)) {
-            setModelSafe(player, "human");
-
-            if (originalStats.containsKey(playerName)) {
-                MovementStats defaultStats = originalStats.get(playerName);
-                applyMovementStats(player, defaultStats.canFly, defaultStats.walkSpeed, defaultStats.flySpeed);
-                originalStats.remove(playerName);
+        // 1. Try to restore the exact original model (skins + clothes)
+        if (originalModels.containsKey(playerName)) {
+            if (injectRawModel(player, originalModels.get(playerName))) {
+                activeForms.remove(playerName);
+                originalModels.remove(playerName); // Clear cache
+                logger.info(playerName + " returned to Human Form.");
+                return;
             }
+        }
 
+        // 2. Fallback: If cache is missing, reset to default "Player" model (might be naked)
+        if (swapModel(player, "Player")) {
             activeForms.remove(playerName);
-            updateHUDSafe(player, "Human");
+            logger.info(playerName + " returned to base Human Form (Fallback).");
         }
     }
 
-    // --- SAFE HUD UPDATE ---
-    public void updateHUDSafe(Player player, String formName) {
+    // --- CORE LOGIC ---
+
+    private boolean swapModel(Player player, String assetId) {
         try {
-            // 1. Get PlayerRef safely
-            Method getRefMethod = player.getClass().getMethod("getPlayerRef");
-            Object playerRef = getRefMethod.invoke(player);
+            // 1. Get the Asset Map
+            Method getMapMethod = ModelAsset.class.getMethod("getAssetMap");
+            Object assetMap = getMapMethod.invoke(null);
 
-            if (playerRef != null) {
-                // 2. Get the Store safely
-                Method getReference = playerRef.getClass().getMethod("getReference");
-                Object entityRef = getReference.invoke(playerRef);
+            // 2. Get retrieval method using Object.class (Fixes NoSuchMethodException)
+            Method getAssetMethod = assetMap.getClass().getMethod("getAsset", Object.class);
+            getAssetMethod.setAccessible(true);
 
-                Method getStore = entityRef.getClass().getMethod("getStore");
-                Object store = getStore.invoke(entityRef);
+            // 3. Fetch the Asset
+            Object rawAsset = getAssetMethod.invoke(assetMap, assetId);
 
-                // 3. Call MultipleHUD via Reflection
-                for (Method m : MultipleHUD.getInstance().getClass().getMethods()) {
-                    if (m.getName().equals("setCustomHud")) {
-                        m.invoke(MultipleHUD.getInstance(), player, store, "DruidStanceBar", new DruidHUD(formName));
-                        return;
-                    }
+            // Auto-Correction: If simple name fails, try adding namespaces
+            if (rawAsset == null) rawAsset = getAssetMethod.invoke(assetMap, "Hytale:" + assetId);
+            if (rawAsset == null) rawAsset = getAssetMethod.invoke(assetMap, "Druid:" + assetId);
+
+            if (rawAsset == null) {
+                logger.severe("CRITICAL: Model asset '" + assetId + "' could not be found.");
+                return false;
+            }
+
+            // 4. Create the new Model Object
+            Model newModel = Model.createUnitScaleModel((ModelAsset) rawAsset);
+
+            // 5. Inject it into the player
+            return injectRawModel(player, newModel);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean injectRawModel(Object player, Object modelObject) {
+        try {
+            Object component = getModelComponent(player);
+            if (component == null) return false;
+
+            // Overwrite the 'model' field
+            Field modelField = ModelComponent.class.getDeclaredField("model");
+            modelField.setAccessible(true);
+            modelField.set(component, modelObject);
+
+            // Trigger Network Update
+            Field outdatedField = ModelComponent.class.getDeclaredField("isNetworkOutdated");
+            outdatedField.setAccessible(true);
+            outdatedField.set(component, true);
+
+            return true;
+        } catch (Exception e) {
+            logger.severe("Injection failed: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private void saveOriginalModel(Player player) {
+        try {
+            Object component = getModelComponent(player);
+            Field modelField = ModelComponent.class.getDeclaredField("model");
+            modelField.setAccessible(true);
+            Object currentModel = modelField.get(component);
+            originalModels.put(player.getDisplayName(), currentModel);
+        } catch (Exception e) {
+            logger.warning("Failed to save original skin: " + e.getMessage());
+        }
+    }
+
+    private Object getModelComponent(Object player) throws Exception {
+        Field refField = getFieldDeep(player.getClass(), "playerRef");
+        refField.setAccessible(true);
+        Object playerRef = refField.get(player);
+
+        Method getRefMethod = playerRef.getClass().getMethod("getReference");
+        Object ref = getRefMethod.invoke(playerRef);
+
+        Method getStoreMethod = ref.getClass().getMethod("getStore");
+        Object store = getStoreMethod.invoke(ref);
+
+        Method getTypeMethod = ModelComponent.class.getMethod("getComponentType");
+        Object compType = getTypeMethod.invoke(null);
+
+        Method getCompMethod = store.getClass().getMethod("getComponent",
+                Class.forName("com.hypixel.hytale.component.Ref"),
+                Class.forName("com.hypixel.hytale.component.ComponentType")
+        );
+        return getCompMethod.invoke(store, ref, compType);
+    }
+
+    private Field getFieldDeep(Class<?> clazz, String name) {
+        while (clazz != null) {
+            try { return clazz.getDeclaredField(name); }
+            catch (Exception e) { clazz = clazz.getSuperclass(); }
+        }
+        return null;
+    }
+
+    private void performRegistrySearch(String query) {
+        try {
+            logger.info("Searching registry for: " + query);
+            Method getMapMethod = ModelAsset.class.getMethod("getAssetMap");
+            Object assetMap = getMapMethod.invoke(null);
+
+            Method getUnderlyingMap = assetMap.getClass().getMethod("getAssetMap");
+            Map<?, ?> map = (Map<?, ?>) getUnderlyingMap.invoke(assetMap);
+
+            for (Object key : map.keySet()) {
+                if (key.toString().toLowerCase().contains(query.toLowerCase())) {
+                    logger.info(">> MATCH FOUND: " + key.toString());
                 }
             }
-        } catch (Exception e) {
-            // Ignore HUD errors
-        }
-    }
-
-    // --- KEY LISTENER ---
-    public void checkHotbarKeys(Player player) {
-        int slot = player.getHotbarManager().getCurrentHotbarIndex();
-        String playerName = player.getDisplayName();
-
-        if (slot == 0) {
-            if (activeForms.containsKey(playerName)) restoreHuman(player);
-        }
-        if (slot == 1) {
-            if (!"DruidBearForm".equals(activeForms.get(playerName))) transform(player, "DruidBearForm");
-        }
-        if (slot == 2) {
-            if (!"DruidSharkForm".equals(activeForms.get(playerName))) transform(player, "DruidSharkForm");
-        }
-    }
-
-    // --- STATS HELPERS ---
-    private void applyFormStats(Player player, String modelId) {
-        boolean canFly = false;
-        float walkSpeed = 6.0f;
-        float flySpeed = 10.0f;
-
-        switch (modelId) {
-            case "DruidBearForm": walkSpeed = 4.0f; break;
-            case "DruidSharkForm": walkSpeed = 8.0f; break;
-            case "DruidHawkForm": canFly = true; walkSpeed = 12.0f; flySpeed = 18.0f; break;
-            case "DruidAntelopeForm": walkSpeed = 14.0f; break;
-            case "DruidRamForm": walkSpeed = 7.0f; break;
-            case "DruidJackalopeForm":
-            case "DruidRabbitForm": walkSpeed = 10.0f; break;
-            case "DruidSabretoothForm": walkSpeed = 10.0f; break;
-        }
-        applyMovementStats(player, canFly, walkSpeed, flySpeed);
-    }
-
-    private void saveOriginalStats(Player player) {
-        originalStats.put(player.getDisplayName(), new MovementStats(false, 6.0f, 10.0f));
-    }
-
-    private void applyMovementStats(Player player, boolean canFly, float walkSpeed, float flySpeed) {
-        try {
-            setField(player, "canFly", canFly);
-            setField(player, "baseSpeed", walkSpeed);
-            setField(player, "horizontalFlySpeed", flySpeed);
-            player.getHotbarManager().getCurrentHotbarIndex();
-        } catch (Exception e) { }
-    }
-
-    // --- HELPER: SAFE MODEL SETTER ---
-    private void setModelSafe(Object player, String model) {
-        try {
-            Method m = player.getClass().getMethod("setCreatureType", String.class);
-            m.invoke(player, model);
-        } catch (Exception e) {
-            try {
-                Method m = player.getClass().getMethod("setModel", String.class);
-                m.invoke(player, model);
-            } catch (Exception ex) {}
-        }
-    }
-
-    // --- HELPER: REFLECTION FIELD SETTER ---
-    private void setField(Object target, String fieldName, Object value) {
-        try {
-            java.lang.reflect.Field field = null;
-            try { field = target.getClass().getField(fieldName); } catch (Exception e) {}
-            if (field == null) {
-                try { field = target.getClass().getDeclaredField(fieldName); } catch(Exception e) {}
-            }
-            if (field != null) {
-                field.setAccessible(true);
-                field.set(target, value);
-            }
-        } catch (Exception e) { }
-    }
-
-    private static class MovementStats {
-        boolean canFly;
-        float walkSpeed;
-        float flySpeed;
-
-        public MovementStats(boolean canFly, float walkSpeed, float flySpeed) {
-            this.canFly = canFly;
-            this.walkSpeed = walkSpeed;
-            this.flySpeed = flySpeed;
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 }

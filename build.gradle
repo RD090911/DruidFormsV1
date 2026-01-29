@@ -35,7 +35,7 @@ else if (!file(project.findProperty('hytaleHome')).exists()) {
 
 java {
     // --- FIX APPLIED HERE: FORCING JAVA 21 ---
-    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
     withSourcesJar()
     withJavadocJar()
 }

@@ -4,7 +4,7 @@ import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import java.util.logging.Logger;
 
-// --- THE CORRECT IMPORT (From your GitHub Save) ---
+// This is the import that was missing!
 import com.hypixel.hytale.server.core.command.system.CommandManager;
 
 public class DruidPlugin extends JavaPlugin {
@@ -24,8 +24,7 @@ public class DruidPlugin extends JavaPlugin {
         this.handler = new ShapeshiftHandler(this.logger);
         this.command = new ShapeshiftCommand(handler);
 
-        // --- THE FIX ---
-        // We use the specific Manager found in your saved version.
+        // This is the specific registration line from your working backup
         CommandManager.get().register(this.command);
 
         this.logger.info("Druid Plugin has been enabled with commands!");
