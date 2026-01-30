@@ -1,0 +1,16 @@
+{
+  "name": "druid_bear_form",
+  "duration": -1,
+  "modifiers": [
+    {
+      "attribute": "max_health",
+      "operation": "add",
+      "value": 500.0
+    },
+    {
+      "attribute": "attack_damage",
+      "operation": "add",
+      "value": 6.0
+    }
+  ]
+}
