@@ -1,0 +1,11 @@
+{
+  "name": "druid_duck_form",
+  "duration": -1,
+  "modifiers": [
+    {
+      "attribute": "movement_speed",
+      "operation": "multiply",
+      "value": 1.5
+    }
+  ]
+}

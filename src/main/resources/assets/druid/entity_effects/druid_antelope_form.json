@@ -1,0 +1,11 @@
+{
+  "name": "druid_antelope_form",
+  "duration": -1,
+  "modifiers": [
+    {
+      "attribute": "movement_speed",
+      "operation": "multiply",
+      "value": 2.0
+    }
+  ]
+}

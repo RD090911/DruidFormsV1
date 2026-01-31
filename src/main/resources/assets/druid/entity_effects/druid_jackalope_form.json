@@ -1,0 +1,16 @@
+{
+  "name": "druid_jackalope_form",
+  "duration": -1,
+  "modifiers": [
+    {
+      "attribute": "movement_speed",
+      "operation": "multiply",
+      "value": 1.25
+    },
+    {
+      "attribute": "jump_height",
+      "operation": "add",
+      "value": 2.0
+    }
+  ]
+}
