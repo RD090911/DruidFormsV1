@@ -1,16 +1,16 @@
 {
-  "//": "EXISTING DATA (Leave this alone)",
   "serviceName": "druid_ram",
   "model": "druid:ram_model",
   "health": 40,
-
-  "//": "NEW DATA (This is what our new code will look for)",
+  "attributes": {
+    "HotbarItems": ["druid:ram_horn"],
+    "HotbarSize": 3
+  },
   "abilities": [
     {
-      "trigger": "RIGHT_CLICK",
+      "trigger": "LEFT_CLICK",
       "action": "SMASH_BLOCK",
-      "cooldown": 2.0,
-      "range": 3.0
+      "cooldown": 0.5
     }
   ]
 }
