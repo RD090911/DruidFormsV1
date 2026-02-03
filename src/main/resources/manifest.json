@@ -1,6 +1,6 @@
 {
-    "Group": "Druid",
-    "Name": "DruidFormsV1",
+    "Group": "druid",
+    "Name": "druid",
     "Version": "1.0.0",
     "Description": "Become a Druid and explore Hytale!",
     "Authors": [
