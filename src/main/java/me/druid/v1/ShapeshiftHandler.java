@@ -21,6 +21,8 @@ import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.modules.entity.player.PlayerSkinComponent;
 import com.hypixel.hytale.server.core.inventory.Inventory;
+// NEW IMPORT REQUIRED FOR MESSAGES
+import com.hypixel.hytale.server.core.Message;
 
 public class ShapeshiftHandler {
 
@@ -34,12 +36,16 @@ public class ShapeshiftHandler {
     private static final Map<String, String> ALLOWED_FORMS = new HashMap<>();
     static {
         ALLOWED_FORMS.put("bear", "Bear_Grizzly");
-        ALLOWED_FORMS.put("polar", "Bear_Polar");
+        // Removed Polar Bear
         ALLOWED_FORMS.put("ram", "Ram");
         ALLOWED_FORMS.put("duck", "Duck");
         ALLOWED_FORMS.put("shark", "Shark_Hammerhead");
         ALLOWED_FORMS.put("hawk", "Hawk");
+
+        // Added alias so both spellings work
         ALLOWED_FORMS.put("sabertooth", "Tiger_Sabertooth");
+        ALLOWED_FORMS.put("sabretooth", "Tiger_Sabertooth");
+
         ALLOWED_FORMS.put("jackalope", "Rabbit");
         ALLOWED_FORMS.put("antelope", "Antelope");
     }
@@ -54,7 +60,8 @@ public class ShapeshiftHandler {
     public void shapeshift(Player player, String formName) {
         String cleanName = formName.toLowerCase();
         if (!ALLOWED_FORMS.containsKey(cleanName)) {
-            System.out.println("[Druid] Invalid form: " + cleanName);
+            // FIX: Wrapped in Message.parse
+            player.sendMessage(Message.parse("§c[Druid] Invalid form: " + cleanName));
             return;
         }
         transform(player, ALLOWED_FORMS.get(cleanName), cleanName);
@@ -64,28 +71,35 @@ public class ShapeshiftHandler {
         String playerName = player.getDisplayName();
         String currentForm = activeForms.get(playerName);
 
+        // If already in this form, revert to human
         if (currentForm != null && currentForm.equals(targetModelID)) {
             restoreHuman(player);
             return;
         }
 
+        // Clean up old form first
+        if (currentForm != null) {
+            restoreHuman(player);
+        }
+
+        // Save Human Appearance if fresh
         if (!activeForms.containsKey(playerName)) {
             saveWardrobe(player);
             saveOriginalModel(player);
         }
 
+        // Apply New Model
         if (swapModel(player, targetModelID)) {
             activeForms.put(playerName, targetModelID);
-            System.out.println("[Druid] " + playerName + " transformed into " + shortName + " (" + targetModelID + ")!");
+
+            // FIX: Wrapped in Message.parse
+            player.sendMessage(Message.parse("§a[Druid] You transformed into a " + shortName + "!"));
 
             applyDruidPowers(player, shortName);
             loadCustomAbilities(player, shortName);
             updateCapabilities(player, shortName);
 
-            // FIX: Ensure we use the namespace for the tool
-            if (shortName.equals("ram")) {
-                equipTool(player, "Ram_Horn");
-            }
+            // [INVENTORY LOGIC REMOVED FOR NOW]
         }
     }
 
@@ -95,29 +109,31 @@ public class ShapeshiftHandler {
         updateCapabilities(player, "human");
         activeAbilities.remove(playerName);
 
-        // Clear tool from hand
-        clearHand(player);
+        // [ITEM CLEANUP REMOVED FOR NOW]
 
-        // FIX: Restore clothes properly
+        // Restore Appearance
         restoreWardrobe(player);
 
         if (originalModels.containsKey(playerName)) {
             if (injectRawModel(player, originalModels.get(playerName))) {
                 activeForms.remove(playerName);
                 originalModels.remove(playerName);
-                System.out.println("[Druid] " + playerName + " returned to Human Form.");
+
+                // FIX: Wrapped in Message.parse
+                player.sendMessage(Message.parse("§e[Druid] Returned to Human Form."));
                 return;
             }
         }
 
-        // Fallback if original model missing
+        // Fallback
         if (swapModel(player, "Player")) {
             activeForms.remove(playerName);
-            System.out.println("[Druid] " + playerName + " returned to base Human Form (Fallback).");
+            // FIX: Wrapped in Message.parse
+            player.sendMessage(Message.parse("§e[Druid] Returned to Human Form (Fallback)."));
         }
     }
 
-    // --- WARDROBE SYSTEM (FIXED) ---
+    // --- WARDROBE SYSTEM ---
 
     @SuppressWarnings("unchecked")
     private void saveWardrobe(Player player) {
@@ -134,9 +150,7 @@ public class ShapeshiftHandler {
 
             if (comp != null) {
                 savedSkins.put(uuid, comp.getPlayerSkin());
-                System.out.println("[Druid] Wardrobe saved for " + player.getDisplayName());
             }
-
         } catch (Exception e) {
             System.out.println("[Druid] Failed to save wardrobe: " + e.getMessage());
         }
@@ -155,23 +169,16 @@ public class ShapeshiftHandler {
             Holder holder = getHolder(ref);
             if (holder == null) return;
 
-            // FIX 1: Remove existing component first so the new one takes effect
             safeRemoveComponent(holder, PlayerSkinComponent.class);
-
-            // FIX 2: Create and Add Wrapper
             PlayerSkinComponent newComp = new PlayerSkinComponent(skin);
             safeAddComponent(holder, newComp);
 
-            // FIX 3: Rebuild Model and force update
             Object newHumanModel = CosmeticsModule.get().createModel(skin);
             if (newHumanModel != null) {
                 originalModels.put(player.getDisplayName(), newHumanModel);
-                System.out.println("[Druid] Wardrobe model regenerated.");
             }
-
         } catch (Exception e) {
             System.out.println("[Druid] Failed to restore wardrobe: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -184,7 +191,7 @@ public class ShapeshiftHandler {
                 f.setAccessible(true);
                 return (UUID) f.get(player);
             }
-        } catch (Exception e) { System.out.println("UUID Error: " + e.getMessage()); }
+        } catch (Exception e) { }
         return null;
     }
 
@@ -195,7 +202,7 @@ public class ShapeshiftHandler {
                 f.setAccessible(true);
                 return f.get(player);
             }
-        } catch (Exception e) { System.out.println("Ref Error: " + e.getMessage()); }
+        } catch (Exception e) { }
         return null;
     }
 
@@ -218,80 +225,17 @@ public class ShapeshiftHandler {
         } catch (Exception e) { System.out.println("Add Comp Error: " + e.getMessage()); }
     }
 
-    // New helper to ensure we clear the old skin before adding the new one
     private void safeRemoveComponent(Holder<?> holder, Class<?> componentClass) {
         try {
             for (Method m : holder.getClass().getMethods()) {
                 if (m.getName().equals("remove") || m.getName().equals("removeComponent")) {
-                    // Try to find one that takes a Class type
                     if (m.getParameterCount() == 1 && m.getParameterTypes()[0].equals(Class.class)) {
                         m.invoke(holder, componentClass);
                         return;
                     }
                 }
             }
-        } catch (Exception e) { /* Ignore if fail, add might still work */ }
-    }
-
-    // --- MINING FIX: Force Equip (ROBUST REFLECTION) ---
-
-    private void equipTool(Player player, String itemId) {
-        try {
-            Inventory inv = player.getInventory();
-            if (inv == null) return;
-
-            // 1. Get Item Asset Class
-            Class<?> itemClass = Class.forName("com.hypixel.hytale.server.core.asset.type.item.config.Item");
-            Method getAssetMap = itemClass.getMethod("getAssetMap");
-            Object assetMap = getAssetMap.invoke(null);
-
-            // 2. ROBUST FIND: Find 'getAsset' method by name, ignoring parameters initially
-            // This fixes the "Equip Error" where getMethod fails on parent classes
-            Method getAsset = null;
-            for (Method m : assetMap.getClass().getMethods()) {
-                if (m.getName().equals("getAsset") && m.getParameterCount() == 1) {
-                    getAsset = m;
-                    break;
-                }
-            }
-
-            if (getAsset == null) {
-                System.out.println("[Druid] Critical: Could not find getAsset method!");
-                return;
-            }
-
-            Object itemAsset = getAsset.invoke(assetMap, itemId);
-
-            if (itemAsset != null) {
-                Class<?> stackClass = Class.forName("com.hypixel.hytale.server.core.inventory.ItemStack");
-                java.lang.reflect.Constructor<?> ctor = stackClass.getConstructor(itemClass, int.class);
-                Object stack = ctor.newInstance(itemAsset, 1);
-
-                // Set to Slot 0
-                Method setMethod = null;
-                for(Method m : inv.getClass().getMethods()) {
-                    if (m.getName().startsWith("set") && m.getParameterCount() == 2) { setMethod = m; break; }
-                }
-                if (setMethod != null) setMethod.invoke(inv, 0, stack);
-                System.out.println("[Druid] Equipped " + itemId);
-            } else {
-                System.out.println("[Druid] Item asset not found: " + itemId);
-            }
-        } catch (Exception e) {
-            System.out.println("Equip Error: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    private void clearHand(Player player) {
-        try {
-            Inventory inv = player.getInventory();
-            Method setMethod = null;
-            for(Method m : inv.getClass().getMethods()) {
-                if (m.getName().startsWith("set") && m.getParameterCount() == 2) { setMethod = m; break; }
-            }
-            if (setMethod != null) setMethod.invoke(inv, 0, null);
-        } catch (Exception e) {}
+        } catch (Exception e) { }
     }
 
     // --- UTILS ---
@@ -333,7 +277,6 @@ public class ShapeshiftHandler {
             InputStream stream = getClass().getResourceAsStream(path);
 
             if (stream == null) {
-                System.out.println("[Druid] Could not find config file for abilities: " + path);
                 return;
             }
 
@@ -343,7 +286,6 @@ public class ShapeshiftHandler {
                 Type listType = new TypeToken<ArrayList<AbilityConfig>>(){}.getType();
                 List<AbilityConfig> abilities = gson.fromJson(root.get("abilities"), listType);
                 activeAbilities.put(playerName, abilities);
-                System.out.println("[Druid] Loaded " + abilities.size() + " abilities for " + shortName);
             } else {
                 activeAbilities.remove(playerName);
             }
@@ -355,7 +297,6 @@ public class ShapeshiftHandler {
 
     private void applyDruidPowers(Player player, String shortName) {
         try {
-            // FIX: Added "druid:" namespace here to fix "Effect not found"
             String effectID = "druid:druid_" + shortName.toLowerCase() + "_form";
 
             Class<?> entityEffectClass = Class.forName("com.hypixel.hytale.server.core.asset.type.entityeffect.config.EntityEffect");
@@ -371,7 +312,6 @@ public class ShapeshiftHandler {
             }
 
             if (foundIndex == Integer.MIN_VALUE) {
-                System.out.println("[Druid] Effect '" + effectID + "' not found.");
                 return;
             }
 
@@ -443,7 +383,6 @@ public class ShapeshiftHandler {
             }
             if (addEffectMethod != null) {
                 addEffectMethod.invoke(effectComponent, internalRef, effectObject, store);
-                System.out.println("[Druid] JSON Effect applied!");
             }
         }
     }

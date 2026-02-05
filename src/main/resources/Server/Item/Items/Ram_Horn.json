@@ -2,7 +2,7 @@
   "type": "item",
   "id": "Ram_Horn",
   "Icon": "Icons/ItemsGenerated/Bone_Spike.png",
-  "Quality": "Rare",
+  "Quality": "Legendary",
   "ItemLevel": 50,
   "client": {
     "tooltip": "Ram Horn"
@@ -80,5 +80,8 @@
       }
     ]
   },
-  "MaxDurability": 400.0
+  "MaxDurability": 400.0,
+  "TranslationProperties": {
+    "Name": "server.items.Ram_Horn.name"
+  }
 }
