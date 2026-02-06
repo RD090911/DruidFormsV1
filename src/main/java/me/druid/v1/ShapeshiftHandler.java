@@ -21,8 +21,7 @@ import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.modules.entity.player.PlayerSkinComponent;
 import com.hypixel.hytale.server.core.inventory.Inventory;
-// NEW IMPORT REQUIRED FOR MESSAGES
-import com.hypixel.hytale.server.core.Message;
+// Message import removed since we aren't using chat anymore
 
 public class ShapeshiftHandler {
 
@@ -36,16 +35,12 @@ public class ShapeshiftHandler {
     private static final Map<String, String> ALLOWED_FORMS = new HashMap<>();
     static {
         ALLOWED_FORMS.put("bear", "Bear_Grizzly");
-        // Removed Polar Bear
         ALLOWED_FORMS.put("ram", "Ram");
         ALLOWED_FORMS.put("duck", "Duck");
         ALLOWED_FORMS.put("shark", "Shark_Hammerhead");
         ALLOWED_FORMS.put("hawk", "Hawk");
-
-        // Added alias so both spellings work
         ALLOWED_FORMS.put("sabertooth", "Tiger_Sabertooth");
         ALLOWED_FORMS.put("sabretooth", "Tiger_Sabertooth");
-
         ALLOWED_FORMS.put("jackalope", "Rabbit");
         ALLOWED_FORMS.put("antelope", "Antelope");
     }
@@ -60,8 +55,8 @@ public class ShapeshiftHandler {
     public void shapeshift(Player player, String formName) {
         String cleanName = formName.toLowerCase();
         if (!ALLOWED_FORMS.containsKey(cleanName)) {
-            // FIX: Wrapped in Message.parse
-            player.sendMessage(Message.parse("§c[Druid] Invalid form: " + cleanName));
+            // Log to console only
+            System.out.println("[Druid] Player " + player.getDisplayName() + " tried invalid form: " + cleanName);
             return;
         }
         transform(player, ALLOWED_FORMS.get(cleanName), cleanName);
@@ -71,65 +66,62 @@ public class ShapeshiftHandler {
         String playerName = player.getDisplayName();
         String currentForm = activeForms.get(playerName);
 
-        // If already in this form, revert to human
+        // 1. If already this animal, revert to human
         if (currentForm != null && currentForm.equals(targetModelID)) {
             restoreHuman(player);
             return;
         }
 
-        // Clean up old form first
+        // 2. Switching Animals: ONLY remove abilities
+        // We DO NOT reset to human capabilities here. This prevents flight from dropping.
         if (currentForm != null) {
-            restoreHuman(player);
+            activeAbilities.remove(playerName);
         }
 
-        // Save Human Appearance if fresh
+        // 3. Save Human Wardrobe (First transform only)
         if (!activeForms.containsKey(playerName)) {
             saveWardrobe(player);
             saveOriginalModel(player);
         }
 
-        // Apply New Model
+        // 4. Perform Transformation
         if (swapModel(player, targetModelID)) {
             activeForms.put(playerName, targetModelID);
 
-            // FIX: Wrapped in Message.parse
-            player.sendMessage(Message.parse("§a[Druid] You transformed into a " + shortName + "!"));
+            // Console Log confirmation
+            System.out.println("[Druid] " + playerName + " transformed into " + shortName);
 
             applyDruidPowers(player, shortName);
             loadCustomAbilities(player, shortName);
-            updateCapabilities(player, shortName);
 
-            // [INVENTORY LOGIC REMOVED FOR NOW]
+            // Apply Flight/Swim capabilities
+            updateCapabilities(player, shortName);
         }
     }
 
     public void restoreHuman(Player player) {
         String playerName = player.getDisplayName();
 
+        // 1. Reset capabilities explicitly to human (disable flight)
         updateCapabilities(player, "human");
         activeAbilities.remove(playerName);
 
-        // [ITEM CLEANUP REMOVED FOR NOW]
-
-        // Restore Appearance
+        // 2. Restore Wardrobe
         restoreWardrobe(player);
 
+        // 3. Restore Model
         if (originalModels.containsKey(playerName)) {
             if (injectRawModel(player, originalModels.get(playerName))) {
                 activeForms.remove(playerName);
                 originalModels.remove(playerName);
-
-                // FIX: Wrapped in Message.parse
-                player.sendMessage(Message.parse("§e[Druid] Returned to Human Form."));
+                System.out.println("[Druid] " + playerName + " returned to Human Form.");
                 return;
             }
         }
 
-        // Fallback
         if (swapModel(player, "Player")) {
             activeForms.remove(playerName);
-            // FIX: Wrapped in Message.parse
-            player.sendMessage(Message.parse("§e[Druid] Returned to Human Form (Fallback)."));
+            System.out.println("[Druid] " + playerName + " returned to Human Form (Fallback).");
         }
     }
 
@@ -182,7 +174,48 @@ public class ShapeshiftHandler {
         }
     }
 
-    // --- HELPERS: Reflection Access ---
+    // --- UTILS: FLIGHT & CAPABILITIES ---
+
+    private void updateCapabilities(Player player, String shortName) {
+        try {
+            Object ref = getPlayerRef(player);
+            Method getRefMethod = ref.getClass().getMethod("getReference");
+            Object internalRef = getRefMethod.invoke(ref);
+            Method getStoreMethod = internalRef.getClass().getMethod("getStore");
+            Object store = getStoreMethod.invoke(internalRef);
+
+            Class<?> managerClass = Class.forName("com.hypixel.hytale.server.core.entity.entities.player.movement.MovementManager");
+            Method getCompType = managerClass.getMethod("getComponentType");
+            Object compType = getCompType.invoke(null);
+
+            Method getComponent = store.getClass().getMethod("getComponent", Class.forName("com.hypixel.hytale.component.Ref"), Class.forName("com.hypixel.hytale.component.ComponentType"));
+            Object movementManager = getComponent.invoke(store, internalRef, compType);
+
+            if (movementManager != null) {
+                Method getSettings = managerClass.getMethod("getSettings");
+                Object settings = getSettings.invoke(movementManager);
+
+                // FLIGHT LOGIC
+                Field canFlyField = settings.getClass().getField("canFly");
+                boolean shouldFly = shortName.equals("duck") || shortName.equals("hawk");
+
+                // Console debug to confirm it works
+                if(shouldFly) System.out.println("[Druid] Enabling Flight for " + player.getDisplayName());
+
+                canFlyField.setBoolean(settings, shouldFly);
+
+                // Update Packet
+                Method getPacketHandler = ref.getClass().getMethod("getPacketHandler");
+                Object packetHandler = getPacketHandler.invoke(ref);
+                Method updateMethod = managerClass.getMethod("update", Class.forName("com.hypixel.hytale.server.core.io.PacketHandler"));
+                updateMethod.invoke(movementManager, packetHandler);
+            }
+        } catch (Exception e) {
+            System.out.println("[Druid] Capability Update Error: " + e.getMessage());
+        }
+    }
+
+    // --- REFLECTION HELPERS ---
 
     private UUID getPlayerUUID(Object player) {
         try {
@@ -222,7 +255,7 @@ public class ShapeshiftHandler {
                     return;
                 }
             }
-        } catch (Exception e) { System.out.println("Add Comp Error: " + e.getMessage()); }
+        } catch (Exception e) { }
     }
 
     private void safeRemoveComponent(Holder<?> holder, Class<?> componentClass) {
@@ -238,47 +271,13 @@ public class ShapeshiftHandler {
         } catch (Exception e) { }
     }
 
-    // --- UTILS ---
-
-    private void updateCapabilities(Player player, String shortName) {
-        try {
-            Object ref = getPlayerRef(player);
-            Method getRefMethod = ref.getClass().getMethod("getReference");
-            Object internalRef = getRefMethod.invoke(ref);
-            Method getStoreMethod = internalRef.getClass().getMethod("getStore");
-            Object store = getStoreMethod.invoke(internalRef);
-
-            Class<?> managerClass = Class.forName("com.hypixel.hytale.server.core.entity.entities.player.movement.MovementManager");
-            Method getCompType = managerClass.getMethod("getComponentType");
-            Object compType = getCompType.invoke(null);
-
-            Method getComponent = store.getClass().getMethod("getComponent", Class.forName("com.hypixel.hytale.component.Ref"), Class.forName("com.hypixel.hytale.component.ComponentType"));
-            Object movementManager = getComponent.invoke(store, internalRef, compType);
-
-            if (movementManager != null) {
-                Method getSettings = managerClass.getMethod("getSettings");
-                Object settings = getSettings.invoke(movementManager);
-                Field canFlyField = settings.getClass().getField("canFly");
-                boolean shouldFly = shortName.equals("duck") || shortName.equals("hawk");
-                canFlyField.setBoolean(settings, shouldFly);
-
-                Method getPacketHandler = ref.getClass().getMethod("getPacketHandler");
-                Object packetHandler = getPacketHandler.invoke(ref);
-                Method updateMethod = managerClass.getMethod("update", Class.forName("com.hypixel.hytale.server.core.io.PacketHandler"));
-                updateMethod.invoke(movementManager, packetHandler);
-            }
-        } catch (Exception e) { }
-    }
-
     private void loadCustomAbilities(Player player, String shortName) {
         String playerName = player.getDisplayName();
         try {
             String path = "/assets/druid/entity_effects/druid_" + shortName + "_form.json";
             InputStream stream = getClass().getResourceAsStream(path);
 
-            if (stream == null) {
-                return;
-            }
+            if (stream == null) return;
 
             JsonObject root = JsonParser.parseReader(new InputStreamReader(stream)).getAsJsonObject();
 
@@ -311,9 +310,7 @@ public class ShapeshiftHandler {
                 foundIndex = deepSearchRegistry(assetMap, getIndexMethod, shortName);
             }
 
-            if (foundIndex == Integer.MIN_VALUE) {
-                return;
-            }
+            if (foundIndex == Integer.MIN_VALUE) return;
 
             Object effectObject = getAssetMethod.invoke(assetMap, foundIndex);
             injectEffect(player, effectObject);
@@ -353,7 +350,7 @@ public class ShapeshiftHandler {
                 Method maximize = statMapClass.getMethod("maximizeStatValue", int.class);
                 maximize.invoke(statMap, healthIndex);
             }
-        } catch (Exception e) { /* ignore */ }
+        } catch (Exception e) { }
     }
 
     private void injectEffect(Player player, Object effectObject) throws Exception {

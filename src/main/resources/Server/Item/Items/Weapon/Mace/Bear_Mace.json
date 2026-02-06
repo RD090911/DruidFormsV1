@@ -1,0 +1,244 @@
+{
+  "TranslationProperties": {
+    "Name": "Bear Mace"
+  },
+  "Icon": "Icons/ItemsGenerated/Container_Crude_Mug_Water.png",
+  "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
+  "Reticle": "MaceMelee",
+  "Quality": "Legendary",
+  "ItemSoundSetId": "ISS_Weapon_Blunt_Large",
+  "ItemLevel": 50,
+  "Categories": [
+    "Items.Weapons"
+  ],
+  "IconProperties": {
+    "Scale": 0.32,
+    "Translation": [
+      -8.4,
+      -11.4
+    ],
+    "Rotation": [
+      45,
+      90,
+      0
+    ]
+  },
+  "Tags": {
+    "Type": [
+      "Weapon"
+    ],
+    "Family": [
+      "Mace"
+    ]
+  },
+  "Interactions": {
+    "Primary": "Root_Weapon_Mace_Primary",
+    "Secondary": "Root_Weapon_Mace_Secondary_Guard",
+    "Ability1": "Root_Weapon_Mace_Signature_Groundslam"
+  },
+  "Weapon": {
+    "EntityStatsToClear": [
+      "SignatureEnergy"
+    ],
+    "StatModifiers": {
+      "SignatureEnergy": [
+        {
+          "Amount": 8,
+          "CalculationType": "Additive"
+        }
+      ]
+    }
+  },
+  "ItemAppearanceConditions": {
+    "SignatureEnergy": [
+      {
+        "Condition": [
+          100,
+          100
+        ],
+        "ConditionValueType": "Percent",
+        "Particles": [
+          {
+            "SystemId": "Sword_Signature_Ready",
+            "TargetNodeName": "Handle",
+            "PositionOffset": {
+              "X": 0.8
+            },
+            "TargetEntityPart": "PrimaryItem"
+          }
+        ]
+      }
+    ]
+  },
+  "MaxDurability": 400,
+  "DurabilityLossOnHit": 0,
+  "InteractionVars": {
+    "Swing_Left_Damage": {
+      "Interactions": [
+        {
+          "Parent": "Weapon_Mace_Primary_Swing_Left_Damage",
+          "DamageCalculator": {
+            "BaseDamage": {
+              "Physical": 18
+            }
+          },
+          "EntityStatsOnHit": [
+            {
+              "EntityStatId": "Health",
+              "Amount": 10,
+              "Target": "Self"
+            }
+          ],
+          "DamageEffects": {
+            "WorldSoundEventId": "SFX_Mace_T2_Impact",
+            "LocalSoundEventId": "SFX_Mace_T2_Impact",
+            "Knockback": {
+              "Type": "Force",
+              "Force": 18,
+              "Direction": {
+                "X": 0,
+                "Y": 0.5,
+                "Z": -3
+              },
+              "VelocityType": "Add",
+              "VelocityConfig": {
+                "AirResistance": 0.99,
+                "GroundResistance": 0.94,
+                "Threshold": 3.0,
+                "Style": "Linear"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Swing_Right_Damage": {
+      "Interactions": [
+        {
+          "Parent": "Weapon_Mace_Primary_Swing_Right_Damage",
+          "DamageCalculator": {
+            "BaseDamage": {
+              "Physical": 18
+            }
+          },
+          "EntityStatsOnHit": [
+            {
+              "EntityStatId": "Health",
+              "Amount": 10,
+              "Target": "Self"
+            }
+          ],
+          "DamageEffects": {
+            "WorldSoundEventId": "SFX_Mace_T2_Impact",
+            "LocalSoundEventId": "SFX_Mace_T2_Impact",
+            "Knockback": {
+              "Type": "Force",
+              "Force": 18,
+              "Direction": {
+                "X": 0,
+                "Y": 0.5,
+                "Z": -3
+              },
+              "VelocityType": "Add",
+              "VelocityConfig": {
+                "AirResistance": 0.99,
+                "GroundResistance": 0.94,
+                "Threshold": 3.0,
+                "Style": "Linear"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Swing_Up_Left_Damage": {
+      "Interactions": [
+        {
+          "Parent": "Weapon_Mace_Primary_Swing_Up_Left_Damage",
+          "DamageCalculator": {
+            "BaseDamage": {
+              "Physical": 18
+            }
+          },
+          "EntityStatsOnHit": [
+            {
+              "EntityStatId": "Health",
+              "Amount": 10,
+              "Target": "Self"
+            }
+          ],
+          "DamageEffects": {
+            "WorldSoundEventId": "SFX_Mace_T2_Impact",
+            "LocalSoundEventId": "SFX_Mace_T2_Impact",
+            "Knockback": {
+              "Type": "Force",
+              "Force": 18,
+              "Direction": {
+                "X": 0,
+                "Y": 0.5,
+                "Z": -3
+              },
+              "VelocityType": "Add",
+              "VelocityConfig": {
+                "AirResistance": 0.99,
+                "GroundResistance": 0.94,
+                "Threshold": 3.0,
+                "Style": "Linear"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Groundslam_Damage": {
+      "Interactions": [
+        {
+          "Parent": "Weapon_Mace_Signature_Groundslam_Damage",
+          "DamageCalculator": {
+            "BaseDamage": {
+              "Physical": 40
+            }
+          },
+          "EntityStatsOnHit": [
+            {
+              "EntityStatId": "Health",
+              "Amount": 10,
+              "Target": "Self"
+            }
+          ],
+          "DamageEffects": {
+            "WorldSoundEventId": "SFX_Mace_T2_Impact",
+            "LocalSoundEventId": "SFX_Mace_T2_Impact",
+            "Knockback": {
+              "Type": "Force",
+              "Force": 25,
+              "Direction": {
+                "X": 0,
+                "Y": 1,
+                "Z": -3
+              },
+              "VelocityType": "Set",
+              "VelocityConfig": {
+                "AirResistance": 0.99,
+                "GroundResistance": 0.94,
+                "Threshold": 3.0,
+                "Style": "Linear"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Guard_Wield": {
+      "Interactions": [
+        {
+          "Parent": "Weapon_Mace_Secondary_Guard_Wield",
+          "StaminaCost": {
+            "Value": 15.56,
+            "CostType": "Damage"
+          }
+        }
+      ]
+    }
+  }
+}
