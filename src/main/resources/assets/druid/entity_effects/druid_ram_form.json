@@ -1,16 +1,5 @@
 {
-  "serviceName": "druid_ram",
-  "model": "druid:ram_model",
-  "health": 40,
-  "attributes": {
-    "HotbarItems": ["druid:ram_horn"],
-    "HotbarSize": 3
-  },
-  "abilities": [
-    {
-      "trigger": "LEFT_CLICK",
-      "action": "SMASH_BLOCK",
-      "cooldown": 0.5
-    }
-  ]
+  "Name": "druid_ram_form",
+  "Duration": -1,
+  "Infinite": true
 }

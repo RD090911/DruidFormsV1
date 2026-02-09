@@ -1,11 +1,5 @@
 {
-  "name": "druid_duck_form",
-  "duration": -1,
-  "modifiers": [
-    {
-      "attribute": "movement_speed",
-      "operation": "multiply",
-      "value": 1.5
-    }
-  ]
+  "Name": "druid_duck_form",
+  "Duration": -1,
+  "Infinite": true
 }

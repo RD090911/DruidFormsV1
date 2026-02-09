@@ -1,16 +1,5 @@
 {
-  "name": "druid_sabertooth_form",
-  "duration": -1,
-  "modifiers": [
-    {
-      "attribute": "movement_speed",
-      "operation": "multiply",
-      "value": 1.5
-    },
-    {
-      "attribute": "attack_damage",
-      "operation": "add",
-      "value": 7.0
-    }
-  ]
+  "Name": "druid_sabertooth_form",
+  "Duration": -1,
+  "Infinite": true
 }

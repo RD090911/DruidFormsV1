@@ -1,16 +1,14 @@
 {
-  "name": "druid_jackalope_form",
-  "duration": -1,
-  "modifiers": [
-    {
-      "attribute": "movement_speed",
-      "operation": "multiply",
-      "value": 1.25
-    },
-    {
-      "attribute": "jump_height",
-      "operation": "add",
-      "value": 2.0
-    }
-  ]
+  "Name": "druid_jackalope_form",
+  "Duration": -1,
+  "Infinite": true,
+  "Stats": {
+    "Modifiers": [
+      {
+        "Attribute": "FallDamageMultiplier",
+        "Operation": "Multiply",
+        "Value": 0.0
+      }
+    ]
+  }
 }

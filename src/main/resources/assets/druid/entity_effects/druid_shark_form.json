@@ -1,16 +1,14 @@
 {
-  "name": "druid_shark_form",
-  "duration": -1,
-  "modifiers": [
-    {
-      "attribute": "movement_speed",
-      "operation": "multiply",
-      "value": 1.5
-    },
-    {
-      "attribute": "attack_damage",
-      "operation": "add",
-      "value": 7.0
-    }
-  ]
+  "Name": "druid_shark_form",
+  "Duration": -1,
+  "Infinite": true,
+  "Stats": {
+    "Regenerating": [
+      {
+        "Attribute": "Oxygen",
+        "Amount": 10.0,
+        "Interval": 1.0
+      }
+    ]
+  }
 }
