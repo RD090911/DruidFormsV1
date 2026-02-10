@@ -14,16 +14,12 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 public class ShapeshiftHandler {
 
     public static final ConcurrentHashMap<String, String> activeForms = new ConcurrentHashMap<>();
-    public static final ConcurrentHashMap<String, List<AbilityConfig>> activeAbilities = new ConcurrentHashMap<>();
-
-    // Scheduler for passive effects (Oxygen / Gravity)
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final ConcurrentHashMap<String, Boolean> maintenanceActive = new ConcurrentHashMap<>();
 
     private static final Map<String, Object> originalModels = new HashMap<>();
-    private static final Gson gson = new Gson();
-
     private static final Map<String, String> ALLOWED_FORMS = new HashMap<>();
+
     static {
         ALLOWED_FORMS.put("bear", "Bear_Grizzly");
         ALLOWED_FORMS.put("ram", "Ram");
@@ -31,22 +27,18 @@ public class ShapeshiftHandler {
         ALLOWED_FORMS.put("shark", "Shark_Hammerhead");
         ALLOWED_FORMS.put("hawk", "Hawk");
         ALLOWED_FORMS.put("sabertooth", "Tiger_Sabertooth");
-        ALLOWED_FORMS.put("sabretooth", "Tiger_Sabertooth");
+        ALLOWED_FORMS.put("tiger", "Tiger_Sabertooth");
         ALLOWED_FORMS.put("jackalope", "Rabbit");
         ALLOWED_FORMS.put("antelope", "Antelope");
+        ALLOWED_FORMS.put("wolf", "Wolf");
     }
 
-    public static class AbilityConfig {
-        public String trigger;
-        public String action;
-        public double cooldown;
-        public double range;
-    }
+    public static class AbilityConfig { }
 
     public void shapeshift(Player player, String formName) {
         String cleanName = formName.toLowerCase();
         if (!ALLOWED_FORMS.containsKey(cleanName)) {
-            System.out.println("[Druid] Invalid form: " + cleanName);
+            System.out.println("[Druid] Unknown form: " + cleanName);
             return;
         }
         transform(player, ALLOWED_FORMS.get(cleanName), cleanName);
@@ -61,27 +53,16 @@ public class ShapeshiftHandler {
             return;
         }
 
-        if (currentForm != null) {
-            activeAbilities.remove(playerName);
-            maintenanceActive.put(playerName, false);
-        }
+        if (currentForm != null) restoreHuman(player);
 
-        // Wardrobe is disabled, but we call the empty method to prevent errors
-        if (!activeForms.containsKey(playerName)) {
-            saveWardrobe(player);
-            saveOriginalModel(player);
-        }
+        if (!activeForms.containsKey(playerName)) { saveOriginalModel(player); }
 
         if (swapModel(player, targetModelID)) {
             activeForms.put(playerName, targetModelID);
+            System.out.println("[Druid] " + playerName + " became a " + shortName);
 
-            System.out.println("[Druid] " + playerName + " transformed into " + shortName);
-
-            applyDruidPowers(player, shortName);
-            loadCustomAbilities(player, shortName);
             updateCapabilities(player, shortName);
 
-            // START THE PHYSICS LOOP (Oxygen + No Gravity)
             maintenanceActive.put(playerName, true);
             startFormMaintenance(player, shortName);
         }
@@ -89,169 +70,177 @@ public class ShapeshiftHandler {
 
     public void restoreHuman(Player player) {
         String playerName = player.getDisplayName();
-
-        maintenanceActive.put(playerName, false); // Stop the loop
+        maintenanceActive.put(playerName, false);
 
         updateCapabilities(player, "human");
-        activeAbilities.remove(playerName);
-
-        restoreWardrobe(player);
 
         if (swapModel(player, "Player")) {
             activeForms.remove(playerName);
-            System.out.println("[Druid] " + playerName + " returned to Human Form.");
+            System.out.println("[Druid] " + playerName + " is Human again.");
         }
     }
 
-    // --- THE PHYSICS HACK LOOP ---
+    // --- HEARTBEAT LOOP (250ms) ---
     private void startFormMaintenance(Player player, String shortName) {
         String playerName = player.getDisplayName();
 
-        // Run every 50ms (20 times a second)
         scheduler.schedule(() -> {
             if (!maintenanceActive.getOrDefault(playerName, false)) return;
-
-            if (player.getWorld() == null) {
-                maintenanceActive.put(playerName, false);
-                return;
-            }
+            if (player.getWorld() == null) { maintenanceActive.put(playerName, false); return; }
 
             try {
                 player.getWorld().execute(() -> {
                     try {
-                        // 1. SHARK: Infinite Oxygen
+                        // SHARK: Gentle Regen (10 pts every 250ms)
                         if (shortName.equals("shark")) {
-                            maximizeStat(player, "Oxygen");
+                            modifyStat(player, "Oxygen", true, 10.0f);
                         }
-
-                        // 2. JACKALOPE: PHYSICS HACK
-                        if (shortName.equals("jackalope")) {
-                            setField(player, "fallDistance", 0.0f);
-                        }
-
                     } catch (Exception e) { /* Ignore */ }
                 });
-
                 startFormMaintenance(player, shortName);
-
             } catch (Exception e) { e.printStackTrace(); }
-        }, 50, TimeUnit.MILLISECONDS);
+        }, 250, TimeUnit.MILLISECONDS);
     }
 
-    // --- MISSING METHODS ADDED BACK BELOW ---
-
-    private void applyDruidPowers(Player player, String shortName) {
-        // Placeholder: Logic is currently handled in updateCapabilities
-    }
-
-    private void loadCustomAbilities(Player player, String shortName) {
-        // Placeholder: Temporarily disabled to focus on Physics fixes
-    }
-
-    private void saveWardrobe(Player player) {
-        // Disabled as requested
-    }
-
-    private void restoreWardrobe(Player player) {
-        // Disabled as requested
-    }
-
-    // --- UTILS ---
-
-    private void maximizeStat(Player player, String statName) {
-        try {
-            Object playerRef = getPlayerRef(player);
-            Method getRefMethod = playerRef.getClass().getMethod("getReference");
-            Object internalRef = getRefMethod.invoke(playerRef);
-            Method getStoreMethod = internalRef.getClass().getMethod("getStore");
-            Object store = getStoreMethod.invoke(internalRef);
-
-            Class<?> statMapClass = Class.forName("com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap");
-            Method getCompType = statMapClass.getMethod("getComponentType");
-            Object compType = getCompType.invoke(null);
-
-            Method getComponent = store.getClass().getMethod("getComponent", Class.forName("com.hypixel.hytale.component.Ref"), Class.forName("com.hypixel.hytale.component.ComponentType"));
-            Object statMap = getComponent.invoke(store, internalRef, compType);
-
-            if (statMap != null) {
-                Class<?> statTypeClass = Class.forName("com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType");
-                Method getAssetMap = statTypeClass.getMethod("getAssetMap");
-                Object assetMap = getAssetMap.invoke(null);
-                Method getIndex = assetMap.getClass().getMethod("getIndex", Object.class);
-                int index = (int) getIndex.invoke(assetMap, statName);
-                Method maximize = statMapClass.getMethod("maximizeStatValue", int.class);
-                maximize.invoke(statMap, index);
-            }
-        } catch (Exception e) {}
-    }
-
+    // --- PHYSICS & CAPABILITIES ---
     private void updateCapabilities(Player player, String shortName) {
         try {
-            Object ref = getPlayerRef(player);
-            Method getRefMethod = ref.getClass().getMethod("getReference");
-            Object internalRef = getRefMethod.invoke(ref);
-            Method getStoreMethod = internalRef.getClass().getMethod("getStore");
-            Object store = getStoreMethod.invoke(internalRef);
+            Object movementManager = getMovementManager(player);
+            if (movementManager == null) return;
 
-            Class<?> managerClass = Class.forName("com.hypixel.hytale.server.core.entity.entities.player.movement.MovementManager");
-            Method getCompType = managerClass.getMethod("getComponentType");
-            Object compType = getCompType.invoke(null);
+            Method getSettings = movementManager.getClass().getMethod("getSettings");
+            Object settings = getSettings.invoke(movementManager);
 
-            Method getComponent = store.getClass().getMethod("getComponent", Class.forName("com.hypixel.hytale.component.Ref"), Class.forName("com.hypixel.hytale.component.ComponentType"));
-            Object movementManager = getComponent.invoke(store, internalRef, compType);
+            // Defaults
+            float baseSpeed = 5.5f;
+            float jumpForce = 11.8f;
+            float flySpeed = 10.32f;
+            float dragCoefficient = 0.5f;
+            float fallMomentumLoss = 0.1f;
+            boolean canFly = false;
 
-            if (movementManager != null) {
-                Method getSettings = managerClass.getMethod("getSettings");
-                Object settings = getSettings.invoke(movementManager);
+            switch (shortName.toLowerCase()) {
+                case "antelope":
+                    baseSpeed = 5.5f * 1.75f;
+                    break;
 
-                float baseSpeed = 5.5f;
-                float jumpForce = 11.8f;
-                float flySpeed = 10.32f;
-                float dragCoefficient = 0.5f;
-                float velocityResistance = 0.242f;
-                boolean canFly = false;
+                case "hawk":
+                    baseSpeed = 5.5f * 1.0f; // TUNING: Double previous (Standard Speed)
+                    flySpeed = 10.32f * 1.25f;
+                    canFly = true;
+                    break;
 
-                switch (shortName.toLowerCase()) {
-                    case "antelope": baseSpeed = 5.5f * 1.75f; break;
-                    case "hawk": baseSpeed = 5.5f * 1.25f; flySpeed = 10.32f * 1.25f; canFly = true; break;
-                    case "duck": baseSpeed = 5.5f; flySpeed = 10.32f * 1.0f; canFly = true; break;
-                    case "jackalope": baseSpeed = 5.5f * 1.25f; jumpForce = 19.0f; break;
-                    case "shark": baseSpeed = 5.5f * 2.5f; dragCoefficient = 0.01f; velocityResistance = 0.01f; break;
-                }
+                case "duck":
+                    baseSpeed = 5.5f * 0.8f; // TUNING: Boosted walk (Faster waddle)
+                    flySpeed = 10.32f * 1.0f;
+                    canFly = true;
+                    break;
 
-                setField(settings, "canFly", canFly);
-                setField(settings, "baseSpeed", baseSpeed);
-                setField(settings, "jumpForce", jumpForce);
-                setField(settings, "horizontalFlySpeed", flySpeed);
-                setField(settings, "verticalFlySpeed", flySpeed);
-                setField(settings, "dragCoefficient", dragCoefficient);
-                setField(settings, "velocityResistance", velocityResistance);
+                case "ram":
+                    baseSpeed = 5.5f * 1.25f;
+                    break;
 
-                Method getPacketHandler = ref.getClass().getMethod("getPacketHandler");
-                Object packetHandler = getPacketHandler.invoke(ref);
-                Method updateMethod = managerClass.getMethod("update", Class.forName("com.hypixel.hytale.server.core.io.PacketHandler"));
-                updateMethod.invoke(movementManager, packetHandler);
+                case "sabertooth":
+                case "tiger":
+                    baseSpeed = 5.5f * 1.5f;
+                    jumpForce = 14.5f;
+                    break;
+
+                case "shark":
+                    baseSpeed = 12.0f;
+                    dragCoefficient = 0.01f;
+                    break;
+
+                case "jackalope":
+                    baseSpeed = 8.0f;
+                    jumpForce = 17.0f;
+                    dragCoefficient = 14.0f;
+                    fallMomentumLoss = 1.0f;
+                    break;
+
+                case "bear":
+                    baseSpeed = 6.0f;
+                    break;
             }
+
+            setField(settings, "canFly", canFly);
+            setField(settings, "baseSpeed", baseSpeed);
+            setField(settings, "jumpForce", jumpForce);
+            setField(settings, "horizontalFlySpeed", flySpeed);
+            setField(settings, "verticalFlySpeed", flySpeed);
+            setField(settings, "dragCoefficient", dragCoefficient);
+            setField(settings, "fallMomentumLoss", fallMomentumLoss);
+
+            Object playerRef = getPlayerRef(player);
+            Method getPacketHandler = playerRef.getClass().getMethod("getPacketHandler");
+            Object packetHandler = getPacketHandler.invoke(playerRef);
+            Method updateMethod = movementManager.getClass().getMethod("update", Class.forName("com.hypixel.hytale.server.core.io.PacketHandler"));
+            updateMethod.invoke(movementManager, packetHandler);
+
         } catch (Exception e) { System.out.println("[Druid] Capability Error: " + e.getMessage()); }
     }
 
-    private void setField(Object object, String fieldName, Object value) {
+    // --- REFLECTION UTILS ---
+
+    private void modifyStat(Player player, String statName, boolean increase, float amount) {
         try {
-            Field f = object.getClass().getField(fieldName);
-            f.set(object, value);
+            Object statMap = getStatMap(player);
+            int index = getStatIndex(statName);
+            Method mod = statMap.getClass().getMethod("modifyStatValue", int.class, int.class);
+            int val = increase ? (int)amount : -(int)amount;
+            mod.invoke(statMap, index, val);
         } catch (Exception e) {
-            try {
-                Class<?> clazz = object.getClass();
-                while (clazz != null) {
-                    try {
-                        Field f = clazz.getDeclaredField(fieldName);
-                        f.setAccessible(true);
-                        f.set(object, value);
-                        return;
-                    } catch (NoSuchFieldException ex) { clazz = clazz.getSuperclass(); }
-                }
-            } catch (Exception ignored) { }
+            maximizeStat(player, statName);
         }
+    }
+
+    private void maximizeStat(Player player, String statName) {
+        try {
+            Object statMap = getStatMap(player);
+            int index = getStatIndex(statName);
+            Method max = statMap.getClass().getMethod("maximizeStatValue", int.class);
+            max.invoke(statMap, index);
+        } catch (Exception e) {}
+    }
+
+    private Object getStatMap(Player player) throws Exception {
+        Object store = getEntityStore(player);
+        Object ref = getInternalRef(player);
+        Class<?> statMapClass = Class.forName("com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap");
+        Method getCompType = statMapClass.getMethod("getComponentType");
+        Object compType = getCompType.invoke(null);
+        Method getComponent = store.getClass().getMethod("getComponent", Class.forName("com.hypixel.hytale.component.Ref"), Class.forName("com.hypixel.hytale.component.ComponentType"));
+        return getComponent.invoke(store, ref, compType);
+    }
+
+    private int getStatIndex(String statName) throws Exception {
+        Class<?> statTypeClass = Class.forName("com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType");
+        Method getAssetMap = statTypeClass.getMethod("getAssetMap");
+        Object assetMap = getAssetMap.invoke(null);
+        Method getIndex = assetMap.getClass().getMethod("getIndex", Object.class);
+        return (int) getIndex.invoke(assetMap, statName);
+    }
+
+    private Object getMovementManager(Player player) throws Exception {
+        Object store = getEntityStore(player);
+        Object ref = getInternalRef(player);
+        Class<?> managerClass = Class.forName("com.hypixel.hytale.server.core.entity.entities.player.movement.MovementManager");
+        Method getCompType = managerClass.getMethod("getComponentType");
+        Object compType = getCompType.invoke(null);
+        Method getComponent = store.getClass().getMethod("getComponent", Class.forName("com.hypixel.hytale.component.Ref"), Class.forName("com.hypixel.hytale.component.ComponentType"));
+        return getComponent.invoke(store, ref, compType);
+    }
+
+    private Object getEntityStore(Player player) throws Exception {
+        Object ref = getInternalRef(player);
+        Method getStore = ref.getClass().getMethod("getStore");
+        return getStore.invoke(ref);
+    }
+
+    private Object getInternalRef(Player player) throws Exception {
+        Object playerRef = getPlayerRef(player);
+        Method getRef = playerRef.getClass().getMethod("getReference");
+        return getRef.invoke(playerRef);
     }
 
     private Object getPlayerRef(Object player) {
@@ -295,22 +284,9 @@ public class ShapeshiftHandler {
         } catch (Exception e) { return false; }
     }
 
-    private void saveOriginalModel(Object player) {
-        try {
-            Object component = getModelComponent(player);
-            Class<?> modelCompClass = Class.forName("com.hypixel.hytale.server.core.modules.entity.component.ModelComponent");
-            Field modelField = modelCompClass.getDeclaredField("model");
-            modelField.setAccessible(true);
-            originalModels.put(getPlayerName(player), modelField.get(component));
-        } catch (Exception e) {}
-    }
-
     private Object getModelComponent(Object player) throws Exception {
-        Object playerRef = getPlayerRef(player);
-        Method getRefMethod = playerRef.getClass().getMethod("getReference");
-        Object ref = getRefMethod.invoke(playerRef);
-        Method getStoreMethod = ref.getClass().getMethod("getStore");
-        Object store = getStoreMethod.invoke(ref);
+        Object store = getEntityStore((Player)player);
+        Object ref = getInternalRef((Player)player);
         Class<?> modelCompClass = Class.forName("com.hypixel.hytale.server.core.modules.entity.component.ModelComponent");
         Method getTypeMethod = modelCompClass.getMethod("getComponentType");
         Object compType = getTypeMethod.invoke(null);
@@ -318,11 +294,30 @@ public class ShapeshiftHandler {
         return getCompMethod.invoke(store, ref, compType);
     }
 
-    private String getPlayerName(Object player) {
+    // Stubs
+    private void applyDruidPowers(Player player, String shortName) {}
+    private void loadCustomAbilities(Player player, String shortName) {}
+    private void saveWardrobe(Player player) {}
+    private void saveOriginalModel(Object player) {}
+    private void restoreWardrobe(Player player) {}
+
+    private void setField(Object object, String fieldName, Object value) {
         try {
-            Method getName = player.getClass().getMethod("getDisplayName");
-            return (String) getName.invoke(player);
-        } catch (Exception e) { return "UnknownPlayer"; }
+            Field f = object.getClass().getField(fieldName);
+            f.set(object, value);
+        } catch (Exception e) {
+            try {
+                Class<?> clazz = object.getClass();
+                while (clazz != null) {
+                    try {
+                        Field f = clazz.getDeclaredField(fieldName);
+                        f.setAccessible(true);
+                        f.set(object, value);
+                        return;
+                    } catch (NoSuchFieldException ex) { clazz = clazz.getSuperclass(); }
+                }
+            } catch (Exception ignored) { }
+        }
     }
 
     private Field getFieldDeep(Class<?> clazz, String name) {
