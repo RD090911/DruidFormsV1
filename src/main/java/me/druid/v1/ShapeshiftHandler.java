@@ -31,7 +31,6 @@ public class ShapeshiftHandler {
         ALLOWED_FORMS.put("tiger", "Tiger_Sabertooth");
         ALLOWED_FORMS.put("jackalope", "Rabbit");
         ALLOWED_FORMS.put("antelope", "Antelope");
-        ALLOWED_FORMS.put("wolf", "Wolf");
     }
 
     public static class AbilityConfig { }
@@ -102,7 +101,7 @@ public class ShapeshiftHandler {
         try {
             String itemToGive = null;
             switch (targetForm.toLowerCase()) {
-                case "bear": itemToGive = "Bear_Mace"; break;
+                case "bear": itemToGive = "Bear_Skin"; break;
                 case "antelope":
                 case "ram": itemToGive = "Ram_Horn"; break;
                 case "sabertooth":
@@ -166,7 +165,7 @@ public class ShapeshiftHandler {
 
             String lowerId = itemId.toLowerCase();
             return lowerId.contains("druid_totem") ||
-                    lowerId.contains("bear_mace") ||
+                    lowerId.contains("bear_skin") ||
                     lowerId.contains("ram_horn") ||
                     lowerId.contains("tiger_claw") ||
                     lowerId.contains("shark_tooth");

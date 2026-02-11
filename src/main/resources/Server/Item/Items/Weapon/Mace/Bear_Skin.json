@@ -1,8 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "Bear Mace"
+    "Name": "Bear Skin"
   },
-  "Icon": "Icons/ItemsGenerated/Container_Crude_Mug_Water.png",
   "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
   "Reticle": "MaceMelee",
   "Quality": "Legendary",
@@ -12,15 +11,15 @@
     "Items.Weapons"
   ],
   "IconProperties": {
-    "Scale": 0.32,
-    "Translation": [
-      -8.4,
-      -11.4
-    ],
+    "Scale": 0.6,
     "Rotation": [
+      22.5,
       45,
-      90,
-      0
+      22.5
+    ],
+    "Translation": [
+      0.6,
+      -6.9
     ]
   },
   "Tags": {
@@ -240,5 +239,6 @@
         }
       ]
     }
-  }
+  },
+  "Icon": "Icons/ItemsGenerated/Ingredient_Hide_Medium.png"
 }
