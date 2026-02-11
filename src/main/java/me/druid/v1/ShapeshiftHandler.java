@@ -1,6 +1,7 @@
 package me.druid.v1;
 
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.HytaleServer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -15,6 +16,9 @@ public class ShapeshiftHandler {
     public static final ConcurrentHashMap<String, String> activeForms = new ConcurrentHashMap<>();
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final ConcurrentHashMap<String, Boolean> maintenanceActive = new ConcurrentHashMap<>();
+
+    // --- The Anchor Item ---
+    private static final String DRUID_ITEM = "Druid_Totem";
 
     private static final Map<String, String> ALLOWED_FORMS = new HashMap<>();
 
@@ -33,13 +37,22 @@ public class ShapeshiftHandler {
 
     public static class AbilityConfig { }
 
-    public void shapeshift(Player player, String formName) {
+    // Returns boolean so the Command class knows if the shift was successful
+    public boolean shapeshift(Player player, String formName) {
         String cleanName = formName.toLowerCase();
         if (!ALLOWED_FORMS.containsKey(cleanName)) {
             System.out.println("[Druid] Unknown form: " + cleanName);
-            return;
+            return false;
         }
+
+        // --- THE BOUNCER ---
+        if (!isHoldingValidItem(player)) {
+            sendPlayerMessage(player, "You must focus through a Druid Totem to channel this form.");
+            return false;
+        }
+
         transform(player, ALLOWED_FORMS.get(cleanName), cleanName);
+        return true;
     }
 
     public void transform(Player player, String targetModelID, String shortName) {
@@ -61,6 +74,7 @@ public class ShapeshiftHandler {
             System.out.println("[Druid] " + playerName + " became a " + shortName);
 
             updateCapabilities(player, shortName);
+            swapAbilityItems(player, shortName);
 
             maintenanceActive.put(playerName, true);
             startFormMaintenance(player, shortName);
@@ -80,18 +94,119 @@ public class ShapeshiftHandler {
             activeForms.remove(playerName);
             System.out.println("[Druid] " + playerName + " is Human again.");
 
-            // THE WARDROBE FIX: Tell the server to resend the clothing data
             refreshPlayerSkin(player);
+            swapAbilityItems(player, "human");
         }
     }
 
-    // THE WARDROBE FIX METHOD
+    // --- THE BOUNCER LOGIC ---
+    private boolean isHoldingValidItem(Player player) {
+        try {
+            // 1. Get the Player's Inventory (from the class you decompiled!)
+            Method getInventory = player.getClass().getMethod("getInventory");
+            Object inventory = getInventory.invoke(player);
+            if (inventory == null) return false;
+
+            // 2. Ask the Inventory what is in the main hand
+            Method getItemInHand = inventory.getClass().getMethod("getItemInHand");
+            Object itemStack = getItemInHand.invoke(inventory);
+            if (itemStack == null) return false; // Hand is empty
+
+            // 3. Extract the underlying Item object
+            Method getItem = itemStack.getClass().getMethod("getItem");
+            Object item = getItem.invoke(itemStack);
+            if (item == null) return false;
+
+            // 4. Extract the Item ID (with a fallback just in case)
+            String itemId = "";
+            try {
+                Method getId = item.getClass().getMethod("getId");
+                itemId = (String) getId.invoke(item);
+            } catch (Exception e) {
+                itemId = item.toString();
+            }
+
+            if (itemId == null) return false;
+
+            // 5. Check the ID against allowed Druid tools
+            String lowerId = itemId.toLowerCase();
+            return lowerId.contains("druid_totem") ||
+                    lowerId.contains("bear_mace") ||
+                    lowerId.contains("ram_horn") ||
+                    lowerId.contains("tiger_claw") ||
+                    lowerId.contains("shark_tooth");
+
+        } catch (Exception e) {
+            System.out.println("[Druid] Bouncer Error: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private void sendPlayerMessage(Player player, String text) {
+        try {
+            Object playerRef = getPlayerRef(player);
+            Class<?> formattedMsgClass = Class.forName("com.hypixel.hytale.protocol.FormattedMessage");
+            Object component = formattedMsgClass.getConstructor().newInstance();
+            formattedMsgClass.getField("rawText").set(component, text);
+
+            Class<?> msgClass = Class.forName("com.hypixel.hytale.server.core.Message");
+            Object message = msgClass.getConstructor(formattedMsgClass).newInstance(component);
+
+            Method sendMessage = playerRef.getClass().getMethod("sendMessage", msgClass);
+            sendMessage.invoke(playerRef, message);
+        } catch (Exception e) {
+            System.out.println("[Druid] Msg Error: " + e.getMessage());
+        }
+    }
+
+    // --- ITEM SWAP LOGIC ---
+    private void swapAbilityItems(Player player, String targetForm) {
+        try {
+            Object cmdManager = HytaleServer.get().getCommandManager();
+            Method execute = null;
+            for (Method m : cmdManager.getClass().getMethods()) {
+                if ((m.getName().equals("execute") || m.getName().equals("dispatchCommand") || m.getName().equals("executeCommand"))
+                        && m.getParameterCount() == 2) {
+                    execute = m;
+                    break;
+                }
+            }
+
+            if (execute != null) {
+                String user = player.getDisplayName();
+
+                execute.invoke(cmdManager, player, "/clear " + user + " Bear_Mace");
+                execute.invoke(cmdManager, player, "/clear " + user + " Ram_Horn");
+                execute.invoke(cmdManager, player, "/clear " + user + " Tiger_Claw");
+                execute.invoke(cmdManager, player, "/clear " + user + " Shark_Tooth");
+                execute.invoke(cmdManager, player, "/clear " + user + " " + DRUID_ITEM);
+
+                String itemToGive = null;
+                switch (targetForm.toLowerCase()) {
+                    case "bear": itemToGive = "Bear_Mace"; break;
+                    case "antelope":
+                    case "ram": itemToGive = "Ram_Horn"; break;
+                    case "sabertooth":
+                    case "tiger": itemToGive = "Tiger_Claw"; break;
+                    case "shark": itemToGive = "Shark_Tooth"; break;
+                    case "human": itemToGive = DRUID_ITEM; break;
+                }
+
+                if (itemToGive != null) {
+                    execute.invoke(cmdManager, player, "/give " + user + " " + itemToGive + " 1");
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("[Druid] Item Swap Error: " + e.getMessage());
+        }
+    }
+
+    // --- WARDROBE FIX METHOD ---
     private void refreshPlayerSkin(Player player) {
         try {
             Object store = getEntityStore(player);
             Object ref = getInternalRef(player);
 
-            // Access the exact component you found in the decompiled code
             Class<?> skinCompClass = Class.forName("com.hypixel.hytale.server.core.modules.entity.player.PlayerSkinComponent");
             Method getCompType = skinCompClass.getMethod("getComponentType");
             Object compType = getCompType.invoke(null);
@@ -100,10 +215,8 @@ public class ShapeshiftHandler {
             Object skinComponent = getComponent.invoke(store, ref, compType);
 
             if (skinComponent != null) {
-                // Call the setNetworkOutdated method to force the client to load clothes
                 Method setOutdated = skinCompClass.getMethod("setNetworkOutdated");
                 setOutdated.invoke(skinComponent);
-                System.out.println("[Druid] Forced Wardrobe/Skin network update.");
             }
         } catch (Exception e) {
             System.out.println("[Druid] Failed to refresh Wardrobe: " + e.getMessage());
@@ -124,7 +237,7 @@ public class ShapeshiftHandler {
                         if (shortName.equals("shark")) {
                             modifyStat(player, "Oxygen", true, 10.0f);
                         }
-                    } catch (Exception e) { /* Ignore */ }
+                    } catch (Exception e) { }
                 });
                 startFormMaintenance(player, shortName);
             } catch (Exception e) { e.printStackTrace(); }
@@ -198,11 +311,10 @@ public class ShapeshiftHandler {
             Method updateMethod = movementManager.getClass().getMethod("update", Class.forName("com.hypixel.hytale.server.core.io.PacketHandler"));
             updateMethod.invoke(movementManager, packetHandler);
 
-        } catch (Exception e) { System.out.println("[Druid] Capability Error: " + e.getMessage()); }
+        } catch (Exception e) {}
     }
 
     // --- VISUAL EFFECTS ---
-
     private void playPoofEffect(Player player) {
         try {
             Object transform = getTransformComponent(player);
@@ -270,7 +382,6 @@ public class ShapeshiftHandler {
     }
 
     // --- REFLECTION UTILS ---
-
     private void modifyStat(Player player, String statName, boolean increase, float amount) {
         try {
             Object statMap = getStatMap(player);
@@ -291,7 +402,6 @@ public class ShapeshiftHandler {
     }
 
     // --- STANDARD REFLECTION HELPERS ---
-
     private Object getTransformComponent(Player player) throws Exception {
         Object store = getEntityStore(player);
         Object ref = getInternalRef(player);
