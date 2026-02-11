@@ -38,11 +38,9 @@ public class ShapeshiftHandler {
     public boolean shapeshift(Player player, String formName) {
         String cleanName = formName.toLowerCase();
         if (!ALLOWED_FORMS.containsKey(cleanName)) {
-            System.out.println("[Druid] Unknown form: " + cleanName);
             return false;
         }
 
-        // --- THE BOUNCER ---
         if (!isHoldingValidItem(player)) {
             sendPlayerMessage(player, "You must focus through a Druid Totem to channel this form.");
             return false;
@@ -71,7 +69,7 @@ public class ShapeshiftHandler {
             sendPlayerMessage(player, "You have shapeshifted into a " + shortName + "!");
 
             updateCapabilities(player, shortName);
-            swapAbilityItems(player, shortName); // The fixed method
+            swapAbilityItems(player, shortName);
 
             maintenanceActive.put(playerName, true);
             startFormMaintenance(player, shortName);
@@ -92,11 +90,10 @@ public class ShapeshiftHandler {
             sendPlayerMessage(player, "You have returned to your human form.");
 
             refreshPlayerSkin(player);
-            swapAbilityItems(player, "human"); // The fixed method
+            swapAbilityItems(player, "human");
         }
     }
 
-    // --- FIXED TRANSMUTATION LOGIC ---
     private void swapAbilityItems(Player player, String targetForm) {
         try {
             String itemToGive = null;
@@ -111,31 +108,24 @@ public class ShapeshiftHandler {
                 case "hawk":
                 case "duck":
                 case "jackalope":
-                case "wolf":
                     itemToGive = DRUID_ITEM; break;
             }
 
             if (itemToGive == null) return;
 
-            // 1. Get the Inventory
             Method getInventory = player.getClass().getMethod("getInventory");
             Object inventory = getInventory.invoke(player);
 
-            // 2. Get the Active Slot Index (Byte)
             Method getActiveSlot = inventory.getClass().getMethod("getActiveHotbarSlot");
             byte slotIndex = (byte) getActiveSlot.invoke(inventory);
 
-            // 3. Get the Hotbar Container
             Method getHotbar = inventory.getClass().getMethod("getHotbar");
             Object hotbarContainer = getHotbar.invoke(inventory);
 
-            // 4. Create the New ItemStack using the Constructor
             Class<?> itemStackClass = Class.forName("com.hypixel.hytale.server.core.inventory.ItemStack");
             Constructor<?> constructor = itemStackClass.getConstructor(String.class, int.class);
             Object newItemStack = constructor.newInstance(itemToGive, 1);
 
-            // 5. SET the item using the Container's method (This triggers the network update!)
-            // Method signature is usually setItemStackForSlot(short, ItemStack)
             Method setItem = hotbarContainer.getClass().getMethod("setItemStackForSlot", short.class, itemStackClass);
             setItem.invoke(hotbarContainer, (short) slotIndex, newItemStack);
 
@@ -147,7 +137,6 @@ public class ShapeshiftHandler {
         }
     }
 
-    // --- THE BOUNCER LOGIC ---
     private boolean isHoldingValidItem(Player player) {
         try {
             Method getInventory = player.getClass().getMethod("getInventory");
@@ -209,7 +198,6 @@ public class ShapeshiftHandler {
         } catch (Exception e) { }
     }
 
-    // --- HEARTBEAT LOOP (250ms) ---
     private void startFormMaintenance(Player player, String shortName) {
         String playerName = player.getDisplayName();
 

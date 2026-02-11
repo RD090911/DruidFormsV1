@@ -43,16 +43,13 @@ public class ShapeshiftCommand extends AbstractCommand {
             return CompletableFuture.completedFuture(null);
         }
 
-        // Thread Safety: Move execution to world thread
         player.getWorld().execute(() -> {
             try {
                 String lowerForm = formName.toLowerCase();
 
-                // Route specific reset commands to restoreHuman directly (Bypassing Bouncer)
                 if (lowerForm.equals("human") || lowerForm.equals("reset") || lowerForm.equals("none")) {
                     handler.restoreHuman(player);
                 } else {
-                    // Send to the handler
                     handler.shapeshift(player, lowerForm);
                 }
             } catch (Exception e) {
