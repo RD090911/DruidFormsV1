@@ -18,8 +18,6 @@ public class ShapeshiftCommand extends AbstractCommand {
     public ShapeshiftCommand(ShapeshiftHandler handler) {
         super("shapeshift", "Shapeshift into an animal", false);
         this.handler = handler;
-
-        // This registers the <formName> argument so you can type /shapeshift bear
         this.formArg = this.withRequiredArg("formName", "The animal to turn into", ArgTypes.STRING);
     }
 
@@ -45,20 +43,17 @@ public class ShapeshiftCommand extends AbstractCommand {
             return CompletableFuture.completedFuture(null);
         }
 
-        // Thread Safety: Move model changes to the world thread
+        // Thread Safety: Move execution to world thread
         player.getWorld().execute(() -> {
             try {
                 String lowerForm = formName.toLowerCase();
 
-                // Route 'human', 'reset', or 'none' to the restore method directly (No bouncer needed)
+                // Route specific reset commands to restoreHuman directly (Bypassing Bouncer)
                 if (lowerForm.equals("human") || lowerForm.equals("reset") || lowerForm.equals("none")) {
                     handler.restoreHuman(player);
-                    sendResponse(player, "You have returned to your human form.");
                 } else {
-                    // Send to the handler. The handler will return true if the bouncer lets them through.
-                    if (handler.shapeshift(player, lowerForm)) {
-                        sendResponse(player, "You have shapeshifted into a " + lowerForm + "!");
-                    }
+                    // Send to the handler
+                    handler.shapeshift(player, lowerForm);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

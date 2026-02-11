@@ -1,8 +1,8 @@
 package me.druid.v1;
 
 import com.hypixel.hytale.server.core.entity.entities.Player;
-import com.hypixel.hytale.server.core.HytaleServer;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -17,7 +17,6 @@ public class ShapeshiftHandler {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final ConcurrentHashMap<String, Boolean> maintenanceActive = new ConcurrentHashMap<>();
 
-    // --- The Anchor Item ---
     private static final String DRUID_ITEM = "Druid_Totem";
 
     private static final Map<String, String> ALLOWED_FORMS = new HashMap<>();
@@ -37,7 +36,6 @@ public class ShapeshiftHandler {
 
     public static class AbilityConfig { }
 
-    // Returns boolean so the Command class knows if the shift was successful
     public boolean shapeshift(Player player, String formName) {
         String cleanName = formName.toLowerCase();
         if (!ALLOWED_FORMS.containsKey(cleanName)) {
@@ -66,15 +64,15 @@ public class ShapeshiftHandler {
 
         if (currentForm != null) restoreHuman(player);
 
-        // EFFECT: Poof!
         playPoofEffect(player);
 
         if (swapModel(player, targetModelID)) {
             activeForms.put(playerName, targetModelID);
             System.out.println("[Druid] " + playerName + " became a " + shortName);
+            sendPlayerMessage(player, "You have shapeshifted into a " + shortName + "!");
 
             updateCapabilities(player, shortName);
-            swapAbilityItems(player, shortName);
+            swapAbilityItems(player, shortName); // The fixed method
 
             maintenanceActive.put(playerName, true);
             startFormMaintenance(player, shortName);
@@ -85,7 +83,6 @@ public class ShapeshiftHandler {
         String playerName = player.getDisplayName();
         maintenanceActive.put(playerName, false);
 
-        // EFFECT: Poof!
         playPoofEffect(player);
 
         updateCapabilities(player, "human");
@@ -93,42 +90,80 @@ public class ShapeshiftHandler {
         if (swapModel(player, "Player")) {
             activeForms.remove(playerName);
             System.out.println("[Druid] " + playerName + " is Human again.");
+            sendPlayerMessage(player, "You have returned to your human form.");
 
             refreshPlayerSkin(player);
-            swapAbilityItems(player, "human");
+            swapAbilityItems(player, "human"); // The fixed method
+        }
+    }
+
+    // --- FIXED TRANSMUTATION LOGIC ---
+    private void swapAbilityItems(Player player, String targetForm) {
+        try {
+            String itemToGive = null;
+            switch (targetForm.toLowerCase()) {
+                case "bear": itemToGive = "Bear_Mace"; break;
+                case "antelope":
+                case "ram": itemToGive = "Ram_Horn"; break;
+                case "sabertooth":
+                case "tiger": itemToGive = "Tiger_Claw"; break;
+                case "shark": itemToGive = "Shark_Tooth"; break;
+                case "human":
+                case "hawk":
+                case "duck":
+                case "jackalope":
+                case "wolf":
+                    itemToGive = DRUID_ITEM; break;
+            }
+
+            if (itemToGive == null) return;
+
+            // 1. Get the Inventory
+            Method getInventory = player.getClass().getMethod("getInventory");
+            Object inventory = getInventory.invoke(player);
+
+            // 2. Get the Active Slot Index (Byte)
+            Method getActiveSlot = inventory.getClass().getMethod("getActiveHotbarSlot");
+            byte slotIndex = (byte) getActiveSlot.invoke(inventory);
+
+            // 3. Get the Hotbar Container
+            Method getHotbar = inventory.getClass().getMethod("getHotbar");
+            Object hotbarContainer = getHotbar.invoke(inventory);
+
+            // 4. Create the New ItemStack using the Constructor
+            Class<?> itemStackClass = Class.forName("com.hypixel.hytale.server.core.inventory.ItemStack");
+            Constructor<?> constructor = itemStackClass.getConstructor(String.class, int.class);
+            Object newItemStack = constructor.newInstance(itemToGive, 1);
+
+            // 5. SET the item using the Container's method (This triggers the network update!)
+            // Method signature is usually setItemStackForSlot(short, ItemStack)
+            Method setItem = hotbarContainer.getClass().getMethod("setItemStackForSlot", short.class, itemStackClass);
+            setItem.invoke(hotbarContainer, (short) slotIndex, newItemStack);
+
+            System.out.println("[Druid] Successfully set slot " + slotIndex + " to " + itemToGive);
+
+        } catch (Exception e) {
+            System.out.println("[Druid] Transmutation Swap Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     // --- THE BOUNCER LOGIC ---
     private boolean isHoldingValidItem(Player player) {
         try {
-            // 1. Get the Player's Inventory (from the class you decompiled!)
             Method getInventory = player.getClass().getMethod("getInventory");
             Object inventory = getInventory.invoke(player);
             if (inventory == null) return false;
 
-            // 2. Ask the Inventory what is in the main hand
             Method getItemInHand = inventory.getClass().getMethod("getItemInHand");
             Object itemStack = getItemInHand.invoke(inventory);
-            if (itemStack == null) return false; // Hand is empty
+            if (itemStack == null) return false;
 
-            // 3. Extract the underlying Item object
-            Method getItem = itemStack.getClass().getMethod("getItem");
-            Object item = getItem.invoke(itemStack);
-            if (item == null) return false;
-
-            // 4. Extract the Item ID (with a fallback just in case)
-            String itemId = "";
-            try {
-                Method getId = item.getClass().getMethod("getId");
-                itemId = (String) getId.invoke(item);
-            } catch (Exception e) {
-                itemId = item.toString();
-            }
+            Method getItemId = itemStack.getClass().getMethod("getItemId");
+            String itemId = (String) getItemId.invoke(itemStack);
 
             if (itemId == null) return false;
 
-            // 5. Check the ID against allowed Druid tools
             String lowerId = itemId.toLowerCase();
             return lowerId.contains("druid_totem") ||
                     lowerId.contains("bear_mace") ||
@@ -137,7 +172,6 @@ public class ShapeshiftHandler {
                     lowerId.contains("shark_tooth");
 
         } catch (Exception e) {
-            System.out.println("[Druid] Bouncer Error: " + e.getMessage());
             return false;
         }
     }
@@ -154,54 +188,9 @@ public class ShapeshiftHandler {
 
             Method sendMessage = playerRef.getClass().getMethod("sendMessage", msgClass);
             sendMessage.invoke(playerRef, message);
-        } catch (Exception e) {
-            System.out.println("[Druid] Msg Error: " + e.getMessage());
-        }
+        } catch (Exception e) { }
     }
 
-    // --- ITEM SWAP LOGIC ---
-    private void swapAbilityItems(Player player, String targetForm) {
-        try {
-            Object cmdManager = HytaleServer.get().getCommandManager();
-            Method execute = null;
-            for (Method m : cmdManager.getClass().getMethods()) {
-                if ((m.getName().equals("execute") || m.getName().equals("dispatchCommand") || m.getName().equals("executeCommand"))
-                        && m.getParameterCount() == 2) {
-                    execute = m;
-                    break;
-                }
-            }
-
-            if (execute != null) {
-                String user = player.getDisplayName();
-
-                execute.invoke(cmdManager, player, "/clear " + user + " Bear_Mace");
-                execute.invoke(cmdManager, player, "/clear " + user + " Ram_Horn");
-                execute.invoke(cmdManager, player, "/clear " + user + " Tiger_Claw");
-                execute.invoke(cmdManager, player, "/clear " + user + " Shark_Tooth");
-                execute.invoke(cmdManager, player, "/clear " + user + " " + DRUID_ITEM);
-
-                String itemToGive = null;
-                switch (targetForm.toLowerCase()) {
-                    case "bear": itemToGive = "Bear_Mace"; break;
-                    case "antelope":
-                    case "ram": itemToGive = "Ram_Horn"; break;
-                    case "sabertooth":
-                    case "tiger": itemToGive = "Tiger_Claw"; break;
-                    case "shark": itemToGive = "Shark_Tooth"; break;
-                    case "human": itemToGive = DRUID_ITEM; break;
-                }
-
-                if (itemToGive != null) {
-                    execute.invoke(cmdManager, player, "/give " + user + " " + itemToGive + " 1");
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("[Druid] Item Swap Error: " + e.getMessage());
-        }
-    }
-
-    // --- WARDROBE FIX METHOD ---
     private void refreshPlayerSkin(Player player) {
         try {
             Object store = getEntityStore(player);
@@ -218,9 +207,7 @@ public class ShapeshiftHandler {
                 Method setOutdated = skinCompClass.getMethod("setNetworkOutdated");
                 setOutdated.invoke(skinComponent);
             }
-        } catch (Exception e) {
-            System.out.println("[Druid] Failed to refresh Wardrobe: " + e.getMessage());
-        }
+        } catch (Exception e) { }
     }
 
     // --- HEARTBEAT LOOP (250ms) ---
@@ -244,7 +231,6 @@ public class ShapeshiftHandler {
         }, 250, TimeUnit.MILLISECONDS);
     }
 
-    // --- PHYSICS & CAPABILITIES ---
     private void updateCapabilities(Player player, String shortName) {
         try {
             Object movementManager = getMovementManager(player);
@@ -314,7 +300,6 @@ public class ShapeshiftHandler {
         } catch (Exception e) {}
     }
 
-    // --- VISUAL EFFECTS ---
     private void playPoofEffect(Player player) {
         try {
             Object transform = getTransformComponent(player);
@@ -381,7 +366,6 @@ public class ShapeshiftHandler {
         } catch (Exception e) {}
     }
 
-    // --- REFLECTION UTILS ---
     private void modifyStat(Player player, String statName, boolean increase, float amount) {
         try {
             Object statMap = getStatMap(player);
@@ -401,7 +385,6 @@ public class ShapeshiftHandler {
         } catch (Exception e) {}
     }
 
-    // --- STANDARD REFLECTION HELPERS ---
     private Object getTransformComponent(Player player) throws Exception {
         Object store = getEntityStore(player);
         Object ref = getInternalRef(player);
