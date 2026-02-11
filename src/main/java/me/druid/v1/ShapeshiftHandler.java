@@ -57,6 +57,9 @@ public class ShapeshiftHandler {
 
         if (!activeForms.containsKey(playerName)) { saveOriginalModel(player); }
 
+        // EFFECT: Poof!
+        playPoofEffect(player);
+
         if (swapModel(player, targetModelID)) {
             activeForms.put(playerName, targetModelID);
             System.out.println("[Druid] " + playerName + " became a " + shortName);
@@ -71,6 +74,9 @@ public class ShapeshiftHandler {
     public void restoreHuman(Player player) {
         String playerName = player.getDisplayName();
         maintenanceActive.put(playerName, false);
+
+        // EFFECT: Poof!
+        playPoofEffect(player);
 
         updateCapabilities(player, "human");
 
@@ -91,7 +97,7 @@ public class ShapeshiftHandler {
             try {
                 player.getWorld().execute(() -> {
                     try {
-                        // SHARK: Gentle Regen (10 pts every 250ms)
+                        // SHARK: Gentle Regen
                         if (shortName.equals("shark")) {
                             modifyStat(player, "Oxygen", true, 10.0f);
                         }
@@ -125,14 +131,14 @@ public class ShapeshiftHandler {
                     break;
 
                 case "hawk":
-                    baseSpeed = 5.5f * 1.0f; // TUNING: Double previous (Standard Speed)
-                    flySpeed = 10.32f * 1.25f;
+                    baseSpeed = 5.5f * 1.0f; // Walk: Standard Human Speed
+                    flySpeed = 10.32f * 1.25f; // Fly: Fast
                     canFly = true;
                     break;
 
                 case "duck":
-                    baseSpeed = 5.5f * 0.8f; // TUNING: Boosted walk (Faster waddle)
-                    flySpeed = 10.32f * 1.0f;
+                    baseSpeed = 5.5f * 0.8f; // Walk: Faster Waddle
+                    flySpeed = 10.32f * 1.0f; // Fly: Standard
                     canFly = true;
                     break;
 
@@ -180,6 +186,82 @@ public class ShapeshiftHandler {
         } catch (Exception e) { System.out.println("[Druid] Capability Error: " + e.getMessage()); }
     }
 
+    // --- VISUAL EFFECTS ---
+
+    private void playPoofEffect(Player player) {
+        try {
+            // 1. Get Position
+            Object transform = getTransformComponent(player);
+            Method getPos = transform.getClass().getMethod("getPosition");
+            Object vec3d = getPos.invoke(transform);
+
+            double x = (double) vec3d.getClass().getMethod("getX").invoke(vec3d);
+            double y = (double) vec3d.getClass().getMethod("getY").invoke(vec3d);
+            double z = (double) vec3d.getClass().getMethod("getZ").invoke(vec3d);
+
+            Class<?> posClass = Class.forName("com.hypixel.hytale.protocol.Position");
+            Object position = posClass.getConstructor(double.class, double.class, double.class)
+                    .newInstance(x, y + 1.0, z);
+
+            // 2. PARTICLE: Potion_Morph_Burst
+            Class<?> particlePacketClass = Class.forName("com.hypixel.hytale.protocol.packets.world.SpawnParticleSystem");
+            Class<?> dirClass = Class.forName("com.hypixel.hytale.protocol.Direction");
+            Class<?> colorClass = Class.forName("com.hypixel.hytale.protocol.Color");
+
+            Object particlePacket = particlePacketClass.getConstructor(String.class, posClass, dirClass, float.class, colorClass)
+                    .newInstance("Potion_Morph_Burst", position, null, 1.0f, null);
+
+            sendPacket(player, particlePacket);
+
+            // 3. SOUND: SFX_Portal_Neutral_Teleport_Local
+            Class<?> soundConfigClass = Class.forName("com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent");
+            Method getAssetMap = soundConfigClass.getMethod("getAssetMap");
+            Object assetMap = getAssetMap.invoke(null);
+            Method getIndex = assetMap.getClass().getMethod("getIndex", Object.class);
+
+            // EXACT ID from your screenshot
+            int soundIndex = (int) getIndex.invoke(assetMap, "SFX_Portal_Neutral_Teleport_Local");
+
+            if (soundIndex != -1) {
+                Class<?> soundPacketClass = Class.forName("com.hypixel.hytale.protocol.packets.world.PlaySoundEvent3D");
+                Class<?> soundCatClass = Class.forName("com.hypixel.hytale.protocol.SoundCategory");
+
+                // Smart Category Search (Prevents "Master" error)
+                Object[] enums = (Object[]) soundCatClass.getEnumConstants();
+                Object targetCategory = (enums.length > 0) ? enums[0] : null;
+
+                if (targetCategory != null) {
+                    for (Object e : enums) {
+                        String name = e.toString().toLowerCase();
+                        if (name.contains("sfx") || name.contains("effect") || name.contains("master")) {
+                            targetCategory = e;
+                            break;
+                        }
+                    }
+
+                    // Volume 1.0, Pitch 1.0
+                    Object soundPacket = soundPacketClass.getConstructor(int.class, soundCatClass, posClass, float.class, float.class)
+                            .newInstance(soundIndex, targetCategory, position, 1.0f, 1.0f);
+
+                    sendPacket(player, soundPacket);
+                }
+            }
+
+        } catch (Exception e) {
+            // Silent catch
+        }
+    }
+
+    private void sendPacket(Player player, Object packet) {
+        try {
+            Object playerRef = getPlayerRef(player);
+            Method getPacketHandler = playerRef.getClass().getMethod("getPacketHandler");
+            Object handler = getPacketHandler.invoke(playerRef);
+            Method write = handler.getClass().getMethod("writeNoCache", Class.forName("com.hypixel.hytale.protocol.Packet"));
+            write.invoke(handler, packet);
+        } catch (Exception e) {}
+    }
+
     // --- REFLECTION UTILS ---
 
     private void modifyStat(Player player, String statName, boolean increase, float amount) {
@@ -189,9 +271,7 @@ public class ShapeshiftHandler {
             Method mod = statMap.getClass().getMethod("modifyStatValue", int.class, int.class);
             int val = increase ? (int)amount : -(int)amount;
             mod.invoke(statMap, index, val);
-        } catch (Exception e) {
-            maximizeStat(player, statName);
-        }
+        } catch (Exception e) { maximizeStat(player, statName); }
     }
 
     private void maximizeStat(Player player, String statName) {
@@ -201,6 +281,18 @@ public class ShapeshiftHandler {
             Method max = statMap.getClass().getMethod("maximizeStatValue", int.class);
             max.invoke(statMap, index);
         } catch (Exception e) {}
+    }
+
+    // --- STANDARD REFLECTION HELPERS ---
+
+    private Object getTransformComponent(Player player) throws Exception {
+        Object store = getEntityStore(player);
+        Object ref = getInternalRef(player);
+        Class<?> compClass = Class.forName("com.hypixel.hytale.server.core.modules.entity.component.TransformComponent");
+        Method getCompType = compClass.getMethod("getComponentType");
+        Object compType = getCompType.invoke(null);
+        Method getComponent = store.getClass().getMethod("getComponent", Class.forName("com.hypixel.hytale.component.Ref"), Class.forName("com.hypixel.hytale.component.ComponentType"));
+        return getComponent.invoke(store, ref, compType);
     }
 
     private Object getStatMap(Player player) throws Exception {
@@ -294,12 +386,11 @@ public class ShapeshiftHandler {
         return getCompMethod.invoke(store, ref, compType);
     }
 
-    // Stubs
-    private void applyDruidPowers(Player player, String shortName) {}
-    private void loadCustomAbilities(Player player, String shortName) {}
-    private void saveWardrobe(Player player) {}
     private void saveOriginalModel(Object player) {}
+    private void saveWardrobe(Player player) {}
     private void restoreWardrobe(Player player) {}
+    private void loadCustomAbilities(Player player, String shortName) {}
+    private void applyDruidPowers(Player player, String shortName) {}
 
     private void setField(Object object, String fieldName, Object value) {
         try {

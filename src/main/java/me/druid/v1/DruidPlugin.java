@@ -2,30 +2,38 @@ package me.druid.v1;
 
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
-import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
+import com.hypixel.hytale.server.core.HytaleServer;
+import java.lang.reflect.Method;
 
 public class DruidPlugin extends JavaPlugin {
 
-    private ShapeshiftHandler handler;
+    private ShapeshiftHandler shapeshiftHandler;
 
     public DruidPlugin(JavaPluginInit init) {
         super(init);
     }
 
     @Override
-    protected void start() {
-        System.out.println("DruidPlugin v1.0 is loading...");
+    protected void setup() {
+        System.out.println("[DruidPlugin] Initializing V1 (Command Mode)...");
 
-        this.handler = new ShapeshiftHandler();
-        this.getCommandRegistry().registerCommand(new ShapeshiftCommand(handler));
+        this.shapeshiftHandler = new ShapeshiftHandler();
 
-        // Player Join Event
-        this.getEventRegistry().registerGlobal(PlayerConnectEvent.class, event -> {
-            System.out.println("DruidPlugin: " + event.getPlayer().getDisplayName() + " has connected!");
-        });
+        // Register Command
+        try {
+            Object cmdManager = HytaleServer.get().getCommandManager();
+            Object command = new ShapeshiftCommand(shapeshiftHandler);
+            for (Method m : cmdManager.getClass().getMethods()) {
+                if (m.getName().equals("register") && m.getParameterCount() == 1) {
+                    m.invoke(cmdManager, command);
+                    System.out.println("[DruidPlugin] Command /shapeshift successfully registered.");
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("[DruidPlugin] Error registering command: " + e.getMessage());
+        }
 
-        // Damage Event removed - logic handled in Handler physics
-
-        System.out.println("DruidPlugin loaded successfully!");
+        System.out.println("[DruidPlugin] V1 Ready!");
     }
 }

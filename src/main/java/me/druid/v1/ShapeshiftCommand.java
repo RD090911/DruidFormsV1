@@ -48,7 +48,17 @@ public class ShapeshiftCommand extends AbstractCommand {
         // Thread Safety: Move model changes to the world thread
         player.getWorld().execute(() -> {
             try {
-                handler.shapeshift(player, formName);
+                String lowerForm = formName.toLowerCase();
+
+                // Route 'human', 'reset', or 'none' to the restore method
+                if (lowerForm.equals("human") || lowerForm.equals("reset") || lowerForm.equals("none")) {
+                    handler.restoreHuman(player);
+                    sendResponse(player, "You have returned to your human form.");
+                } else {
+                    // Send any other string to the shapeshift method
+                    handler.shapeshift(player, lowerForm);
+                    sendResponse(player, "You have shapeshifted into a " + lowerForm + "!");
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 sendResponse(player, "Error shifting: " + e.getMessage());
