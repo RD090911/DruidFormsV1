@@ -1,6 +1,7 @@
 package me.druid.v1;
 
-import com.google.gson.Gson;
+import com.hypixel.hytale.server.core.entity.entities.Player;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -9,15 +10,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.hypixel.hytale.server.core.entity.entities.Player;
-
 public class ShapeshiftHandler {
 
     public static final ConcurrentHashMap<String, String> activeForms = new ConcurrentHashMap<>();
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final ConcurrentHashMap<String, Boolean> maintenanceActive = new ConcurrentHashMap<>();
 
-    private static final Map<String, Object> originalModels = new HashMap<>();
     private static final Map<String, String> ALLOWED_FORMS = new HashMap<>();
 
     static {
@@ -55,8 +53,6 @@ public class ShapeshiftHandler {
 
         if (currentForm != null) restoreHuman(player);
 
-        if (!activeForms.containsKey(playerName)) { saveOriginalModel(player); }
-
         // EFFECT: Poof!
         playPoofEffect(player);
 
@@ -83,6 +79,34 @@ public class ShapeshiftHandler {
         if (swapModel(player, "Player")) {
             activeForms.remove(playerName);
             System.out.println("[Druid] " + playerName + " is Human again.");
+
+            // THE WARDROBE FIX: Tell the server to resend the clothing data
+            refreshPlayerSkin(player);
+        }
+    }
+
+    // THE WARDROBE FIX METHOD
+    private void refreshPlayerSkin(Player player) {
+        try {
+            Object store = getEntityStore(player);
+            Object ref = getInternalRef(player);
+
+            // Access the exact component you found in the decompiled code
+            Class<?> skinCompClass = Class.forName("com.hypixel.hytale.server.core.modules.entity.player.PlayerSkinComponent");
+            Method getCompType = skinCompClass.getMethod("getComponentType");
+            Object compType = getCompType.invoke(null);
+
+            Method getComponent = store.getClass().getMethod("getComponent", Class.forName("com.hypixel.hytale.component.Ref"), Class.forName("com.hypixel.hytale.component.ComponentType"));
+            Object skinComponent = getComponent.invoke(store, ref, compType);
+
+            if (skinComponent != null) {
+                // Call the setNetworkOutdated method to force the client to load clothes
+                Method setOutdated = skinCompClass.getMethod("setNetworkOutdated");
+                setOutdated.invoke(skinComponent);
+                System.out.println("[Druid] Forced Wardrobe/Skin network update.");
+            }
+        } catch (Exception e) {
+            System.out.println("[Druid] Failed to refresh Wardrobe: " + e.getMessage());
         }
     }
 
@@ -97,7 +121,6 @@ public class ShapeshiftHandler {
             try {
                 player.getWorld().execute(() -> {
                     try {
-                        // SHARK: Gentle Regen
                         if (shortName.equals("shark")) {
                             modifyStat(player, "Oxygen", true, 10.0f);
                         }
@@ -117,7 +140,6 @@ public class ShapeshiftHandler {
             Method getSettings = movementManager.getClass().getMethod("getSettings");
             Object settings = getSettings.invoke(movementManager);
 
-            // Defaults
             float baseSpeed = 5.5f;
             float jumpForce = 11.8f;
             float flySpeed = 10.32f;
@@ -129,41 +151,34 @@ public class ShapeshiftHandler {
                 case "antelope":
                     baseSpeed = 5.5f * 1.75f;
                     break;
-
                 case "hawk":
-                    baseSpeed = 5.5f * 1.0f; // Walk: Standard Human Speed
-                    flySpeed = 10.32f * 1.25f; // Fly: Fast
+                    baseSpeed = 5.5f * 1.0f;
+                    flySpeed = 10.32f * 1.25f;
                     canFly = true;
                     break;
-
                 case "duck":
-                    baseSpeed = 5.5f * 0.8f; // Walk: Faster Waddle
-                    flySpeed = 10.32f * 1.0f; // Fly: Standard
+                    baseSpeed = 5.5f * 0.8f;
+                    flySpeed = 10.32f * 1.0f;
                     canFly = true;
                     break;
-
                 case "ram":
                     baseSpeed = 5.5f * 1.25f;
                     break;
-
                 case "sabertooth":
                 case "tiger":
                     baseSpeed = 5.5f * 1.5f;
                     jumpForce = 14.5f;
                     break;
-
                 case "shark":
                     baseSpeed = 12.0f;
                     dragCoefficient = 0.01f;
                     break;
-
                 case "jackalope":
                     baseSpeed = 8.0f;
                     jumpForce = 17.0f;
                     dragCoefficient = 14.0f;
                     fallMomentumLoss = 1.0f;
                     break;
-
                 case "bear":
                     baseSpeed = 6.0f;
                     break;
@@ -190,7 +205,6 @@ public class ShapeshiftHandler {
 
     private void playPoofEffect(Player player) {
         try {
-            // 1. Get Position
             Object transform = getTransformComponent(player);
             Method getPos = transform.getClass().getMethod("getPosition");
             Object vec3d = getPos.invoke(transform);
@@ -203,7 +217,6 @@ public class ShapeshiftHandler {
             Object position = posClass.getConstructor(double.class, double.class, double.class)
                     .newInstance(x, y + 1.0, z);
 
-            // 2. PARTICLE: Potion_Morph_Burst
             Class<?> particlePacketClass = Class.forName("com.hypixel.hytale.protocol.packets.world.SpawnParticleSystem");
             Class<?> dirClass = Class.forName("com.hypixel.hytale.protocol.Direction");
             Class<?> colorClass = Class.forName("com.hypixel.hytale.protocol.Color");
@@ -213,20 +226,17 @@ public class ShapeshiftHandler {
 
             sendPacket(player, particlePacket);
 
-            // 3. SOUND: SFX_Portal_Neutral_Teleport_Local
             Class<?> soundConfigClass = Class.forName("com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent");
             Method getAssetMap = soundConfigClass.getMethod("getAssetMap");
             Object assetMap = getAssetMap.invoke(null);
             Method getIndex = assetMap.getClass().getMethod("getIndex", Object.class);
 
-            // EXACT ID from your screenshot
             int soundIndex = (int) getIndex.invoke(assetMap, "SFX_Portal_Neutral_Teleport_Local");
 
             if (soundIndex != -1) {
                 Class<?> soundPacketClass = Class.forName("com.hypixel.hytale.protocol.packets.world.PlaySoundEvent3D");
                 Class<?> soundCatClass = Class.forName("com.hypixel.hytale.protocol.SoundCategory");
 
-                // Smart Category Search (Prevents "Master" error)
                 Object[] enums = (Object[]) soundCatClass.getEnumConstants();
                 Object targetCategory = (enums.length > 0) ? enums[0] : null;
 
@@ -239,7 +249,6 @@ public class ShapeshiftHandler {
                         }
                     }
 
-                    // Volume 1.0, Pitch 1.0
                     Object soundPacket = soundPacketClass.getConstructor(int.class, soundCatClass, posClass, float.class, float.class)
                             .newInstance(soundIndex, targetCategory, position, 1.0f, 1.0f);
 
@@ -247,9 +256,7 @@ public class ShapeshiftHandler {
                 }
             }
 
-        } catch (Exception e) {
-            // Silent catch
-        }
+        } catch (Exception e) {}
     }
 
     private void sendPacket(Player player, Object packet) {
@@ -349,29 +356,42 @@ public class ShapeshiftHandler {
             Class<?> modelClass = Class.forName("com.hypixel.hytale.server.core.asset.type.model.config.Model");
             Method getMapMethod = modelAssetClass.getMethod("getAssetMap");
             Object assetMap = getMapMethod.invoke(null);
+
             Method getAssetMethod = null;
-            for(Method m : assetMap.getClass().getMethods()) { if(m.getName().equals("getAsset") && m.getParameterCount() == 1) { getAssetMethod = m; break; } }
+            for(Method m : assetMap.getClass().getMethods()) {
+                if(m.getName().equals("getAsset") && m.getParameterCount() == 1) {
+                    getAssetMethod = m; break;
+                }
+            }
             getAssetMethod.setAccessible(true);
+
             Object rawAsset = getAssetMethod.invoke(assetMap, assetId);
             if (rawAsset == null) rawAsset = getAssetMethod.invoke(assetMap, "Hytale:" + assetId);
             if (rawAsset == null) rawAsset = getAssetMethod.invoke(assetMap, "Druid:" + assetId);
             if (rawAsset == null) return false;
+
             Method createUnitScale = modelClass.getMethod("createUnitScaleModel", modelAssetClass);
             Object newModel = createUnitScale.invoke(null, rawAsset);
+
             return injectRawModel(player, newModel);
-        } catch (Exception e) { return false; }
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private boolean injectRawModel(Object player, Object modelObject) {
         try {
             Object component = getModelComponent(player);
             Class<?> modelCompClass = Class.forName("com.hypixel.hytale.server.core.modules.entity.component.ModelComponent");
+
             Field modelField = modelCompClass.getDeclaredField("model");
             modelField.setAccessible(true);
             modelField.set(component, modelObject);
+
             Field outdatedField = modelCompClass.getDeclaredField("isNetworkOutdated");
             outdatedField.setAccessible(true);
             outdatedField.set(component, true);
+
             return true;
         } catch (Exception e) { return false; }
     }
@@ -385,12 +405,6 @@ public class ShapeshiftHandler {
         Method getCompMethod = store.getClass().getMethod("getComponent", Class.forName("com.hypixel.hytale.component.Ref"), Class.forName("com.hypixel.hytale.component.ComponentType"));
         return getCompMethod.invoke(store, ref, compType);
     }
-
-    private void saveOriginalModel(Object player) {}
-    private void saveWardrobe(Player player) {}
-    private void restoreWardrobe(Player player) {}
-    private void loadCustomAbilities(Player player, String shortName) {}
-    private void applyDruidPowers(Player player, String shortName) {}
 
     private void setField(Object object, String fieldName, Object value) {
         try {
@@ -412,6 +426,13 @@ public class ShapeshiftHandler {
     }
 
     private Field getFieldDeep(Class<?> clazz, String name) {
-        while (clazz != null) { try { return clazz.getDeclaredField(name); } catch (Exception e) { clazz = clazz.getSuperclass(); } } return null;
+        while (clazz != null) {
+            try {
+                return clazz.getDeclaredField(name);
+            } catch (Exception e) {
+                clazz = clazz.getSuperclass();
+            }
+        }
+        return null;
     }
 }
