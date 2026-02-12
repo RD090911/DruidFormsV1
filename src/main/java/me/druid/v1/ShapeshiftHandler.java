@@ -65,7 +65,6 @@ public class ShapeshiftHandler {
 
         if (swapModel(player, targetModelID)) {
             activeForms.put(playerName, targetModelID);
-            System.out.println("[Druid] " + playerName + " became a " + shortName);
             sendPlayerMessage(player, "You have shapeshifted into a " + shortName + "!");
 
             updateCapabilities(player, shortName);
@@ -99,7 +98,6 @@ public class ShapeshiftHandler {
             String itemToGive = null;
             switch (targetForm.toLowerCase()) {
                 case "bear": itemToGive = "Bear_Skin"; break;
-                case "antelope":
                 case "ram": itemToGive = "Ram_Horn"; break;
                 case "sabertooth":
                 case "tiger": itemToGive = "Tiger_Claw"; break;
@@ -108,6 +106,7 @@ public class ShapeshiftHandler {
                 case "hawk":
                 case "duck":
                 case "jackalope":
+                case "antelope":
                     itemToGive = DRUID_ITEM; break;
             }
 
@@ -129,10 +128,7 @@ public class ShapeshiftHandler {
             Method setItem = hotbarContainer.getClass().getMethod("setItemStackForSlot", short.class, itemStackClass);
             setItem.invoke(hotbarContainer, (short) slotIndex, newItemStack);
 
-            System.out.println("[Druid] Successfully set slot " + slotIndex + " to " + itemToGive);
-
         } catch (Exception e) {
-            System.out.println("[Druid] Transmutation Swap Error: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -268,6 +264,11 @@ public class ShapeshiftHandler {
                 case "bear":
                     baseSpeed = 6.0f;
                     break;
+            }
+
+            if (!canFly) {
+                setField(settings, "isFlying", false);
+                setField(settings, "flying", false);
             }
 
             setField(settings, "canFly", canFly);

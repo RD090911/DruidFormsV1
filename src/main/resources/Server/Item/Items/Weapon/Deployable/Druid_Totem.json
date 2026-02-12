@@ -20,5 +20,38 @@
     ]
   },
   "Icon": "Icons/ItemsGenerated/Healing_Totem.png",
-  "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim"
+  "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
+  "Recipe": {
+    "Input": [
+      {
+        "ItemId": "Ingredient_Stick",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Ingredient_Life_Essence_Concentrated",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Plant_Crop_Health1",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Ingredient_Feathers_Light",
+        "Quantity": 3
+      },
+      {
+        "ItemId": "Plant_Coral_Bush_Cyan",
+        "Quantity": 1
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "Crafting",
+        "Categories": [
+          "Tools"
+        ],
+        "Id": "Fieldcraft"
+      }
+    ]
+  }
 }
