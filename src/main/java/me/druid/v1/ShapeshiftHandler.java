@@ -222,6 +222,9 @@ public class ShapeshiftHandler {
             Method getSettings = movementManager.getClass().getMethod("getSettings");
             Object settings = getSettings.invoke(movementManager);
 
+            Method getDefaultSettings = movementManager.getClass().getMethod("getDefaultSettings");
+            Object defaultSettings = getDefaultSettings.invoke(movementManager);
+
             float baseSpeed = 5.5f;
             float jumpForce = 11.8f;
             float flySpeed = 10.32f;
@@ -266,18 +269,27 @@ public class ShapeshiftHandler {
                     break;
             }
 
-            if (!canFly) {
-                setField(settings, "isFlying", false);
-                setField(settings, "flying", false);
+            Object[] targets = {settings, defaultSettings};
+
+            for (Object target : targets) {
+                if (target == null) continue;
+                if (!canFly) {
+                    setField(target, "canFly", false);
+                    setField(target, "verticalFlySpeed", -1.0f);
+                } else {
+                    setField(target, "canFly", true);
+                    setField(target, "verticalFlySpeed", flySpeed);
+                }
+                setField(target, "baseSpeed", baseSpeed);
+                setField(target, "jumpForce", jumpForce);
+                setField(target, "horizontalFlySpeed", flySpeed);
+                setField(target, "dragCoefficient", dragCoefficient);
+                setField(target, "fallMomentumLoss", fallMomentumLoss);
             }
 
-            setField(settings, "canFly", canFly);
-            setField(settings, "baseSpeed", baseSpeed);
-            setField(settings, "jumpForce", jumpForce);
-            setField(settings, "horizontalFlySpeed", flySpeed);
-            setField(settings, "verticalFlySpeed", flySpeed);
-            setField(settings, "dragCoefficient", dragCoefficient);
-            setField(settings, "fallMomentumLoss", fallMomentumLoss);
+            if (!canFly) {
+                sendFlightPacket(player, false);
+            }
 
             Object playerRef = getPlayerRef(player);
             Method getPacketHandler = playerRef.getClass().getMethod("getPacketHandler");
@@ -286,6 +298,24 @@ public class ShapeshiftHandler {
             updateMethod.invoke(movementManager, packetHandler);
 
         } catch (Exception e) {}
+    }
+
+    private void sendFlightPacket(Player player, boolean isFlying) {
+        try {
+            Class<?> savedStatesClass = Class.forName("com.hypixel.hytale.protocol.SavedMovementStates");
+            Constructor<?> savedStatesCtor = savedStatesClass.getConstructor(boolean.class);
+            Object savedStates = savedStatesCtor.newInstance(isFlying);
+
+            Class<?> setStatesClass = Class.forName("com.hypixel.hytale.protocol.packets.player.SetMovementStates");
+            Constructor<?> setStatesCtor = setStatesClass.getConstructor(savedStatesClass);
+            Object packet = setStatesCtor.newInstance(savedStates);
+
+            sendPacket(player, packet);
+            System.out.println("[Druid] Synced Flight State Packet: " + isFlying);
+        } catch (Exception e) {
+            System.out.println("[Druid] Packet Sync Error: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void playPoofEffect(Player player) {
