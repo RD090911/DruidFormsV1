@@ -32,7 +32,6 @@
   },
   "Interactions": {
     "Primary": "Root_Weapon_Mace_Primary",
-    "Secondary": "Root_Weapon_Mace_Secondary_Guard",
     "Ability1": "Root_Weapon_Mace_Signature_Groundslam"
   },
   "Weapon": {

@@ -53,5 +53,15 @@
         "Id": "Fieldcraft"
       }
     ]
+  },
+  "Interactions": {
+    "Primary": {
+      "Interactions": [
+        {
+          "Type": "Simple",
+          "RunTime": 0.1
+        }
+      ]
+    }
   }
 }

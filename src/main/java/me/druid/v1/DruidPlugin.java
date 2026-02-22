@@ -19,6 +19,7 @@ public class DruidPlugin extends JavaPlugin {
 
         this.shapeshiftHandler = new ShapeshiftHandler();
 
+        // Register the Shapeshift command
         try {
             Object cmdManager = HytaleServer.get().getCommandManager();
             Object command = new ShapeshiftCommand(shapeshiftHandler);

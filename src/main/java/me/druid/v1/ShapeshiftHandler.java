@@ -23,7 +23,7 @@ public class ShapeshiftHandler {
 
     static {
         ALLOWED_FORMS.put("bear", "Bear_Grizzly");
-        ALLOWED_FORMS.put("ram", "Ram");
+        ALLOWED_FORMS.put("ram", "Druid_Ram");
         ALLOWED_FORMS.put("duck", "Duck");
         ALLOWED_FORMS.put("shark", "Shark_Hammerhead");
         ALLOWED_FORMS.put("hawk", "Hawk");
