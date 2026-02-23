@@ -1,11 +1,17 @@
 {
-  "type": "item",
-  "id": "Ram_Horn",
+  "TranslationProperties": {
+    "Name": "server.items.Ram_Horn.name"
+  },
   "Icon": "Icons/ItemsGenerated/Bone_Spike.png",
   "Quality": "Legendary",
   "ItemLevel": 50,
-  "client": {
-    "tooltip": "Ram Horn"
+  "Categories": [
+    "Items.Tools"
+  ],
+  "Tags": {
+    "Type": [
+      "Tool"
+    ]
   },
   "Tool": {
     "Specs": [
@@ -31,26 +37,13 @@
       }
     ]
   },
-  "MaxDurability": 400.0,
-  "TranslationProperties": {
-    "Name": "server.items.Ram_Horn.name"
+  "PlayerAnimationsId": "Druid_Ram_Default",
+  "Utility": {
+    "Compatible": true
   },
   "Interactions": {
-    "Primary": {
-      "Interactions": [
-        {
-          "Type": "Gather",
-          "Effects": {
-            "ItemAnimationId": ""
-          }
-        },
-        {
-          "Type": "Damage",
-          "Effects": {
-            "ItemAnimationId": ""
-          }
-        }
-      ]
-    }
-  }
+    "Primary": "Pickaxe_Attack"
+  },
+  "MaxDurability": 400,
+  "DurabilityLossOnHit": 0
 }

@@ -15,9 +15,36 @@
     ]
   },
   "Interactions": {
+    "Primary": "Root_NPC_Attack_Melee",
     "Ability1": "Root_Weapon_Sword_Signature_Vortexstrike"
   },
   "InteractionVars": {
+    "Melee_Start": {
+      "Interactions": [
+        {
+          "Parent": "NPC_Attack_Melee_Simple",
+          "Effects": {
+            "ItemPlayerAnimationsId": "Druid_Shark_Default",
+            "ItemAnimationId": "Alerted"
+          },
+          "RunTime": 0.25
+        }
+      ]
+    },
+    "Melee_Damage": {
+      "Interactions": [
+        {
+          "Parent": "NPC_Attack_Melee_Damage",
+          "DamageCalculator": {
+            "Type": "Absolute",
+            "BaseDamage": {
+              "Physical": 29
+            },
+            "RandomPercentageModifier": 0.1
+          }
+        }
+      ]
+    },
     "Swing_Left_Damage": {
       "Interactions": [
         {

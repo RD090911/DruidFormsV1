@@ -36,8 +36,9 @@ public class ShapeshiftHandler {
     public static class AbilityConfig { }
 
     public boolean shapeshift(Player player, String formName) {
-        String cleanName = formName.toLowerCase();
-        if (!ALLOWED_FORMS.containsKey(cleanName)) {
+        String cleanName = formName.toLowerCase(Locale.ROOT);
+        String canonicalName = canonicalizeFormKey(cleanName);
+        if (!ALLOWED_FORMS.containsKey(canonicalName)) {
             return false;
         }
 
@@ -46,17 +47,22 @@ public class ShapeshiftHandler {
             return false;
         }
 
-        transform(player, ALLOWED_FORMS.get(cleanName), cleanName);
-        return true;
+        return transform(player, ALLOWED_FORMS.get(canonicalName), canonicalName);
     }
 
-    public void transform(Player player, String targetModelID, String shortName) {
+    private static String canonicalizeFormKey(String key) {
+        // Command aliases that should behave identically to their canonical form.
+        if ("rabbit".equals(key)) return "jackalope";
+        return key;
+    }
+
+    public boolean transform(Player player, String targetModelID, String shortName) {
         String playerName = player.getDisplayName();
         String currentForm = activeForms.get(playerName);
 
         if (currentForm != null && currentForm.equals(targetModelID)) {
             restoreHuman(player);
-            return;
+            return true;
         }
 
         if (currentForm != null) restoreHuman(player);
@@ -70,9 +76,18 @@ public class ShapeshiftHandler {
             updateCapabilities(player, shortName);
             swapAbilityItems(player, shortName);
 
+            // REMOVE HUMANOID FLAG FOR RAM
+            if (shortName.equals("ram")) {
+                toggleHumanoidFlag(player, false);
+            }
+
             maintenanceActive.put(playerName, true);
             startFormMaintenance(player, shortName);
+            return true;
         }
+
+        System.out.println("[Druid] Failed to shapeshift " + playerName + " into model: " + targetModelID);
+        return false;
     }
 
     public void restoreHuman(Player player) {
@@ -90,13 +105,16 @@ public class ShapeshiftHandler {
 
             refreshPlayerSkin(player);
             swapAbilityItems(player, "human");
+
+            // RESTORE HUMANOID FLAG
+            toggleHumanoidFlag(player, true);
         }
     }
 
     private void swapAbilityItems(Player player, String targetForm) {
         try {
             String itemToGive = null;
-            switch (targetForm.toLowerCase()) {
+            switch (targetForm.toLowerCase(Locale.ROOT)) {
                 case "bear": itemToGive = "Bear_Skin"; break;
                 case "ram": itemToGive = "Ram_Horn"; break;
                 case "sabertooth":
@@ -148,7 +166,7 @@ public class ShapeshiftHandler {
 
             if (itemId == null) return false;
 
-            String lowerId = itemId.toLowerCase();
+            String lowerId = itemId.toLowerCase(Locale.ROOT);
             return lowerId.contains("druid_totem") ||
                     lowerId.contains("bear_skin") ||
                     lowerId.contains("ram_horn") ||
@@ -232,7 +250,7 @@ public class ShapeshiftHandler {
             float fallMomentumLoss = 0.1f;
             boolean canFly = false;
 
-            switch (shortName.toLowerCase()) {
+            switch (shortName.toLowerCase(Locale.ROOT)) {
                 case "antelope":
                     baseSpeed = 5.5f * 1.75f;
                     break;
@@ -288,7 +306,7 @@ public class ShapeshiftHandler {
             }
 
             if (!canFly) {
-                sendFlightPacket(player, false);
+                forceStopFlying(player);
             }
 
             Object playerRef = getPlayerRef(player);
@@ -298,6 +316,33 @@ public class ShapeshiftHandler {
             updateMethod.invoke(movementManager, packetHandler);
 
         } catch (Exception e) {}
+    }
+
+    private void forceStopFlying(Player player) {
+        // When switching from a flying form (hawk/duck) to a non-flying form, the player can get
+        // stuck in the flying movement state. Clear it server-side and also tell the client.
+        try {
+            Object movementStatesComponent = getMovementStatesComponent(player);
+            if (movementStatesComponent != null) {
+                Class<?> movementStatesClass = Class.forName("com.hypixel.hytale.protocol.MovementStates");
+
+                Method getMovementStates = movementStatesComponent.getClass().getMethod("getMovementStates");
+                Object movementStates = getMovementStates.invoke(movementStatesComponent);
+
+                Object newMovementStates = (movementStates == null)
+                        ? movementStatesClass.getConstructor().newInstance()
+                        : movementStatesClass.getConstructor(movementStatesClass).newInstance(movementStates);
+
+                movementStatesClass.getField("flying").setBoolean(newMovementStates, false);
+                movementStatesClass.getField("gliding").setBoolean(newMovementStates, false);
+
+                Method setMovementStates = movementStatesComponent.getClass().getMethod("setMovementStates", movementStatesClass);
+                setMovementStates.invoke(movementStatesComponent, newMovementStates);
+            }
+        } catch (Exception ignored) {
+        }
+
+        sendFlightPacket(player, false);
     }
 
     private void sendFlightPacket(Player player, boolean isFlying) {
@@ -357,7 +402,7 @@ public class ShapeshiftHandler {
 
                 if (targetCategory != null) {
                     for (Object e : enums) {
-                        String name = e.toString().toLowerCase();
+                        String name = e.toString().toLowerCase(Locale.ROOT);
                         if (name.contains("sfx") || name.contains("effect") || name.contains("master")) {
                             targetCategory = e;
                             break;
@@ -379,7 +424,8 @@ public class ShapeshiftHandler {
             Object playerRef = getPlayerRef(player);
             Method getPacketHandler = playerRef.getClass().getMethod("getPacketHandler");
             Object handler = getPacketHandler.invoke(playerRef);
-            Method write = handler.getClass().getMethod("writeNoCache", Class.forName("com.hypixel.hytale.protocol.Packet"));
+            // PacketHandler#writeNoCache expects a ToClientPacket (not a generic Packet).
+            Method write = handler.getClass().getMethod("writeNoCache", Class.forName("com.hypixel.hytale.protocol.ToClientPacket"));
             write.invoke(handler, packet);
         } catch (Exception e) {}
     }
@@ -401,6 +447,37 @@ public class ShapeshiftHandler {
             Method max = statMap.getClass().getMethod("maximizeStatValue", int.class);
             max.invoke(statMap, index);
         } catch (Exception e) {}
+    }
+
+    // --- NEW METHOD: TOGGLES THE HUMANOID FLAG ---
+    private void toggleHumanoidFlag(Player player, boolean enable) {
+        try {
+            Object store = getEntityStore(player);
+            Object ref = getInternalRef(player);
+
+            // In Hytale, the tag component tells the animation system how to treat the entity
+            Class<?> tagCompClass = Class.forName("com.hypixel.hytale.server.core.modules.entity.component.TagComponent");
+            Method getCompType = tagCompClass.getMethod("getComponentType");
+            Object compType = getCompType.invoke(null);
+
+            Method getComponent = store.getClass().getMethod("getComponent", Class.forName("com.hypixel.hytale.component.Ref"), Class.forName("com.hypixel.hytale.component.ComponentType"));
+            Object tagComponent = getComponent.invoke(store, ref, compType);
+
+            if (tagComponent != null) {
+                Method getTags = tagCompClass.getMethod("getTags");
+                Set<String> tags = (Set<String>) getTags.invoke(tagComponent);
+
+                if (enable) {
+                    tags.add("Humanoid");
+                } else {
+                    tags.remove("Humanoid");
+                }
+
+                // Mark the component to update over the network so the client knows to stop using human animations
+                Method setOutdated = tagCompClass.getMethod("setNetworkOutdated");
+                setOutdated.invoke(tagComponent);
+            }
+        } catch (Exception e) { }
     }
 
     private Object getTransformComponent(Player player) throws Exception {
@@ -436,6 +513,16 @@ public class ShapeshiftHandler {
         Object ref = getInternalRef(player);
         Class<?> managerClass = Class.forName("com.hypixel.hytale.server.core.entity.entities.player.movement.MovementManager");
         Method getCompType = managerClass.getMethod("getComponentType");
+        Object compType = getCompType.invoke(null);
+        Method getComponent = store.getClass().getMethod("getComponent", Class.forName("com.hypixel.hytale.component.Ref"), Class.forName("com.hypixel.hytale.component.ComponentType"));
+        return getComponent.invoke(store, ref, compType);
+    }
+
+    private Object getMovementStatesComponent(Player player) throws Exception {
+        Object store = getEntityStore(player);
+        Object ref = getInternalRef(player);
+        Class<?> compClass = Class.forName("com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent");
+        Method getCompType = compClass.getMethod("getComponentType");
         Object compType = getCompType.invoke(null);
         Method getComponent = store.getClass().getMethod("getComponent", Class.forName("com.hypixel.hytale.component.Ref"), Class.forName("com.hypixel.hytale.component.ComponentType"));
         return getComponent.invoke(store, ref, compType);
@@ -478,6 +565,7 @@ public class ShapeshiftHandler {
 
             Object rawAsset = getAssetMethod.invoke(assetMap, assetId);
             if (rawAsset == null) rawAsset = getAssetMethod.invoke(assetMap, "Hytale:" + assetId);
+            if (rawAsset == null) rawAsset = getAssetMethod.invoke(assetMap, "druid:" + assetId);
             if (rawAsset == null) rawAsset = getAssetMethod.invoke(assetMap, "Druid:" + assetId);
             if (rawAsset == null) return false;
 

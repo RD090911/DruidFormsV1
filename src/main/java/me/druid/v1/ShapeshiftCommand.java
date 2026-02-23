@@ -9,16 +9,38 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.protocol.FormattedMessage;
 
+import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public class ShapeshiftCommand extends AbstractCommand {
     private final ShapeshiftHandler handler;
     private final RequiredArg<String> formArg;
 
+    private static final Set<String> VALID_FORMS = Set.of(
+            "bear",
+            "ram",
+            "duck",
+            "shark",
+            "hawk",
+            "sabertooth",
+            "tiger",
+            "jackalope",
+            "rabbit",
+            "antelope"
+    );
+
     public ShapeshiftCommand(ShapeshiftHandler handler) {
         super("shapeshift", "Shapeshift into an animal", false);
         this.handler = handler;
         this.formArg = this.withRequiredArg("formName", "The animal to turn into", ArgTypes.STRING);
+    }
+
+    @Override
+    protected boolean canGeneratePermission() {
+        // Make the command usable out-of-the-box (especially in singleplayer) without having
+        // to configure permission nodes.
+        return false;
     }
 
     @Override
@@ -45,12 +67,19 @@ public class ShapeshiftCommand extends AbstractCommand {
 
         player.getWorld().execute(() -> {
             try {
-                String lowerForm = formName.toLowerCase();
+                String lowerForm = formName.toLowerCase(Locale.ROOT);
 
                 if (lowerForm.equals("human") || lowerForm.equals("reset") || lowerForm.equals("none")) {
                     handler.restoreHuman(player);
                 } else {
-                    handler.shapeshift(player, lowerForm);
+                    if (!VALID_FORMS.contains(lowerForm)) {
+                        sendResponse(player, "Unknown form '" + formName + "'. Valid: " + String.join(", ", VALID_FORMS));
+                        return;
+                    }
+                    boolean success = handler.shapeshift(player, lowerForm);
+                    if (!success) {
+                        sendResponse(player, "Hold a Druid Totem (or a form item) and try again.");
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();

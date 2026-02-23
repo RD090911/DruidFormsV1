@@ -34,10 +34,15 @@ else if (!file(project.findProperty('hytaleHome')).exists()) {
 }
 
 java {
-    // --- FIX APPLIED HERE: FORCING JAVA 21 ---
+    // Compile against Java 21 bytecode for maximum runtime compatibility (Windows/Linux).
+    // The game/server is built for Java 21 even if you run it with a newer JRE.
     toolchain.languageVersion = JavaLanguageVersion.of(25)
     withSourcesJar()
     withJavadocJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
 }
 
 // Quiet warnings about missing Javadocs.
@@ -77,6 +82,14 @@ tasks.register('updatePluginManifest') {
 // Makes sure the plugin manifest is up to date.
 tasks.named('processResources') {
     dependsOn 'updatePluginManifest'
+}
+
+// Windows filesystems are typically case-insensitive, but Linux (Steam Deck) is case-sensitive.
+// Put both casings in the final jar so runtime lookups work either way.
+tasks.named('jar') {
+    from('src/main/resources/Plugin.json') {
+        rename { 'plugin.json' }
+    }
 }
 
 def createServerRunArguments(String srcDir) {
