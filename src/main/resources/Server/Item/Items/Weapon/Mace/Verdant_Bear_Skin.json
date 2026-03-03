@@ -1,0 +1,272 @@
+{
+  "TranslationProperties": {
+    "Name": "Verdant Bear Skin"
+  },
+  "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
+  "Reticle": "MaceMelee",
+  "Quality": "Rare",
+  "ItemSoundSetId": "ISS_Weapon_Blunt_Large",
+  "ItemLevel": 35,
+  "Categories": [
+    "Items.Weapons"
+  ],
+  "IconProperties": {
+    "Scale": 0.6,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      0.6,
+      -6.9
+    ]
+  },
+  "Tags": {
+    "Type": [
+      "Weapon"
+    ],
+    "Family": [
+      "Mace"
+    ]
+  },
+  "Interactions": {
+    "Primary": "Root_Weapon_Mace_Primary",
+    "Ability1": "Root_Weapon_Mace_Signature_Groundslam"
+  },
+  "Weapon": {
+    "EntityStatsToClear": [
+      "SignatureEnergy"
+    ],
+    "StatModifiers": {
+      "SignatureEnergy": [
+        {
+          "Amount": 8,
+          "CalculationType": "Additive"
+        }
+      ]
+    }
+  },
+  "ItemAppearanceConditions": {
+    "SignatureEnergy": [
+      {
+        "Condition": [
+          100,
+          100
+        ],
+        "ConditionValueType": "Percent",
+        "Particles": [
+          {
+            "SystemId": "Sword_Signature_Ready",
+            "TargetNodeName": "Handle",
+            "PositionOffset": {
+              "X": 0.8
+            },
+            "TargetEntityPart": "PrimaryItem"
+          }
+        ]
+      }
+    ]
+  },
+  "MaxDurability": 400,
+  "DurabilityLossOnHit": 0,
+  "InteractionVars": {
+    "Swing_Left_Damage": {
+      "Interactions": [
+        {
+          "Parent": "Weapon_Mace_Primary_Swing_Left_Damage",
+          "DamageCalculator": {
+            "BaseDamage": {
+              "Physical": 14
+            }
+          },
+          "EntityStatsOnHit": [
+            {
+              "EntityStatId": "Health",
+              "Amount": 8,
+              "Target": "Self"
+            }
+          ],
+          "DamageEffects": {
+            "WorldSoundEventId": "SFX_Mace_T2_Impact",
+            "LocalSoundEventId": "SFX_Mace_T2_Impact",
+            "Knockback": {
+              "Type": "Force",
+              "Force": 18,
+              "Direction": {
+                "X": 0,
+                "Y": 0.5,
+                "Z": -3
+              },
+              "VelocityType": "Add",
+              "VelocityConfig": {
+                "AirResistance": 0.99,
+                "GroundResistance": 0.94,
+                "Threshold": 3.0,
+                "Style": "Linear"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Swing_Right_Damage": {
+      "Interactions": [
+        {
+          "Parent": "Weapon_Mace_Primary_Swing_Right_Damage",
+          "DamageCalculator": {
+            "BaseDamage": {
+              "Physical": 14
+            }
+          },
+          "EntityStatsOnHit": [
+            {
+              "EntityStatId": "Health",
+              "Amount": 8,
+              "Target": "Self"
+            }
+          ],
+          "DamageEffects": {
+            "WorldSoundEventId": "SFX_Mace_T2_Impact",
+            "LocalSoundEventId": "SFX_Mace_T2_Impact",
+            "Knockback": {
+              "Type": "Force",
+              "Force": 18,
+              "Direction": {
+                "X": 0,
+                "Y": 0.5,
+                "Z": -3
+              },
+              "VelocityType": "Add",
+              "VelocityConfig": {
+                "AirResistance": 0.99,
+                "GroundResistance": 0.94,
+                "Threshold": 3.0,
+                "Style": "Linear"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Swing_Up_Left_Damage": {
+      "Interactions": [
+        {
+          "Parent": "Weapon_Mace_Primary_Swing_Up_Left_Damage",
+          "DamageCalculator": {
+            "BaseDamage": {
+              "Physical": 14
+            }
+          },
+          "EntityStatsOnHit": [
+            {
+              "EntityStatId": "Health",
+              "Amount": 8,
+              "Target": "Self"
+            }
+          ],
+          "DamageEffects": {
+            "WorldSoundEventId": "SFX_Mace_T2_Impact",
+            "LocalSoundEventId": "SFX_Mace_T2_Impact",
+            "Knockback": {
+              "Type": "Force",
+              "Force": 18,
+              "Direction": {
+                "X": 0,
+                "Y": 0.5,
+                "Z": -3
+              },
+              "VelocityType": "Add",
+              "VelocityConfig": {
+                "AirResistance": 0.99,
+                "GroundResistance": 0.94,
+                "Threshold": 3.0,
+                "Style": "Linear"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Groundslam_Damage": {
+      "Interactions": [
+        {
+          "Parent": "Weapon_Mace_Signature_Groundslam_Damage",
+          "DamageCalculator": {
+            "BaseDamage": {
+              "Physical": 32
+            }
+          },
+          "EntityStatsOnHit": [
+            {
+              "EntityStatId": "Health",
+              "Amount": 8,
+              "Target": "Self"
+            }
+          ],
+          "DamageEffects": {
+            "WorldSoundEventId": "SFX_Mace_T2_Impact",
+            "LocalSoundEventId": "SFX_Mace_T2_Impact",
+            "Knockback": {
+              "Type": "Force",
+              "Force": 25,
+              "Direction": {
+                "X": 0,
+                "Y": 1,
+                "Z": -3
+              },
+              "VelocityType": "Set",
+              "VelocityConfig": {
+                "AirResistance": 0.99,
+                "GroundResistance": 0.94,
+                "Threshold": 3.0,
+                "Style": "Linear"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Guard_Wield": {
+      "Interactions": [
+        {
+          "Parent": "Weapon_Mace_Secondary_Guard_Wield",
+          "StaminaCost": {
+            "Value": 15.56,
+            "CostType": "Damage"
+          }
+        }
+      ]
+    }
+  },
+  "Icon": "Icons/ItemsGenerated/Ingredient_Hide_Medium.png",
+  "Recipe": {
+    "Input": [
+      {
+        "ItemId": "Bear_Skin",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Ingredient_Life_Essence",
+        "Quantity": 50
+      },
+      {
+        "ItemId": "Ingredient_Crystal_Green",
+        "Quantity": 12
+      },
+      {
+        "ItemId": "Ingredient_Hide_Heavy",
+        "Quantity": 5
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "Crafting",
+        "Categories": [
+          "Verdant"
+        ],
+        "Id": "Druid_Shrine"
+      }
+    ]
+  }
+}

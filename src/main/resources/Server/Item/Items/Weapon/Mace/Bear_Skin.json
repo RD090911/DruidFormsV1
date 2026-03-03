@@ -4,9 +4,9 @@
   },
   "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
   "Reticle": "MaceMelee",
-  "Quality": "Legendary",
+  "Quality": "Uncommon",
   "ItemSoundSetId": "ISS_Weapon_Blunt_Large",
-  "ItemLevel": 50,
+  "ItemLevel": 20,
   "Categories": [
     "Items.Weapons"
   ],
@@ -77,13 +77,13 @@
           "Parent": "Weapon_Mace_Primary_Swing_Left_Damage",
           "DamageCalculator": {
             "BaseDamage": {
-              "Physical": 18
+              "Physical": 13
             }
           },
           "EntityStatsOnHit": [
             {
               "EntityStatId": "Health",
-              "Amount": 10,
+              "Amount": 7,
               "Target": "Self"
             }
           ],
@@ -116,13 +116,13 @@
           "Parent": "Weapon_Mace_Primary_Swing_Right_Damage",
           "DamageCalculator": {
             "BaseDamage": {
-              "Physical": 18
+              "Physical": 13
             }
           },
           "EntityStatsOnHit": [
             {
               "EntityStatId": "Health",
-              "Amount": 10,
+              "Amount": 7,
               "Target": "Self"
             }
           ],
@@ -155,13 +155,13 @@
           "Parent": "Weapon_Mace_Primary_Swing_Up_Left_Damage",
           "DamageCalculator": {
             "BaseDamage": {
-              "Physical": 18
+              "Physical": 13
             }
           },
           "EntityStatsOnHit": [
             {
               "EntityStatId": "Health",
-              "Amount": 10,
+              "Amount": 7,
               "Target": "Self"
             }
           ],
@@ -194,13 +194,13 @@
           "Parent": "Weapon_Mace_Signature_Groundslam_Damage",
           "DamageCalculator": {
             "BaseDamage": {
-              "Physical": 40
+              "Physical": 28
             }
           },
           "EntityStatsOnHit": [
             {
               "EntityStatId": "Health",
-              "Amount": 10,
+              "Amount": 7,
               "Target": "Self"
             }
           ],

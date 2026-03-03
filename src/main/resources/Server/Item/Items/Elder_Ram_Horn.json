@@ -1,0 +1,127 @@
+{
+  "TranslationProperties": {
+    "Name": "Elder Ram Horn"
+  },
+  "Icon": "Icons/ItemsGenerated/Bone_Spike.png",
+  "Quality": "Legendary",
+  "ItemLevel": 65,
+  "Categories": [
+    "Items.Tools"
+  ],
+  "Tags": {
+    "Type": [
+      "Tool"
+    ]
+  },
+  "Tool": {
+    "Specs": [
+      {
+        "Power": 0.5,
+        "GatherType": "SoftBlocks"
+      },
+      {
+        "Power": 0.5,
+        "GatherType": "Soils"
+      },
+      {
+        "Power": 0.5,
+        "GatherType": "Woods"
+      },
+      {
+        "Power": 0.5,
+        "GatherType": "Rocks",
+        "Quality": 5
+      },
+      {
+        "Power": 0.5,
+        "GatherType": "Benches"
+      },
+      {
+        "Power": 0.34,
+        "GatherType": "VolcanicRocks"
+      },
+      {
+        "Power": 0.5,
+        "GatherType": "OreCopper"
+      },
+      {
+        "Power": 0.5,
+        "GatherType": "OreIron"
+      },
+      {
+        "Power": 0.5,
+        "GatherType": "OreSilver"
+      },
+      {
+        "Power": 0.5,
+        "GatherType": "OreGold"
+      },
+      {
+        "Power": 0.5,
+        "GatherType": "OreThorium"
+      },
+      {
+        "Power": 0.5,
+        "GatherType": "OreCobalt"
+      },
+      {
+        "Power": 0.25,
+        "GatherType": "OreAdamantite",
+        "Quality": 4
+      },
+      {
+        "Power": 0.125,
+        "GatherType": "OreMithril"
+      }
+    ],
+    "DurabilityLossBlockTypes": [
+      {
+        "BlockSets": [
+          "Stone",
+          "Rock",
+          "Ores",
+          "Soil"
+        ],
+        "DurabilityLossOnHit": 0
+      }
+    ]
+  },
+  "PlayerAnimationsId": "Druid_Ram_Default",
+  "Utility": {
+    "Compatible": true
+  },
+  "Interactions": {
+    "Primary": "Pickaxe_Attack"
+  },
+  "MaxDurability": 400,
+  "DurabilityLossOnHit": 0,
+  "Recipe": {
+    "Input": [
+      {
+        "ItemId": "Primal_Ram_Horn",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Ingredient_Life_Essence_Concentrated",
+        "Quantity": 10
+      },
+      {
+        "ItemId": "Ingredient_Crystal_Green",
+        "Quantity": 30
+      },
+      {
+        "ItemId": "Rock_Calcite",
+        "Quantity": 15
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "Crafting",
+        "Categories": [
+          "Elder"
+        ],
+        "Id": "Druid_Shrine"
+      }
+    ]
+  }
+}

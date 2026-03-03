@@ -1,0 +1,127 @@
+{
+  "TranslationProperties": {
+    "Name": "Verdant Ram Horn"
+  },
+  "Icon": "Icons/ItemsGenerated/Bone_Spike.png",
+  "Quality": "Rare",
+  "ItemLevel": 35,
+  "Categories": [
+    "Items.Tools"
+  ],
+  "Tags": {
+    "Type": [
+      "Tool"
+    ]
+  },
+  "Tool": {
+    "Specs": [
+      {
+        "Power": 0.4,
+        "GatherType": "SoftBlocks"
+      },
+      {
+        "Power": 0.4,
+        "GatherType": "Soils"
+      },
+      {
+        "Power": 0.4,
+        "GatherType": "Woods"
+      },
+      {
+        "Power": 0.4,
+        "GatherType": "Rocks",
+        "Quality": 5
+      },
+      {
+        "Power": 0.4,
+        "GatherType": "Benches"
+      },
+      {
+        "Power": 0.272,
+        "GatherType": "VolcanicRocks"
+      },
+      {
+        "Power": 0.4,
+        "GatherType": "OreCopper"
+      },
+      {
+        "Power": 0.4,
+        "GatherType": "OreIron"
+      },
+      {
+        "Power": 0.4,
+        "GatherType": "OreSilver"
+      },
+      {
+        "Power": 0.4,
+        "GatherType": "OreGold"
+      },
+      {
+        "Power": 0.4,
+        "GatherType": "OreThorium"
+      },
+      {
+        "Power": 0.4,
+        "GatherType": "OreCobalt"
+      },
+      {
+        "Power": 0.2,
+        "GatherType": "OreAdamantite",
+        "Quality": 4
+      },
+      {
+        "Power": 0.1,
+        "GatherType": "OreMithril"
+      }
+    ],
+    "DurabilityLossBlockTypes": [
+      {
+        "BlockSets": [
+          "Stone",
+          "Rock",
+          "Ores",
+          "Soil"
+        ],
+        "DurabilityLossOnHit": 0
+      }
+    ]
+  },
+  "PlayerAnimationsId": "Druid_Ram_Default",
+  "Utility": {
+    "Compatible": true
+  },
+  "Interactions": {
+    "Primary": "Pickaxe_Attack"
+  },
+  "MaxDurability": 400,
+  "DurabilityLossOnHit": 0,
+  "Recipe": {
+    "Input": [
+      {
+        "ItemId": "Ram_Horn",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Ingredient_Life_Essence",
+        "Quantity": 50
+      },
+      {
+        "ItemId": "Ingredient_Crystal_Green",
+        "Quantity": 12
+      },
+      {
+        "ItemId": "Rock_Calcite",
+        "Quantity": 5
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "Crafting",
+        "Categories": [
+          "Verdant"
+        ],
+        "Id": "Druid_Shrine"
+      }
+    ]
+  }
+}

@@ -38,8 +38,6 @@ public class ShapeshiftCommand extends AbstractCommand {
 
     @Override
     protected boolean canGeneratePermission() {
-        // Make the command usable out-of-the-box (especially in singleplayer) without having
-        // to configure permission nodes.
         return false;
     }
 
@@ -78,7 +76,7 @@ public class ShapeshiftCommand extends AbstractCommand {
                     }
                     boolean success = handler.shapeshift(player, lowerForm);
                     if (!success) {
-                        sendResponse(player, "Hold a Druid Totem (or a form item) and try again.");
+                        sendResponse(player, "Hold a Druid Totem (or place it in hotbar slot 1) and try again.");
                     }
                 }
             } catch (Exception e) {

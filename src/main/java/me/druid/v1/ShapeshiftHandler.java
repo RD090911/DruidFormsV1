@@ -16,8 +16,12 @@ public class ShapeshiftHandler {
     public static final ConcurrentHashMap<String, String> activeForms = new ConcurrentHashMap<>();
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final ConcurrentHashMap<String, Boolean> maintenanceActive = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, DruidFormProgress> PLAYER_PROGRESS = new ConcurrentHashMap<>();
 
     private static final String DRUID_ITEM = "Druid_Totem";
+    private static final short HOTBAR_SLOT_ONE = 0;
+    private static final short HOTBAR_SLOT_ONE_ALT = 1;
+    private static final short HOTBAR_SIZE = 10;
 
     private static final Map<String, String> ALLOWED_FORMS = new HashMap<>();
 
@@ -35,6 +39,83 @@ public class ShapeshiftHandler {
 
     public static class AbilityConfig { }
 
+    private enum TieredForm {
+        TIGER("tiger", new String[]{"Tiger_Claw", "Verdant_Tiger_Claw", "Primal_Tiger_Claw", "Elder_Tiger_Claw"}),
+        BEAR("bear", new String[]{"Bear_Skin", "Verdant_Bear_Skin", "Primal_Bear_Skin", "Elder_Bear_Skin"}),
+        SHARK("shark", new String[]{"Shark_Tooth", "Verdant_Shark_Tooth", "Primal_Shark_Tooth", "Elder_Shark_Tooth"}),
+        RAM("ram", new String[]{"Ram_Horn", "Verdant_Ram_Horn", "Primal_Ram_Horn", "Elder_Ram_Horn"});
+
+        private final String formKey;
+        private final String[] itemIdsByTier;
+
+        TieredForm(String formKey, String[] itemIdsByTier) {
+            this.formKey = formKey;
+            this.itemIdsByTier = itemIdsByTier;
+        }
+
+        static TieredForm fromFormKey(String formKey) {
+            for (TieredForm value : values()) {
+                if (value.formKey.equals(formKey)) return value;
+            }
+            return null;
+        }
+
+        String itemForTier(int tier) {
+            int index = Math.max(1, Math.min(4, tier)) - 1;
+            return itemIdsByTier[index];
+        }
+    }
+
+    private static final class DruidFormProgress {
+        private int tigerTier = 1;
+        private int bearTier = 1;
+        private int sharkTier = 1;
+        private int ramTier = 1;
+
+        int getTier(TieredForm form) {
+            switch (form) {
+                case TIGER: return tigerTier;
+                case BEAR: return bearTier;
+                case SHARK: return sharkTier;
+                case RAM: return ramTier;
+                default: return 1;
+            }
+        }
+
+        void setTier(TieredForm form, int newTier) {
+            int clamped = Math.max(1, Math.min(4, newTier));
+            switch (form) {
+                case TIGER: tigerTier = clamped; break;
+                case BEAR: bearTier = clamped; break;
+                case SHARK: sharkTier = clamped; break;
+                case RAM: ramTier = clamped; break;
+                default: break;
+            }
+        }
+    }
+
+    public int getTier(Player player, String formName) {
+        TieredForm tieredForm = TieredForm.fromFormKey(canonicalizeFormKey(formName.toLowerCase(Locale.ROOT)));
+        if (tieredForm == null) return 1;
+        return getProgress(player).getTier(tieredForm);
+    }
+
+    public boolean canUpgradeTier(Player player, String formName) {
+        TieredForm tieredForm = TieredForm.fromFormKey(canonicalizeFormKey(formName.toLowerCase(Locale.ROOT)));
+        if (tieredForm == null) return false;
+        return getProgress(player).getTier(tieredForm) < 4;
+    }
+
+    public boolean upgradeTier(Player player, String formName) {
+        TieredForm tieredForm = TieredForm.fromFormKey(canonicalizeFormKey(formName.toLowerCase(Locale.ROOT)));
+        if (tieredForm == null) return false;
+        DruidFormProgress progress = getProgress(player);
+        int currentTier = progress.getTier(tieredForm);
+        if (currentTier >= 4) return false;
+        progress.setTier(tieredForm, currentTier + 1);
+        return true;
+    }
+
     public boolean shapeshift(Player player, String formName) {
         String cleanName = formName.toLowerCase(Locale.ROOT);
         String canonicalName = canonicalizeFormKey(cleanName);
@@ -47,11 +128,11 @@ public class ShapeshiftHandler {
             return false;
         }
 
+        syncTierProgressFromInventory(player);
         return transform(player, ALLOWED_FORMS.get(canonicalName), canonicalName);
     }
 
     private static String canonicalizeFormKey(String key) {
-        // Command aliases that should behave identically to their canonical form.
         if ("rabbit".equals(key)) return "jackalope";
         return key;
     }
@@ -76,7 +157,6 @@ public class ShapeshiftHandler {
             updateCapabilities(player, shortName);
             swapAbilityItems(player, shortName);
 
-            // REMOVE HUMANOID FLAG FOR RAM
             if (shortName.equals("ram")) {
                 toggleHumanoidFlag(player, false);
             }
@@ -106,35 +186,21 @@ public class ShapeshiftHandler {
             refreshPlayerSkin(player);
             swapAbilityItems(player, "human");
 
-            // RESTORE HUMANOID FLAG
             toggleHumanoidFlag(player, true);
         }
     }
 
     private void swapAbilityItems(Player player, String targetForm) {
         try {
-            String itemToGive = null;
-            switch (targetForm.toLowerCase(Locale.ROOT)) {
-                case "bear": itemToGive = "Bear_Skin"; break;
-                case "ram": itemToGive = "Ram_Horn"; break;
-                case "sabertooth":
-                case "tiger": itemToGive = "Tiger_Claw"; break;
-                case "shark": itemToGive = "Shark_Tooth"; break;
-                case "human":
-                case "hawk":
-                case "duck":
-                case "jackalope":
-                case "antelope":
-                    itemToGive = DRUID_ITEM; break;
+            String canonical = canonicalizeFormKey(targetForm.toLowerCase(Locale.ROOT));
+            String itemToGive = DRUID_ITEM;
+            TieredForm tieredForm = TieredForm.fromFormKey(canonical);
+            if (tieredForm != null) {
+                itemToGive = tieredForm.itemForTier(getProgress(player).getTier(tieredForm));
             }
-
-            if (itemToGive == null) return;
 
             Method getInventory = player.getClass().getMethod("getInventory");
             Object inventory = getInventory.invoke(player);
-
-            Method getActiveSlot = inventory.getClass().getMethod("getActiveHotbarSlot");
-            byte slotIndex = (byte) getActiveSlot.invoke(inventory);
 
             Method getHotbar = inventory.getClass().getMethod("getHotbar");
             Object hotbarContainer = getHotbar.invoke(inventory);
@@ -143,8 +209,13 @@ public class ShapeshiftHandler {
             Constructor<?> constructor = itemStackClass.getConstructor(String.class, int.class);
             Object newItemStack = constructor.newInstance(itemToGive, 1);
 
-            Method setItem = hotbarContainer.getClass().getMethod("setItemStackForSlot", short.class, itemStackClass);
-            setItem.invoke(hotbarContainer, (short) slotIndex, newItemStack);
+            Method getStack = findGetStackMethod(hotbarContainer);
+            Method setItem = findSetStackMethod(hotbarContainer);
+            if (getStack == null || setItem == null) return;
+
+            short targetSlot = setHotbarItemAndGetSlot(hotbarContainer, getStack, setItem, newItemStack, itemToGive);
+            clearDruidItemsFromInventory(inventory, hotbarContainer, targetSlot);
+            trySetItemVerified(hotbarContainer, setItem, getStack, targetSlot, newItemStack, itemToGive);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -157,25 +228,236 @@ public class ShapeshiftHandler {
             Object inventory = getInventory.invoke(player);
             if (inventory == null) return false;
 
-            Method getItemInHand = inventory.getClass().getMethod("getItemInHand");
-            Object itemStack = getItemInHand.invoke(inventory);
-            if (itemStack == null) return false;
+            try {
+                Method getItemInHand = inventory.getClass().getMethod("getItemInHand");
+                Object itemStack = getItemInHand.invoke(inventory);
+                if (isDruidAbilityStack(itemStack)) return true;
+            } catch (Exception ignored) { }
 
-            Method getItemId = itemStack.getClass().getMethod("getItemId");
-            String itemId = (String) getItemId.invoke(itemStack);
+            Method getHotbar = inventory.getClass().getMethod("getHotbar");
+            Object hotbarContainer = getHotbar.invoke(inventory);
+            if (hotbarContainer == null) return false;
 
-            if (itemId == null) return false;
-
-            String lowerId = itemId.toLowerCase(Locale.ROOT);
-            return lowerId.contains("druid_totem") ||
-                    lowerId.contains("bear_skin") ||
-                    lowerId.contains("ram_horn") ||
-                    lowerId.contains("tiger_claw") ||
-                    lowerId.contains("shark_tooth");
+            Method getStack = findGetStackMethod(hotbarContainer);
+            if (getStack == null) return false;
+            return hasDruidItemInHotbar(hotbarContainer, getStack);
 
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private boolean isDruidAbilityStack(Object itemStack) {
+        if (itemStack == null) return false;
+        try {
+            Method getItemId = itemStack.getClass().getMethod("getItemId");
+            Object itemIdObj = getItemId.invoke(itemStack);
+            if (!(itemIdObj instanceof String)) return false;
+            String lowerId = ((String) itemIdObj).toLowerCase(Locale.ROOT);
+            return isDruidAbilityItemId(lowerId);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private boolean isDruidAbilityItemId(String lowerId) {
+        if (lowerId == null) return false;
+        if (lowerId.contains("druid_totem")) return true;
+        if (lowerId.contains("druid") && lowerId.contains("totem")) return true;
+        for (TieredForm tieredForm : TieredForm.values()) {
+            for (int tier = 1; tier <= 4; tier++) {
+                String itemId = tieredForm.itemForTier(tier).toLowerCase(Locale.ROOT);
+                if (lowerId.contains(itemId)) return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasDruidItemInHotbar(Object hotbarContainer, Method getStack) {
+        try {
+            for (short slot = 0; slot < HOTBAR_SIZE; slot++) {
+                Object itemStack = invokeGetStack(hotbarContainer, getStack, slot);
+                if (isDruidAbilityStack(itemStack)) return true;
+            }
+
+            for (short slot = 1; slot <= HOTBAR_SIZE; slot++) {
+                Object itemStack = invokeGetStack(hotbarContainer, getStack, slot);
+                if (isDruidAbilityStack(itemStack)) return true;
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
+    }
+
+    private void clearDruidItemsFromHotbar(Object hotbarContainer, Method getStack, Method setItem, Class<?> itemStackClass, short keepSlot) {
+        try {
+            for (short slot = 0; slot < HOTBAR_SIZE; slot++) {
+                if (slot == keepSlot) continue;
+                Object itemStack = invokeGetStack(hotbarContainer, getStack, slot);
+                if (itemStack == null) continue;
+                Method getItemId = itemStack.getClass().getMethod("getItemId");
+                Object itemIdObj = getItemId.invoke(itemStack);
+                if (!(itemIdObj instanceof String)) continue;
+                String lowerId = ((String) itemIdObj).toLowerCase(Locale.ROOT);
+                if (!isDruidAbilityItemId(lowerId)) continue;
+                try {
+                    invokeSetStack(hotbarContainer, setItem, slot, null);
+                } catch (Exception ignored) { }
+            }
+
+            for (short slot = 1; slot <= HOTBAR_SIZE; slot++) {
+                if (slot == keepSlot) continue;
+                Object itemStack = invokeGetStack(hotbarContainer, getStack, slot);
+                if (itemStack == null) continue;
+                Method getItemId = itemStack.getClass().getMethod("getItemId");
+                Object itemIdObj = getItemId.invoke(itemStack);
+                if (!(itemIdObj instanceof String)) continue;
+                String lowerId = ((String) itemIdObj).toLowerCase(Locale.ROOT);
+                if (!isDruidAbilityItemId(lowerId)) continue;
+                try {
+                    invokeSetStack(hotbarContainer, setItem, slot, null);
+                } catch (Exception ignored) { }
+            }
+        } catch (Exception ignored) { }
+    }
+
+    private void clearDruidItemsFromInventory(Object inventory, Object hotbarContainer, short keepHotbarSlot) {
+        for (Object container : collectItemContainers(inventory)) {
+            Method getStack = findGetStackMethod(container);
+            Method setStack = findSetStackMethod(container);
+            if (getStack == null || setStack == null) continue;
+            boolean isHotbar = (container == hotbarContainer);
+            int size = getContainerSize(container);
+            if (size <= 0) size = HOTBAR_SIZE;
+
+            for (short slot = 0; slot < size; slot++) {
+                if (isHotbar && slot == keepHotbarSlot) continue;
+                if (shouldRemoveDruidItem(container, getStack, slot)) {
+                    try { invokeSetStack(container, setStack, slot, null); } catch (Exception ignored) { }
+                }
+            }
+
+            for (short slot = 1; slot <= size; slot++) {
+                if (isHotbar && slot == keepHotbarSlot) continue;
+                if (shouldRemoveDruidItem(container, getStack, slot)) {
+                    try { invokeSetStack(container, setStack, slot, null); } catch (Exception ignored) { }
+                }
+            }
+        }
+    }
+
+    private boolean shouldRemoveDruidItem(Object container, Method getStack, short slot) {
+        try {
+            Object itemStack = invokeGetStack(container, getStack, slot);
+            if (itemStack == null) return false;
+            Method getItemId = itemStack.getClass().getMethod("getItemId");
+            Object itemIdObj = getItemId.invoke(itemStack);
+            if (!(itemIdObj instanceof String)) return false;
+            String lowerId = ((String) itemIdObj).toLowerCase(Locale.ROOT);
+            return isDruidAbilityItemId(lowerId);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private Short findDruidItemSlot(Object hotbarContainer, Method getStack) {
+        try {
+            for (short slot = 0; slot < HOTBAR_SIZE; slot++) {
+                Object itemStack = invokeGetStack(hotbarContainer, getStack, slot);
+                if (isDruidAbilityStack(itemStack)) return slot;
+            }
+            for (short slot = 1; slot <= HOTBAR_SIZE; slot++) {
+                Object itemStack = invokeGetStack(hotbarContainer, getStack, slot);
+                if (isDruidAbilityStack(itemStack)) return slot;
+            }
+        } catch (Exception ignored) { }
+        return null;
+    }
+
+    private short getActiveHotbarSlotFallback(Object inventory) {
+        try {
+            Method getActiveSlot = inventory.getClass().getMethod("getActiveHotbarSlot");
+            return (short) ((byte) getActiveSlot.invoke(inventory));
+        } catch (Exception ignored) {
+            return HOTBAR_SLOT_ONE;
+        }
+    }
+
+    private boolean trySetItem(Object hotbarContainer, Method setItem, short slot, Object itemStack) {
+        try {
+            invokeSetStack(hotbarContainer, setItem, slot, itemStack);
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private boolean trySetItemVerified(Object hotbarContainer, Method setItem, Method getStack, short slot, Object itemStack, String expectedItemId) {
+        try {
+            invokeSetStack(hotbarContainer, setItem, slot, itemStack);
+            Object readBack = invokeGetStack(hotbarContainer, getStack, slot);
+            if (readBack == null) return false;
+            Method getItemId = readBack.getClass().getMethod("getItemId");
+            Object itemIdObj = getItemId.invoke(readBack);
+            if (!(itemIdObj instanceof String)) return false;
+            String lowerId = ((String) itemIdObj).toLowerCase(Locale.ROOT);
+            return lowerId.contains(expectedItemId.toLowerCase(Locale.ROOT));
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private short setHotbarItemAndGetSlot(Object hotbarContainer, Method getStack, Method setItem, Object newItemStack, String expectedItemId) {
+        if (trySetItemVerified(hotbarContainer, setItem, getStack, HOTBAR_SLOT_ONE, newItemStack, expectedItemId)) {
+            return HOTBAR_SLOT_ONE;
+        }
+        if (trySetItemVerified(hotbarContainer, setItem, getStack, HOTBAR_SLOT_ONE_ALT, newItemStack, expectedItemId)) {
+            return HOTBAR_SLOT_ONE_ALT;
+        }
+        return HOTBAR_SLOT_ONE;
+    }
+
+    private Method findGetStackMethod(Object hotbarContainer) {
+        Method fallback = null;
+        for (Method m : hotbarContainer.getClass().getMethods()) {
+            if (m.getParameterCount() != 1) continue;
+            if (m.getName().equals("getItemStackForSlot")) return m;
+            if (fallback == null && m.getName().toLowerCase(Locale.ROOT).contains("getitemstack")) {
+                fallback = m;
+            }
+        }
+        return fallback;
+    }
+
+    private Method findSetStackMethod(Object hotbarContainer) {
+        Method fallback = null;
+        for (Method m : hotbarContainer.getClass().getMethods()) {
+            if (m.getParameterCount() != 2) continue;
+            if (m.getName().equals("setItemStackForSlot")) return m;
+            if (fallback == null && m.getName().toLowerCase(Locale.ROOT).contains("setitemstack")) {
+                fallback = m;
+            }
+        }
+        return fallback;
+    }
+
+    private Object invokeGetStack(Object hotbarContainer, Method getStack, short slot) throws Exception {
+        Class<?> paramType = getStack.getParameterTypes()[0];
+        Object arg = coerceSlot(slot, paramType);
+        return getStack.invoke(hotbarContainer, arg);
+    }
+
+    private void invokeSetStack(Object hotbarContainer, Method setStack, short slot, Object itemStack) throws Exception {
+        Class<?> slotType = setStack.getParameterTypes()[0];
+        Object slotArg = coerceSlot(slot, slotType);
+        setStack.invoke(hotbarContainer, slotArg, itemStack);
+    }
+
+    private Object coerceSlot(short slot, Class<?> paramType) {
+        if (paramType == short.class || paramType == Short.class) return slot;
+        if (paramType == int.class || paramType == Integer.class) return (int) slot;
+        if (paramType == byte.class || paramType == Byte.class) return (byte) slot;
+        return slot;
     }
 
     private void sendPlayerMessage(Player player, String text) {
@@ -287,6 +569,12 @@ public class ShapeshiftHandler {
                     break;
             }
 
+            float tierMultiplier = getTierMultiplier(player, shortName);
+            if (tierMultiplier != 1.0f) {
+                baseSpeed *= tierMultiplier;
+                jumpForce *= tierMultiplier;
+            }
+
             Object[] targets = {settings, defaultSettings};
 
             for (Object target : targets) {
@@ -319,8 +607,6 @@ public class ShapeshiftHandler {
     }
 
     private void forceStopFlying(Player player) {
-        // When switching from a flying form (hawk/duck) to a non-flying form, the player can get
-        // stuck in the flying movement state. Clear it server-side and also tell the client.
         try {
             Object movementStatesComponent = getMovementStatesComponent(player);
             if (movementStatesComponent != null) {
@@ -424,7 +710,6 @@ public class ShapeshiftHandler {
             Object playerRef = getPlayerRef(player);
             Method getPacketHandler = playerRef.getClass().getMethod("getPacketHandler");
             Object handler = getPacketHandler.invoke(playerRef);
-            // PacketHandler#writeNoCache expects a ToClientPacket (not a generic Packet).
             Method write = handler.getClass().getMethod("writeNoCache", Class.forName("com.hypixel.hytale.protocol.ToClientPacket"));
             write.invoke(handler, packet);
         } catch (Exception e) {}
@@ -449,13 +734,11 @@ public class ShapeshiftHandler {
         } catch (Exception e) {}
     }
 
-    // --- NEW METHOD: TOGGLES THE HUMANOID FLAG ---
     private void toggleHumanoidFlag(Player player, boolean enable) {
         try {
             Object store = getEntityStore(player);
             Object ref = getInternalRef(player);
 
-            // In Hytale, the tag component tells the animation system how to treat the entity
             Class<?> tagCompClass = Class.forName("com.hypixel.hytale.server.core.modules.entity.component.TagComponent");
             Method getCompType = tagCompClass.getMethod("getComponentType");
             Object compType = getCompType.invoke(null);
@@ -473,7 +756,6 @@ public class ShapeshiftHandler {
                     tags.remove("Humanoid");
                 }
 
-                // Mark the component to update over the network so the client knows to stop using human animations
                 Method setOutdated = tagCompClass.getMethod("setNetworkOutdated");
                 setOutdated.invoke(tagComponent);
             }
@@ -622,6 +904,167 @@ public class ShapeshiftHandler {
                 }
             } catch (Exception ignored) { }
         }
+    }
+
+    private DruidFormProgress getProgress(Player player) {
+        return PLAYER_PROGRESS.computeIfAbsent(getPlayerUuid(player), ignored -> new DruidFormProgress());
+    }
+
+    private UUID getPlayerUuid(Player player) {
+        try {
+            Method getUuid = player.getClass().getMethod("getUuid");
+            Object value = getUuid.invoke(player);
+            if (value instanceof UUID) return (UUID) value;
+        } catch (Exception ignored) {
+        }
+        try {
+            Method getId = player.getClass().getMethod("getId");
+            Object value = getId.invoke(player);
+            if (value instanceof UUID) return (UUID) value;
+        } catch (Exception ignored) {
+        }
+        return UUID.nameUUIDFromBytes(player.getDisplayName().getBytes());
+    }
+
+    private float getTierMultiplier(Player player, String shortName) {
+        TieredForm tieredForm = TieredForm.fromFormKey(canonicalizeFormKey(shortName.toLowerCase(Locale.ROOT)));
+        if (tieredForm == null) return 1.0f;
+        int tier = getProgress(player).getTier(tieredForm);
+        switch (tier) {
+            case 2: return 1.15f;
+            case 3: return 1.3f;
+            case 4: return 1.5f;
+            default: return 1.0f;
+        }
+    }
+
+    private void syncTierProgressFromInventory(Player player) {
+        try {
+            Method getInventory = player.getClass().getMethod("getInventory");
+            Object inventory = getInventory.invoke(player);
+            if (inventory == null) return;
+
+            DruidFormProgress progress = getProgress(player);
+
+            for (Object container : collectItemContainers(inventory)) {
+                syncTierFromContainer(container, progress);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void syncTierFromContainer(Object container, DruidFormProgress progress) throws Exception {
+        Method getStack = findGetStackMethod(container);
+        int size = getContainerSize(container);
+
+        if (getStack != null && size > 0) {
+            for (short slot = 0; slot < size; slot++) {
+                updateTierFromItemStack(invokeGetStack(container, getStack, slot), progress);
+            }
+            for (short slot = 1; slot <= size; slot++) {
+                updateTierFromItemStack(invokeGetStack(container, getStack, slot), progress);
+            }
+            return;
+        }
+
+        Method getAll = findGetAllStacksMethod(container);
+        if (getAll != null) {
+            Object result = getAll.invoke(container);
+            if (result instanceof Object[]) {
+                for (Object itemStack : (Object[]) result) {
+                    updateTierFromItemStack(itemStack, progress);
+                }
+            } else if (result instanceof Iterable) {
+                for (Object itemStack : (Iterable<?>) result) {
+                    updateTierFromItemStack(itemStack, progress);
+                }
+            }
+            return;
+        }
+
+        if (getStack != null) {
+            for (short slot = 0; slot < HOTBAR_SIZE; slot++) {
+                updateTierFromItemStack(invokeGetStack(container, getStack, slot), progress);
+            }
+            for (short slot = 1; slot <= HOTBAR_SIZE; slot++) {
+                updateTierFromItemStack(invokeGetStack(container, getStack, slot), progress);
+            }
+        }
+    }
+
+    private void updateTierFromItemStack(Object itemStack, DruidFormProgress progress) throws Exception {
+        if (itemStack == null) return;
+        Method getItemId = itemStack.getClass().getMethod("getItemId");
+        Object rawItemId = getItemId.invoke(itemStack);
+        if (!(rawItemId instanceof String)) return;
+
+        String itemId = ((String) rawItemId).toLowerCase(Locale.ROOT);
+        for (TieredForm tieredForm : TieredForm.values()) {
+            for (int tier = 4; tier >= 1; tier--) {
+                if (itemId.contains(tieredForm.itemForTier(tier).toLowerCase(Locale.ROOT))) {
+                    if (progress.getTier(tieredForm) < tier) {
+                        progress.setTier(tieredForm, tier);
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    private List<Object> collectItemContainers(Object inventory) {
+        List<Object> containers = new ArrayList<>();
+        Set<Object> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+
+        try {
+            Method getHotbar = inventory.getClass().getMethod("getHotbar");
+            Object hotbar = getHotbar.invoke(inventory);
+            if (hotbar != null && seen.add(hotbar)) containers.add(hotbar);
+        } catch (Exception ignored) {
+        }
+
+        for (Method m : inventory.getClass().getMethods()) {
+            if (m.getParameterCount() != 0) continue;
+            Class<?> rt = m.getReturnType();
+            if (rt == null) continue;
+            String typeName = rt.getName().toLowerCase(Locale.ROOT);
+            if (!(typeName.contains("item") && typeName.contains("container"))) continue;
+            try {
+                Object container = m.invoke(inventory);
+                if (container != null && seen.add(container)) {
+                    containers.add(container);
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        return containers;
+    }
+
+    private int getContainerSize(Object container) {
+        try {
+            for (Method m : container.getClass().getMethods()) {
+                if (m.getParameterCount() != 0) continue;
+                Class<?> rt = m.getReturnType();
+                if (!(rt == int.class || rt == Integer.class || rt == short.class || rt == Short.class || rt == byte.class || rt == Byte.class)) continue;
+                String name = m.getName().toLowerCase(Locale.ROOT);
+                if (!(name.contains("size") || name.contains("count") || name.contains("slot"))) continue;
+                Object val = m.invoke(container);
+                if (val instanceof Number) return ((Number) val).intValue();
+            }
+        } catch (Exception ignored) {
+        }
+        return -1;
+    }
+
+    private Method findGetAllStacksMethod(Object container) {
+        for (Method m : container.getClass().getMethods()) {
+            if (m.getParameterCount() != 0) continue;
+            String name = m.getName().toLowerCase(Locale.ROOT);
+            if (name.contains("getitemstacks") || name.contains("getitems") || name.contains("getcontents")) {
+                return m;
+            }
+        }
+        return null;
     }
 
     private Field getFieldDeep(Class<?> clazz, String name) {

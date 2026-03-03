@@ -3,8 +3,8 @@
     "Name": "Shark Tooth"
   },
   "Icon": "Icons/ItemsGenerated/Rock_Ice_Stalactite_Large.png",
-  "Quality": "Legendary",
-  "ItemLevel": 50,
+  "Quality": "Uncommon",
+  "ItemLevel": 20,
   "Tags": {
     "Type": [
       "Weapon",
@@ -38,7 +38,7 @@
           "DamageCalculator": {
             "Type": "Absolute",
             "BaseDamage": {
-              "Physical": 29
+              "Physical": 20
             },
             "RandomPercentageModifier": 0.1
           }
@@ -51,13 +51,13 @@
           "Parent": "Weapon_Sword_Primary_Swing_Left_Damage",
           "DamageCalculator": {
             "BaseDamage": {
-              "Physical": 29
+              "Physical": 20
             }
           },
           "EntityStatsOnHit": [
             {
               "EntityStatId": "Health",
-              "Amount": 10,
+              "Amount": 7,
               "Target": "Self"
             }
           ],
@@ -74,13 +74,13 @@
           "Parent": "Weapon_Sword_Primary_Swing_Right_Damage",
           "DamageCalculator": {
             "BaseDamage": {
-              "Physical": 29
+              "Physical": 20
             }
           },
           "EntityStatsOnHit": [
             {
               "EntityStatId": "Health",
-              "Amount": 10,
+              "Amount": 7,
               "Target": "Self"
             }
           ],
@@ -97,13 +97,13 @@
           "Parent": "Weapon_Sword_Primary_Swing_Down_Damage",
           "DamageCalculator": {
             "BaseDamage": {
-              "Physical": 34
+              "Physical": 24
             }
           },
           "EntityStatsOnHit": [
             {
               "EntityStatId": "Health",
-              "Amount": 10,
+              "Amount": 7,
               "Target": "Self"
             }
           ],
@@ -120,7 +120,7 @@
           "Parent": "Weapon_Sword_Primary_Thrust_Damage",
           "DamageCalculator": {
             "BaseDamage": {
-              "Physical": 37
+              "Physical": 26
             }
           },
           "EntityStatsOnHit": [
@@ -130,7 +130,7 @@
             },
             {
               "EntityStatId": "Health",
-              "Amount": 10,
+              "Amount": 7,
               "Target": "Self"
             }
           ],
@@ -147,13 +147,13 @@
           "Parent": "Weapon_Sword_Signature_Vortexstrike_Spin_Damage",
           "DamageCalculator": {
             "BaseDamage": {
-              "Physical": 22
+              "Physical": 15
             }
           },
           "EntityStatsOnHit": [
             {
               "EntityStatId": "Health",
-              "Amount": 10,
+              "Amount": 7,
               "Target": "Self"
             }
           ],
@@ -170,13 +170,13 @@
           "Parent": "Weapon_Sword_Signature_Vortexstrike_Stab_Damage",
           "DamageCalculator": {
             "BaseDamage": {
-              "Physical": 50
+              "Physical": 35
             }
           },
           "EntityStatsOnHit": [
             {
               "EntityStatId": "Health",
-              "Amount": 10,
+              "Amount": 7,
               "Target": "Self"
             }
           ],

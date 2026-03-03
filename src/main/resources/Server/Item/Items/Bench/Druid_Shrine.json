@@ -1,0 +1,119 @@
+{
+  "TranslationProperties": {
+    "Name": "Druid Shrine",
+    "Description": "Gaia has blessed us with the abilities of a Druid"
+  },
+  "Icon": "Icons/ItemsGenerated/Furniture_Ancient_Statue.png",
+  "Categories": [
+    "Furniture.Benches"
+  ],
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Model",
+    "Opacity": "Transparent",
+    "CustomModel": "Blocks/Decorative_Sets/Ancient/Statue.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Decorative_Sets/Ancient/Statue_Texture.png",
+        "Weight": 1
+      }
+    ],
+    "Particles": [
+      {
+        "SystemId": "Druid_Shrine_Rune_Effects",
+        "PositionOffset": {
+          "Y": 2.0
+        },
+        "Scale": 0.8
+      }
+    ],
+    "HitboxType": "Bench_Salvage",
+    "VariantRotation": "NESW",
+    "Bench": {
+      "Type": "Crafting",
+      "Categories": [
+        {
+          "Id": "Tools",
+          "Icon": "Icons/CraftingCategories/Druid_Shrine.png",
+          "Name": "Tools"
+        },
+        {
+          "Id": "Verdant",
+          "Icon": "Icons/CraftingCategories/Druid_Shrine.png",
+          "Name": "Verdant"
+        },
+        {
+          "Id": "Primal",
+          "Icon": "Icons/CraftingCategories/Druid_Shrine.png",
+          "Name": "Primal"
+        },
+        {
+          "Id": "Elder",
+          "Icon": "Icons/CraftingCategories/Druid_Shrine.png",
+          "Name": "Elder"
+        }
+      ],
+      "LocalOpenSoundEventId": "SFX_Arcane_Workbench_Open_Local",
+      "LocalCloseSoundEventId": "SFX_Arcane_Workbench_Close_Local",
+      "CompletedSoundEventId": "SFX_Arcane_Workbench_Craft",
+      "FailedSoundEventId": "SFX_Generic_Crafting_Failed",
+      "BenchUpgradeSoundEventId": "SFX_Workbench_Upgrade_Start_Default",
+      "BenchUpgradeCompletedSoundEventId": "SFX_Workbench_Upgrade_Complete_Default",
+      "Id": "Druid_Shrine",
+      "TierLevels": [
+        {
+          "CraftingTimeReductionModifier": 0.0
+        }
+      ]
+    },
+    "State": {
+      "Id": "crafting",
+      "Definitions": {
+        "CraftCompleted": {
+          "CustomModelAnimation": "Blocks/Benches/Alchemy_Crafting.blockyanim",
+          "Looping": true
+        },
+        "CraftCompletedInstant": {
+          "CustomModelAnimation": "Blocks/Benches/Alchemy_Crafting.blockyanim"
+        }
+      }
+    },
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Benches"
+      }
+    },
+    "BlockParticleSetId": "Stone",
+    "ParticleColor": "#9f9e81",
+    "Support": {
+      "Down": [
+        {
+          "FaceType": "Full"
+        }
+      ]
+    },
+    "BlockSoundSetId": "Stone"
+  },
+  "PlayerAnimationsId": "Block",
+  "IconProperties": {
+    "Scale": 0.264,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      0,
+      -45.07
+    ]
+  },
+  "Tags": {
+    "Type": [
+      "Bench"
+    ]
+  },
+  "MaxStack": 1,
+  "ItemLevel": 10,
+  "Scale": 0.6,
+  "ItemSoundSetId": "ISS_Blocks_Stone"
+}
