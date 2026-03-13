@@ -1,6 +1,8 @@
 package me.druid.v1;
 
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
+import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -24,9 +26,10 @@ public class ShapeshiftHandler {
     private static final short HOTBAR_SIZE = 10;
 
     private static final Map<String, String> ALLOWED_FORMS = new HashMap<>();
+    private final AnimalArmorService animalArmorService = new AnimalArmorService();
 
     static {
-        ALLOWED_FORMS.put("bear", "Bear_Grizzly");
+        ALLOWED_FORMS.put("bear", "Druid_Bear");
         ALLOWED_FORMS.put("ram", "Druid_Ram");
         ALLOWED_FORMS.put("duck", "Duck");
         ALLOWED_FORMS.put("shark", "Shark_Hammerhead");
@@ -113,7 +116,20 @@ public class ShapeshiftHandler {
         int currentTier = progress.getTier(tieredForm);
         if (currentTier >= 4) return false;
         progress.setTier(tieredForm, currentTier + 1);
+        if (isCurrentForm(player, tieredForm.formKey)) {
+            animalArmorService.refreshActiveFormArmor(player, tieredForm.formKey, currentTier + 1);
+        }
         return true;
+    }
+
+    private boolean isCurrentForm(Player player, String formKey) {
+        if (player == null || formKey == null) return false;
+        try {
+            String playerName = player.getDisplayName();
+            return formKey.equals(formKeyFromModel(activeForms.get(playerName)));
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     public boolean shapeshift(Player player, String formName) {
@@ -133,20 +149,47 @@ public class ShapeshiftHandler {
     }
 
     private static String canonicalizeFormKey(String key) {
+        if ("sabertooth".equals(key)) return "tiger";
         if ("rabbit".equals(key)) return "jackalope";
         return key;
+    }
+
+    private String formKeyFromModel(String modelId) {
+        if (modelId == null) return null;
+        return switch (modelId) {
+            case "Druid_Bear" -> "bear";
+            case "Druid_Ram" -> "ram";
+            case "Duck" -> "duck";
+            case "Shark_Hammerhead" -> "shark";
+            case "Hawk" -> "hawk";
+            case "Tiger_Sabertooth" -> "tiger";
+            case "Rabbit" -> "rabbit";
+            case "Antelope" -> "antelope";
+            default -> null;
+        };
+    }
+
+    private static int clampTier(int tier) {
+        return Math.max(1, Math.min(4, tier));
     }
 
     public boolean transform(Player player, String targetModelID, String shortName) {
         String playerName = player.getDisplayName();
         String currentForm = activeForms.get(playerName);
+        String previousForm = formKeyFromModel(currentForm);
+        shortName = canonicalizeFormKey(shortName.toLowerCase(Locale.ROOT));
 
         if (currentForm != null && currentForm.equals(targetModelID)) {
             restoreHuman(player);
             return true;
         }
 
-        if (currentForm != null) restoreHuman(player);
+        if (currentForm != null) {
+            maintenanceActive.put(playerName, false);
+            if ("ram".equals(previousForm)) {
+                toggleHumanoidFlag(player, true);
+            }
+        }
 
         playPoofEffect(player);
 
@@ -156,13 +199,20 @@ public class ShapeshiftHandler {
 
             updateCapabilities(player, shortName);
             swapAbilityItems(player, shortName);
-
-            if (shortName.equals("ram")) {
+            if ("ram".equals(shortName)) {
                 toggleHumanoidFlag(player, false);
             }
 
-            maintenanceActive.put(playerName, true);
-            startFormMaintenance(player, shortName);
+            if (animalArmorService.isTrackedForm(shortName)) {
+                int requestedTier = detectActiveFormTier(player, shortName);
+                animalArmorService.onFormChanged(player, previousForm, shortName, clampTier(requestedTier));
+            }
+
+            TieredForm tieredForm = TieredForm.fromFormKey(shortName);
+            maintenanceActive.put(playerName, tieredForm != null);
+            if (tieredForm != null) {
+                startFormMaintenance(player, shortName);
+            }
             return true;
         }
 
@@ -173,7 +223,6 @@ public class ShapeshiftHandler {
     public void restoreHuman(Player player) {
         String playerName = player.getDisplayName();
         maintenanceActive.put(playerName, false);
-
         playPoofEffect(player);
 
         updateCapabilities(player, "human");
@@ -185,8 +234,152 @@ public class ShapeshiftHandler {
 
             refreshPlayerSkin(player);
             swapAbilityItems(player, "human");
+            animalArmorService.onRestoreToHuman(player);
 
             toggleHumanoidFlag(player, true);
+        }
+    }
+
+    public void handlePlayerConnect(PlayerConnectEvent event) {
+        if (event == null) return;
+        try {
+            Player player = event.getPlayer();
+            if (player != null) {
+                sanitizeAnimalFormItemOnLogin(player);
+                animalArmorService.recoverHumanArmorOnLogin(player, isFormActive(player));
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    public void handlePlayerDisconnect(PlayerDisconnectEvent event) {
+        if (event == null) return;
+        String playerName = getPlayerName(event.getPlayerRef());
+        if (playerName != null) {
+            boolean wasTransformed = activeForms.containsKey(playerName);
+            maintenanceActive.remove(playerName);
+            activeForms.remove(playerName);
+            if (!wasTransformed) {
+                animalArmorService.clearPlayerState(playerName);
+            }
+        }
+    }
+
+    private String getPlayerName(com.hypixel.hytale.server.core.universe.PlayerRef playerRef) {
+        if (playerRef == null) return null;
+        try {
+            return playerRef.getUsername();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private void sanitizeAnimalFormItemOnLogin(Player player) {
+        if (player == null) return;
+        if (isFormActive(player)) return;
+
+        try {
+            Method getInventory = player.getClass().getMethod("getInventory");
+            Object inventory = getInventory.invoke(player);
+            if (inventory == null) return;
+
+            Method getHotbar = inventory.getClass().getMethod("getHotbar");
+            Object hotbar = getHotbar.invoke(inventory);
+            if (hotbar == null) return;
+
+            Method getStack = findGetStackMethod(hotbar);
+            Method setStack = findSetStackMethod(hotbar);
+            if (getStack == null || setStack == null) return;
+
+            Class<?> itemStackClass = Class.forName("com.hypixel.hytale.server.core.inventory.ItemStack");
+            Constructor<?> constructor = itemStackClass.getConstructor(String.class, int.class);
+            Object totemItemStack = constructor.newInstance(DRUID_ITEM, 1);
+
+            if (isAnimalTransformationStack(invokeGetStack(hotbar, getStack, HOTBAR_SLOT_ONE))) {
+                invokeSetStack(hotbar, setStack, HOTBAR_SLOT_ONE, totemItemStack);
+                return;
+            }
+
+            if (isAnimalTransformationStack(invokeGetStack(hotbar, getStack, HOTBAR_SLOT_ONE_ALT))) {
+                invokeSetStack(hotbar, setStack, HOTBAR_SLOT_ONE_ALT, totemItemStack);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private boolean isFormActive(Player player) {
+        if (player == null) return false;
+        try {
+            String playerName = player.getDisplayName();
+            return activeForms.containsKey(playerName);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private int detectActiveFormTier(Player player, String form) {
+        TieredForm tieredForm = TieredForm.fromFormKey(canonicalizeFormKey(form.toLowerCase(Locale.ROOT)));
+        if (tieredForm == null) return 1;
+        int tierFromHeldItem = getTierFromHeldItem(player, tieredForm);
+        if (tierFromHeldItem > 0) return tierFromHeldItem;
+        return getProgress(player).getTier(tieredForm);
+    }
+
+    private int getTierFromHeldItem(Player player, TieredForm tieredForm) {
+        try {
+            Method getInventory = player.getClass().getMethod("getInventory");
+            Object inventory = getInventory.invoke(player);
+            if (inventory == null) return -1;
+
+            try {
+                Method getItemInHand = inventory.getClass().getMethod("getItemInHand");
+                int held = detectTierFromItemStack(getItemInHand.invoke(inventory), tieredForm);
+                if (held > 0) return held;
+            } catch (Exception ignored) {
+            }
+
+            Method getHotbar = inventory.getClass().getMethod("getHotbar");
+            Object hotbar = getHotbar.invoke(inventory);
+            if (hotbar == null) return -1;
+
+            Method getStack = findGetStackMethod(hotbar);
+            if (getStack == null) return -1;
+            int size = getContainerSize(hotbar);
+            if (size <= 0) size = HOTBAR_SIZE;
+
+            for (short slot = 0; slot < Math.min(size, HOTBAR_SIZE); slot++) {
+                int detected = detectTierFromItemStack(invokeGetStack(hotbar, getStack, slot), tieredForm);
+                if (detected > 0) return detected;
+            }
+            for (short slot = 1; slot <= Math.min(size, HOTBAR_SIZE); slot++) {
+                int detected = detectTierFromItemStack(invokeGetStack(hotbar, getStack, slot), tieredForm);
+                if (detected > 0) return detected;
+            }
+        } catch (Exception ignored) {
+        }
+        return -1;
+    }
+
+    private int detectTierFromItemStack(Object itemStack, TieredForm form) {
+        String itemId = getItemIdFromStack(itemStack);
+        if (itemId == null) return -1;
+        String lowerId = itemId.toLowerCase(Locale.ROOT);
+        for (int tier = 4; tier >= 1; tier--) {
+            if (lowerId.contains(form.itemForTier(tier).toLowerCase(Locale.ROOT))) {
+                return tier;
+            }
+        }
+        return -1;
+    }
+
+    private String getItemIdFromStack(Object itemStack) {
+        if (itemStack == null) return null;
+        try {
+            Method getItemId = itemStack.getClass().getMethod("getItemId");
+            Object rawItemId = getItemId.invoke(itemStack);
+            return rawItemId instanceof String ? (String) rawItemId : null;
+        } catch (Exception e) {
+            return null;
         }
     }
 
@@ -271,6 +464,28 @@ public class ShapeshiftHandler {
             }
         }
         return false;
+    }
+
+    private boolean isAnimalTransformationItemId(String lowerId) {
+        if (lowerId == null) return false;
+        for (TieredForm tieredForm : TieredForm.values()) {
+            for (int tier = 1; tier <= 4; tier++) {
+                String itemId = tieredForm.itemForTier(tier).toLowerCase(Locale.ROOT);
+                if (lowerId.contains(itemId)) return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isAnimalTransformationStack(Object itemStack) {
+        if (itemStack == null) return false;
+        try {
+            Method getItemId = itemStack.getClass().getMethod("getItemId");
+            Object itemIdObj = getItemId.invoke(itemStack);
+            return itemIdObj instanceof String && isAnimalTransformationItemId(((String) itemIdObj).toLowerCase(Locale.ROOT));
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     private boolean hasDruidItemInHotbar(Object hotbarContainer, Method getStack) {
@@ -495,23 +710,38 @@ public class ShapeshiftHandler {
     }
 
     private void startFormMaintenance(Player player, String shortName) {
-        String playerName = player.getDisplayName();
+        if (player == null) return;
+        final String normalizedForm = canonicalizeFormKey(shortName.toLowerCase(Locale.ROOT));
+        if (TieredForm.fromFormKey(normalizedForm) == null) return;
+
+        final String playerName = player.getDisplayName();
 
         scheduler.schedule(() -> {
             if (!maintenanceActive.getOrDefault(playerName, false)) return;
-            if (player.getWorld() == null) { maintenanceActive.put(playerName, false); return; }
+            String activeForm = formKeyFromModel(activeForms.get(playerName));
+            if (!normalizedForm.equals(activeForm)) return;
+            if (player.getWorld() == null) {
+                maintenanceActive.put(playerName, false);
+                return;
+            }
 
             try {
                 player.getWorld().execute(() -> {
                     try {
-                        if (shortName.equals("shark")) {
+                        String currentActiveForm = formKeyFromModel(activeForms.get(playerName));
+                        if (!normalizedForm.equals(currentActiveForm)) return;
+                        int requestedTier = detectActiveFormTier(player, normalizedForm);
+                        animalArmorService.refreshActiveFormArmor(player, normalizedForm, clampTier(requestedTier));
+                        if (normalizedForm.equals("shark")) {
                             modifyStat(player, "Oxygen", true, 10.0f);
+                        }
+                        if (maintenanceActive.getOrDefault(playerName, false)) {
+                            startFormMaintenance(player, normalizedForm);
                         }
                     } catch (Exception e) { }
                 });
-                startFormMaintenance(player, shortName);
             } catch (Exception e) { e.printStackTrace(); }
-        }, 250, TimeUnit.MILLISECONDS);
+        }, 2000, TimeUnit.MILLISECONDS);
     }
 
     private void updateCapabilities(Player player, String shortName) {

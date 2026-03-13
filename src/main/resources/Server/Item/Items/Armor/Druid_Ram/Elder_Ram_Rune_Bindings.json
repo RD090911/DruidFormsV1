@@ -1,0 +1,33 @@
+{
+  "Parent": "Armor_Iron_Hands",
+  "TranslationProperties": {
+    "Name": "Elder Ram Rune Bindings"
+  },
+  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
+  "Armor": {
+    "ArmorSlot": "Hands",
+    "BaseDamageResistance": 0,
+    "DamageResistance": {
+      "Physical": [
+        {
+          "Amount": 0.055,
+          "CalculationType": "Multiplicative"
+        }
+      ],
+      "Projectile": [
+        {
+          "Amount": 0.055,
+          "CalculationType": "Multiplicative"
+        }
+      ]
+    },
+    "StatModifiers": {
+      "Health": [
+        {
+          "Amount": 9,
+          "CalculationType": "Additive"
+        }
+      ]
+    }
+  }
+}

@@ -3,6 +3,8 @@ package me.druid.v1;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.HytaleServer;
+import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
+import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
 import java.lang.reflect.Method;
 
 public class DruidPlugin extends JavaPlugin {
@@ -31,6 +33,14 @@ public class DruidPlugin extends JavaPlugin {
             }
         } catch (Exception e) {
             System.out.println("[DruidPlugin] Error registering command: " + e.getMessage());
+        }
+
+        try {
+            HytaleServer.get().getEventBus().register(PlayerConnectEvent.class, shapeshiftHandler::handlePlayerConnect);
+            HytaleServer.get().getEventBus().register(PlayerDisconnectEvent.class, shapeshiftHandler::handlePlayerDisconnect);
+            System.out.println("[DruidPlugin] Player event handlers registered.");
+        } catch (Exception e) {
+            System.out.println("[DruidPlugin] Error registering player events: " + e.getMessage());
         }
 
         System.out.println("[DruidPlugin] V1 Ready!");

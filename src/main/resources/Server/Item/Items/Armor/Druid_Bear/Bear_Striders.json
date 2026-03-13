@@ -1,0 +1,7 @@
+{
+  "Parent": "Armor_Iron_Legs",
+  "TranslationProperties": {
+    "Name": "Bear Striders"
+  },
+  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel"
+}

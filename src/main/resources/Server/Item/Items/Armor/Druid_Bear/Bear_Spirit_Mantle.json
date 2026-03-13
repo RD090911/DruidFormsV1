@@ -1,0 +1,7 @@
+{
+  "Parent": "Armor_Iron_Chest",
+  "TranslationProperties": {
+    "Name": "Bear Spirit Mantle"
+  },
+  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel"
+}

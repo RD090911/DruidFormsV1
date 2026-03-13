@@ -1,0 +1,37 @@
+{
+  "Parent": "Armor_Iron_Chest",
+  "TranslationProperties": {
+    "Name": "Elder Bear Spirit Mantle"
+  },
+  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
+  "Armor": {
+    "ArmorSlot": "Chest",
+    "BaseDamageResistance": 0,
+    "CosmeticsToHide": [
+      "Overtop",
+      "Cape"
+    ],
+    "DamageResistance": {
+      "Physical": [
+        {
+          "Amount": 0.09,
+          "CalculationType": "Multiplicative"
+        }
+      ],
+      "Projectile": [
+        {
+          "Amount": 0.09,
+          "CalculationType": "Multiplicative"
+        }
+      ]
+    },
+    "StatModifiers": {
+      "Health": [
+        {
+          "Amount": 20,
+          "CalculationType": "Additive"
+        }
+      ]
+    }
+  }
+}
