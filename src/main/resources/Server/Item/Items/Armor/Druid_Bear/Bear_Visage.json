@@ -1,7 +1,40 @@
 {
-  "Parent": "Armor_Iron_Head",
-  "TranslationProperties": {
-    "Name": "Bear Visage"
-  },
-  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel"
+    "Parent":  "Armor_Iron_Head",
+    "TranslationProperties":  {
+                                  "Name":  "Bear Visage"
+                              },
+    "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
+    "Armor":  {
+                  "StatModifiers":  {
+                                        "Health":  [
+                                                       {
+                                                           "Amount":  9,
+                                                           "CalculationType":  "Additive"
+                                                       }
+                                                   ]
+                                    },
+                  "DamageResistance":  {
+                                           "Physical":  [
+                                                            {
+                                                                "Amount":  0.05,
+                                                                "CalculationType":  "Multiplicative"
+                                                            }
+                                                        ],
+                                           "Projectile":  [
+                                                              {
+                                                                  "Amount":  0.05,
+                                                                  "CalculationType":  "Multiplicative"
+                                                              }
+                                                          ]
+                                       },
+                  "ArmorSlot":  "Head",
+                  "CosmeticsToHide":  [
+                                          "EarAccessory",
+                                          "Ear",
+                                          "Haircut",
+                                          "HeadAccessory"
+                                      ],
+                  "BaseDamageResistance":  0
+              }
 }
+

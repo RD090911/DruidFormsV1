@@ -1,7 +1,34 @@
 {
-  "Parent": "Armor_Iron_Chest",
-  "TranslationProperties": {
-    "Name": "Bear Spirit Mantle"
-  },
-  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel"
+    "Parent":  "Armor_Iron_Chest",
+    "TranslationProperties":  {
+                                  "Name":  "Bear Spirit Mantle"
+                              },
+    "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
+    "Armor":  {
+                  "StatModifiers":  {
+                                        "Health":  [
+                                                       {
+                                                           "Amount":  17,
+                                                           "CalculationType":  "Additive"
+                                                       }
+                                                   ]
+                                    },
+                  "DamageResistance":  {
+                                           "Physical":  [
+                                                            {
+                                                                "Amount":  0.09,
+                                                                "CalculationType":  "Multiplicative"
+                                                            }
+                                                        ],
+                                           "Projectile":  [
+                                                              {
+                                                                  "Amount":  0.09,
+                                                                  "CalculationType":  "Multiplicative"
+                                                              }
+                                                          ]
+                                       },
+                  "ArmorSlot":  "Chest",
+                  "BaseDamageResistance":  0
+              }
 }
+

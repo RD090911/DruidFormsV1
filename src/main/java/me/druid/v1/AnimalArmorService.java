@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.Base64;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -137,6 +138,38 @@ class AnimalArmorService {
                             "Elder_Tiger_Rune_Bindings",
                             "Elder_Tiger_Striders"
                     }
+            },
+            "antelope", new String[][] {
+                    {
+                            "Antelope_Visage",
+                            "Antelope_Spirit_Mantle",
+                            "Antelope_Rune_Bindings",
+                            "Antelope_Striders"
+                    }
+            },
+            "rabbit", new String[][] {
+                    {
+                            "Rabbit_Visage",
+                            "Rabbit_Spirit_Mantle",
+                            "Rabbit_Rune_Bindings",
+                            "Rabbit_Striders"
+                    }
+            },
+            "duck", new String[][] {
+                    {
+                            "Duck_Visage",
+                            "Duck_Spirit_Mantle",
+                            "Duck_Rune_Bindings",
+                            "Duck_Striders"
+                    }
+            },
+            "hawk", new String[][] {
+                    {
+                            "Hawk_Visage",
+                            "Hawk_Spirit_Mantle",
+                            "Hawk_Rune_Bindings",
+                            "Hawk_Striders"
+                    }
             }
     );
 
@@ -181,7 +214,6 @@ class AnimalArmorService {
             return;
         }
 
-        // Keep the first captured snapshot until player returns to human.
         ensureSnapshotCaptured(playerId, player);
         refreshArmorForForm(player, normalizedForm, clampTier(requestedTier));
     }
@@ -216,7 +248,7 @@ class AnimalArmorService {
             return;
         }
 
-        String playerId = getPlayerKey(player);
+        String playerId = findExistingSnapshotKey(player);
         if (playerId != null && playerStates.get(playerId) != null) {
             restoreSavedArmor(player);
             return;
@@ -246,10 +278,7 @@ class AnimalArmorService {
             return;
         }
 
-        // Always clear transformed armor before restoring the saved snapshot.
-        clearArmorSlots(armor);
-
-        String playerId = getPlayerKey(player);
+        String playerId = findExistingSnapshotKey(player);
         if (playerId == null) {
             return;
         }
@@ -258,6 +287,8 @@ class AnimalArmorService {
         if (state == null) {
             return;
         }
+
+        clearArmorSlots(armor);
 
         for (short slot = 0; slot < AnimalArmorState.SLOT_COUNT; slot++) {
             setArmorSlot(armor, slot, state.getSlot(slot));
@@ -326,7 +357,7 @@ class AnimalArmorService {
     private AnimalArmorState captureArmorState(Player player) {
         ItemContainer armor = getArmorContainer(player);
         if (armor == null) {
-            return new AnimalArmorState();
+            return null;
         }
 
         AnimalArmorState snapshot = new AnimalArmorState();
@@ -343,10 +374,14 @@ class AnimalArmorService {
         if (playerId == null || player == null) {
             return;
         }
-        if (playerStates.containsKey(playerId)) {
+        if (playerStates.containsKey(playerId) || findExistingSnapshotKey(player) != null) {
             return;
         }
-        saveSnapshot(playerId, captureArmorState(player));
+        AnimalArmorState snapshot = captureArmorState(player);
+        if (snapshot == null) {
+            return;
+        }
+        saveSnapshot(playerId, snapshot);
     }
 
     private boolean hasAnimalArmorEquipped(ItemContainer armor) {
@@ -403,18 +438,59 @@ class AnimalArmorService {
     }
 
     private String getPlayerKey(Player player) {
-        try {
-            return player.getDisplayName();
-        } catch (Exception e) {
-            return null;
+        LinkedHashSet<String> keys = getCandidatePlayerKeys(player);
+        for (String key : keys) {
+            return key;
         }
+        return null;
+    }
+
+    private String findExistingSnapshotKey(Player player) {
+        for (String candidate : getCandidatePlayerKeys(player)) {
+            if (playerStates.containsKey(candidate)) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    private LinkedHashSet<String> getCandidatePlayerKeys(Player player) {
+        LinkedHashSet<String> keys = new LinkedHashSet<>();
+        if (player == null) {
+            return keys;
+        }
+        try {
+            Object uuid = player.getClass().getMethod("getUuid").invoke(player);
+            if (uuid != null) {
+                keys.add(uuid.toString());
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            Object id = player.getClass().getMethod("getId").invoke(player);
+            if (id != null) {
+                keys.add(id.toString());
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            String displayName = player.getDisplayName();
+            if (displayName != null && !displayName.isBlank()) {
+                keys.add(displayName);
+            }
+        } catch (Exception ignored) {
+        }
+        return keys;
     }
 
     private String normalizeForm(String form) {
         if (form == null) {
             return null;
         }
-        return form.toLowerCase(Locale.ROOT);
+        String normalized = form.toLowerCase(Locale.ROOT);
+        if ("jackalope".equals(normalized)) return "rabbit";
+        if ("sabertooth".equals(normalized) || "sabretooth".equals(normalized)) return "tiger";
+        return normalized;
     }
 
     private int clampTier(int tier) {

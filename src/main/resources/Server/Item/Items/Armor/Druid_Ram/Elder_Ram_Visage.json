@@ -1,39 +1,40 @@
 {
-  "Parent": "Armor_Iron_Head",
-  "TranslationProperties": {
-    "Name": "Elder Ram Visage"
-  },
-  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
-  "Armor": {
-    "ArmorSlot": "Head",
-    "BaseDamageResistance": 0,
-    "CosmeticsToHide": [
-      "EarAccessory",
-      "Ear",
-      "Haircut",
-      "HeadAccessory"
-    ],
-    "DamageResistance": {
-      "Physical": [
-        {
-          "Amount": 0.065,
-          "CalculationType": "Multiplicative"
-        }
-      ],
-      "Projectile": [
-        {
-          "Amount": 0.065,
-          "CalculationType": "Multiplicative"
-        }
-      ]
-    },
-    "StatModifiers": {
-      "Health": [
-        {
-          "Amount": 11,
-          "CalculationType": "Additive"
-        }
-      ]
-    }
-  }
+    "Parent":  "Armor_Iron_Head",
+    "TranslationProperties":  {
+                                  "Name":  "Elder Ram Visage"
+                              },
+    "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
+    "Armor":  {
+                  "ArmorSlot":  "Head",
+                  "BaseDamageResistance":  0,
+                  "CosmeticsToHide":  [
+                                          "EarAccessory",
+                                          "Ear",
+                                          "Haircut",
+                                          "HeadAccessory"
+                                      ],
+                  "DamageResistance":  {
+                                           "Physical":  [
+                                                            {
+                                                                "Amount":  0.045,
+                                                                "CalculationType":  "Multiplicative"
+                                                            }
+                                                        ],
+                                           "Projectile":  [
+                                                              {
+                                                                  "Amount":  0.045,
+                                                                  "CalculationType":  "Multiplicative"
+                                                              }
+                                                          ]
+                                       },
+                  "StatModifiers":  {
+                                        "Health":  [
+                                                       {
+                                                           "Amount":  11,
+                                                           "CalculationType":  "Additive"
+                                                       }
+                                                   ]
+                                    }
+              }
 }
+

@@ -1,14 +1,14 @@
 {
     "Parent":  "Armor_Iron_Hands",
     "TranslationProperties":  {
-                                  "Name":  "Bear Rune Bindings"
+                                  "Name":  "Hawk Rune Bindings"
                               },
     "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
     "Armor":  {
                   "StatModifiers":  {
                                         "Health":  [
                                                        {
-                                                           "Amount":  7,
+                                                           "Amount":  0,
                                                            "CalculationType":  "Additive"
                                                        }
                                                    ]
@@ -16,13 +16,13 @@
                   "DamageResistance":  {
                                            "Physical":  [
                                                             {
-                                                                "Amount":  0.04,
+                                                                "Amount":  0,
                                                                 "CalculationType":  "Multiplicative"
                                                             }
                                                         ],
                                            "Projectile":  [
                                                               {
-                                                                  "Amount":  0.04,
+                                                                  "Amount":  0,
                                                                   "CalculationType":  "Multiplicative"
                                                               }
                                                           ]

@@ -1,33 +1,34 @@
 {
-  "Parent": "Armor_Iron_Hands",
-  "TranslationProperties": {
-    "Name": "Primal Ram Rune Bindings"
-  },
-  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
-  "Armor": {
-    "ArmorSlot": "Hands",
-    "BaseDamageResistance": 0,
-    "DamageResistance": {
-      "Physical": [
-        {
-          "Amount": 0.05,
-          "CalculationType": "Multiplicative"
-        }
-      ],
-      "Projectile": [
-        {
-          "Amount": 0.05,
-          "CalculationType": "Multiplicative"
-        }
-      ]
-    },
-    "StatModifiers": {
-      "Health": [
-        {
-          "Amount": 8,
-          "CalculationType": "Additive"
-        }
-      ]
-    }
-  }
+    "Parent":  "Armor_Iron_Hands",
+    "TranslationProperties":  {
+                                  "Name":  "Primal Ram Rune Bindings"
+                              },
+    "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
+    "Armor":  {
+                  "ArmorSlot":  "Hands",
+                  "BaseDamageResistance":  0,
+                  "DamageResistance":  {
+                                           "Physical":  [
+                                                            {
+                                                                "Amount":  0.03,
+                                                                "CalculationType":  "Multiplicative"
+                                                            }
+                                                        ],
+                                           "Projectile":  [
+                                                              {
+                                                                  "Amount":  0.03,
+                                                                  "CalculationType":  "Multiplicative"
+                                                              }
+                                                          ]
+                                       },
+                  "StatModifiers":  {
+                                        "Health":  [
+                                                       {
+                                                           "Amount":  8,
+                                                           "CalculationType":  "Additive"
+                                                       }
+                                                   ]
+                                    }
+              }
 }
+

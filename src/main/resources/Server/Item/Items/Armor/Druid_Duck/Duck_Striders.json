@@ -1,38 +1,34 @@
 {
     "Parent":  "Armor_Iron_Legs",
     "TranslationProperties":  {
-                                  "Name":  "Primal Ram Striders"
+                                  "Name":  "Duck Striders"
                               },
     "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
     "Armor":  {
-                  "ArmorSlot":  "Legs",
-                  "BaseDamageResistance":  0,
-                  "CosmeticsToHide":  [
-                                          "Pants",
-                                          "Shoes"
-                                      ],
+                  "StatModifiers":  {
+                                        "Health":  [
+                                                       {
+                                                           "Amount":  0,
+                                                           "CalculationType":  "Additive"
+                                                       }
+                                                   ]
+                                    },
                   "DamageResistance":  {
                                            "Physical":  [
                                                             {
-                                                                "Amount":  0.06,
+                                                                "Amount":  0,
                                                                 "CalculationType":  "Multiplicative"
                                                             }
                                                         ],
                                            "Projectile":  [
                                                               {
-                                                                  "Amount":  0.06,
+                                                                  "Amount":  0,
                                                                   "CalculationType":  "Multiplicative"
                                                               }
                                                           ]
                                        },
-                  "StatModifiers":  {
-                                        "Health":  [
-                                                       {
-                                                           "Amount":  14,
-                                                           "CalculationType":  "Additive"
-                                                       }
-                                                   ]
-                                    }
+                  "ArmorSlot":  "Legs",
+                  "BaseDamageResistance":  0
               }
 }
 

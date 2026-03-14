@@ -1495,7 +1495,7 @@
                                 "w": 1
                               },
                               "shape": {
-                                "type": "quad",
+                                "type": "none",
                                 "offset": {
                                   "x": 0,
                                   "y": 0,
@@ -1528,7 +1528,7 @@
                                   }
                                 },
                                 "unwrapMode": "custom",
-                                "visible": true,
+                                "visible": false,
                                 "doubleSided": true,
                                 "shadingMode": "flat"
                               }

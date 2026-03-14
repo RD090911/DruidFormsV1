@@ -1,37 +1,38 @@
 {
-  "Parent": "Armor_Iron_Chest",
-  "TranslationProperties": {
-    "Name": "Verdant Ram Spirit Mantle"
-  },
-  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
-  "Armor": {
-    "ArmorSlot": "Chest",
-    "BaseDamageResistance": 0,
-    "CosmeticsToHide": [
-      "Overtop",
-      "Cape"
-    ],
-    "DamageResistance": {
-      "Physical": [
-        {
-          "Amount": 0.095,
-          "CalculationType": "Multiplicative"
-        }
-      ],
-      "Projectile": [
-        {
-          "Amount": 0.095,
-          "CalculationType": "Multiplicative"
-        }
-      ]
-    },
-    "StatModifiers": {
-      "Health": [
-        {
-          "Amount": 17,
-          "CalculationType": "Additive"
-        }
-      ]
-    }
-  }
+    "Parent":  "Armor_Iron_Chest",
+    "TranslationProperties":  {
+                                  "Name":  "Verdant Ram Spirit Mantle"
+                              },
+    "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
+    "Armor":  {
+                  "ArmorSlot":  "Chest",
+                  "BaseDamageResistance":  0,
+                  "CosmeticsToHide":  [
+                                          "Overtop",
+                                          "Cape"
+                                      ],
+                  "DamageResistance":  {
+                                           "Physical":  [
+                                                            {
+                                                                "Amount":  0.075,
+                                                                "CalculationType":  "Multiplicative"
+                                                            }
+                                                        ],
+                                           "Projectile":  [
+                                                              {
+                                                                  "Amount":  0.075,
+                                                                  "CalculationType":  "Multiplicative"
+                                                              }
+                                                          ]
+                                       },
+                  "StatModifiers":  {
+                                        "Health":  [
+                                                       {
+                                                           "Amount":  17,
+                                                           "CalculationType":  "Additive"
+                                                       }
+                                                   ]
+                                    }
+              }
 }
+

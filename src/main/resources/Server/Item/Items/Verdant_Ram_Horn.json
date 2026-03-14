@@ -55,23 +55,6 @@
       {
         "Power": 0.4,
         "GatherType": "OreGold"
-      },
-      {
-        "Power": 0.4,
-        "GatherType": "OreThorium"
-      },
-      {
-        "Power": 0.4,
-        "GatherType": "OreCobalt"
-      },
-      {
-        "Power": 0.2,
-        "GatherType": "OreAdamantite",
-        "Quality": 4
-      },
-      {
-        "Power": 0.1,
-        "GatherType": "OreMithril"
       }
     ],
     "DurabilityLossBlockTypes": [

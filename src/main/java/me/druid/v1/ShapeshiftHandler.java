@@ -18,7 +18,12 @@ public class ShapeshiftHandler {
     public static final ConcurrentHashMap<String, String> activeForms = new ConcurrentHashMap<>();
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final ConcurrentHashMap<String, Boolean> maintenanceActive = new ConcurrentHashMap<>();
+    private static final Set<String> duckOxygenBonusApplied = ConcurrentHashMap.newKeySet();
     private static final ConcurrentHashMap<UUID, DruidFormProgress> PLAYER_PROGRESS = new ConcurrentHashMap<>();
+    private static final float DUCK_UNDERWATER_BASE_SPEED = 13.2f;
+    private static final float DUCK_UNDERWATER_DRAG = 0.008f;
+    private static final float DUCK_UNDERWATER_SPRINT_MULTIPLIER = 1.18f;
+    private static final int DUCK_OXYGEN_BONUS = 135;
 
     private static final String DRUID_ITEM = "Druid_Totem";
     private static final short HOTBAR_SLOT_ONE = 0;
@@ -34,9 +39,8 @@ public class ShapeshiftHandler {
         ALLOWED_FORMS.put("duck", "Duck");
         ALLOWED_FORMS.put("shark", "Shark_Hammerhead");
         ALLOWED_FORMS.put("hawk", "Hawk");
-        ALLOWED_FORMS.put("sabertooth", "Tiger_Sabertooth");
         ALLOWED_FORMS.put("tiger", "Tiger_Sabertooth");
-        ALLOWED_FORMS.put("jackalope", "Rabbit");
+        ALLOWED_FORMS.put("rabbit", "Rabbit");
         ALLOWED_FORMS.put("antelope", "Antelope");
     }
 
@@ -149,8 +153,8 @@ public class ShapeshiftHandler {
     }
 
     private static String canonicalizeFormKey(String key) {
-        if ("sabertooth".equals(key)) return "tiger";
-        if ("rabbit".equals(key)) return "jackalope";
+        if ("sabertooth".equals(key) || "sabretooth".equals(key)) return "tiger";
+        if ("jackalope".equals(key)) return "rabbit";
         return key;
     }
 
@@ -189,6 +193,9 @@ public class ShapeshiftHandler {
             if ("ram".equals(previousForm)) {
                 toggleHumanoidFlag(player, true);
             }
+            if ("duck".equals(previousForm) && !"duck".equals(shortName)) {
+                setDuckOxygenBonus(playerName, player, false);
+            }
         }
 
         playPoofEffect(player);
@@ -213,6 +220,10 @@ public class ShapeshiftHandler {
             if (tieredForm != null) {
                 startFormMaintenance(player, shortName);
             }
+            if ("duck".equals(shortName)) {
+                setDuckOxygenBonus(playerName, player, true);
+                startDuckMobilityMaintenance(player);
+            }
             return true;
         }
 
@@ -235,6 +246,7 @@ public class ShapeshiftHandler {
             refreshPlayerSkin(player);
             swapAbilityItems(player, "human");
             animalArmorService.onRestoreToHuman(player);
+            setDuckOxygenBonus(playerName, player, false);
 
             toggleHumanoidFlag(player, true);
         }
@@ -245,8 +257,12 @@ public class ShapeshiftHandler {
         try {
             Player player = event.getPlayer();
             if (player != null) {
-                sanitizeAnimalFormItemOnLogin(player);
+                if (!isFormActive(player)) {
+                    setDuckOxygenBonus(player.getDisplayName(), player, false);
+                    restoreHumanStateOnLogin(player);
+                }
                 animalArmorService.recoverHumanArmorOnLogin(player, isFormActive(player));
+                sanitizeAnimalFormItemOnLogin(player);
             }
         } catch (Exception ignored) {
         }
@@ -258,6 +274,7 @@ public class ShapeshiftHandler {
         if (playerName != null) {
             boolean wasTransformed = activeForms.containsKey(playerName);
             maintenanceActive.remove(playerName);
+            duckOxygenBonusApplied.remove(playerName);
             activeForms.remove(playerName);
             if (!wasTransformed) {
                 animalArmorService.clearPlayerState(playerName);
@@ -271,6 +288,26 @@ public class ShapeshiftHandler {
             return playerRef.getUsername();
         } catch (Exception ignored) {
             return null;
+        }
+    }
+
+    private void restoreHumanStateOnLogin(Player player) {
+        if (player == null) return;
+        try {
+            updateCapabilities(player, "human");
+        } catch (Exception ignored) {
+        }
+        try {
+            swapModel(player, "Player");
+        } catch (Exception ignored) {
+        }
+        try {
+            refreshPlayerSkin(player);
+        } catch (Exception ignored) {
+        }
+        try {
+            toggleHumanoidFlag(player, true);
+        } catch (Exception ignored) {
         }
     }
 
@@ -744,6 +781,34 @@ public class ShapeshiftHandler {
         }, 2000, TimeUnit.MILLISECONDS);
     }
 
+    private void startDuckMobilityMaintenance(Player player) {
+        if (player == null) return;
+        final String playerName = player.getDisplayName();
+
+        scheduler.schedule(() -> {
+            String activeForm = formKeyFromModel(activeForms.get(playerName));
+            if (!"duck".equals(activeForm)) return;
+            if (player.getWorld() == null) {
+                return;
+            }
+
+            try {
+                player.getWorld().execute(() -> {
+                    try {
+                        String currentActiveForm = formKeyFromModel(activeForms.get(playerName));
+                        if (!"duck".equals(currentActiveForm)) return;
+                        updateCapabilities(player, "duck");
+                        if ("duck".equals(formKeyFromModel(activeForms.get(playerName)))) {
+                            startDuckMobilityMaintenance(player);
+                        }
+                    } catch (Exception ignored) {
+                    }
+                });
+            } catch (Exception ignored) {
+            }
+        }, 700, TimeUnit.MILLISECONDS);
+    }
+
     private void updateCapabilities(Player player, String shortName) {
         try {
             Object movementManager = getMovementManager(player);
@@ -761,6 +826,7 @@ public class ShapeshiftHandler {
             float dragCoefficient = 0.5f;
             float fallMomentumLoss = 0.1f;
             boolean canFly = false;
+            boolean duckUnderwater = false;
 
             switch (shortName.toLowerCase(Locale.ROOT)) {
                 case "antelope":
@@ -775,11 +841,16 @@ public class ShapeshiftHandler {
                     baseSpeed = 5.5f * 0.8f;
                     flySpeed = 10.32f * 1.0f;
                     canFly = true;
+                    if (isPlayerInWater(player)) {
+                        duckUnderwater = true;
+                        baseSpeed = DUCK_UNDERWATER_BASE_SPEED;
+                        dragCoefficient = DUCK_UNDERWATER_DRAG;
+                        canFly = false;
+                    }
                     break;
                 case "ram":
                     baseSpeed = 5.5f * 1.25f;
                     break;
-                case "sabertooth":
                 case "tiger":
                     baseSpeed = 5.5f * 1.5f;
                     jumpForce = 14.5f;
@@ -788,7 +859,7 @@ public class ShapeshiftHandler {
                     baseSpeed = 12.0f;
                     dragCoefficient = 0.01f;
                     break;
-                case "jackalope":
+                case "rabbit":
                     baseSpeed = 8.0f;
                     jumpForce = 17.0f;
                     dragCoefficient = 14.0f;
@@ -821,6 +892,17 @@ public class ShapeshiftHandler {
                 setField(target, "horizontalFlySpeed", flySpeed);
                 setField(target, "dragCoefficient", dragCoefficient);
                 setField(target, "fallMomentumLoss", fallMomentumLoss);
+                if ("duck".equals(shortName.toLowerCase(Locale.ROOT))) {
+                    if (duckUnderwater) {
+                        setField(target, "sprintMultiplier", DUCK_UNDERWATER_SPRINT_MULTIPLIER);
+                        setField(target, "sprintSpeedMultiplier", DUCK_UNDERWATER_SPRINT_MULTIPLIER);
+                        setField(target, "sprintingSpeedMultiplier", DUCK_UNDERWATER_SPRINT_MULTIPLIER);
+                    } else {
+                        restoreFloatFieldFromDefault(target, defaultSettings, "sprintMultiplier");
+                        restoreFloatFieldFromDefault(target, defaultSettings, "sprintSpeedMultiplier");
+                        restoreFloatFieldFromDefault(target, defaultSettings, "sprintingSpeedMultiplier");
+                    }
+                }
             }
 
             if (!canFly) {
@@ -933,6 +1015,93 @@ public class ShapeshiftHandler {
             }
 
         } catch (Exception e) {}
+    }
+
+    private void setDuckOxygenBonus(String playerName, Player player, boolean apply) {
+        if (playerName == null || player == null) return;
+        if (apply) {
+            if (duckOxygenBonusApplied.add(playerName)) {
+                modifyStat(player, "Oxygen", true, DUCK_OXYGEN_BONUS);
+            }
+            return;
+        }
+        if (duckOxygenBonusApplied.remove(playerName)) {
+            modifyStat(player, "Oxygen", false, DUCK_OXYGEN_BONUS);
+        }
+    }
+
+    private boolean isPlayerInWater(Player player) {
+        if (player == null) return false;
+        try {
+            Object movementStatesComponent = getMovementStatesComponent(player);
+            if (movementStatesComponent == null) return false;
+
+            Method getMovementStates = movementStatesComponent.getClass().getMethod("getMovementStates");
+            Object movementStates = getMovementStates.invoke(movementStatesComponent);
+            if (movementStates == null) return false;
+
+            return getBooleanMovementState(movementStates, "swimming")
+                    || getBooleanMovementState(movementStates, "underwater")
+                    || getBooleanMovementState(movementStates, "inWater");
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private boolean getBooleanMovementState(Object stateObject, String fieldOrMethod) {
+        if (stateObject == null || fieldOrMethod == null) return false;
+        try {
+            Field field = stateObject.getClass().getField(fieldOrMethod);
+            return field.getBoolean(stateObject);
+        } catch (Exception ignored) {
+        }
+        try {
+            Method method = stateObject.getClass().getMethod("is" + Character.toUpperCase(fieldOrMethod.charAt(0)) + fieldOrMethod.substring(1));
+            Object value = method.invoke(stateObject);
+            return value instanceof Boolean && (Boolean) value;
+        } catch (Exception ignored) {
+        }
+        try {
+            Method method = stateObject.getClass().getMethod("get" + Character.toUpperCase(fieldOrMethod.charAt(0)) + fieldOrMethod.substring(1));
+            Object value = method.invoke(stateObject);
+            return value instanceof Boolean && (Boolean) value;
+        } catch (Exception ignored) {
+        }
+        return false;
+    }
+
+    private void restoreFloatFieldFromDefault(Object target, Object defaultSource, String fieldName) {
+        if (target == null || defaultSource == null || fieldName == null) return;
+        Float defaultValue = readFloatField(defaultSource, fieldName);
+        if (defaultValue != null) {
+            setField(target, fieldName, defaultValue);
+        }
+    }
+
+    private Float readFloatField(Object source, String fieldName) {
+        if (source == null || fieldName == null) return null;
+        try {
+            Field field = source.getClass().getField(fieldName);
+            Object value = field.get(source);
+            if (value instanceof Number) return ((Number) value).floatValue();
+        } catch (Exception ignored) {
+        }
+        try {
+            Class<?> clazz = source.getClass();
+            while (clazz != null) {
+                try {
+                    Field field = clazz.getDeclaredField(fieldName);
+                    field.setAccessible(true);
+                    Object value = field.get(source);
+                    if (value instanceof Number) return ((Number) value).floatValue();
+                    break;
+                } catch (NoSuchFieldException ex) {
+                    clazz = clazz.getSuperclass();
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
     }
 
     private void sendPacket(Player player, Object packet) {

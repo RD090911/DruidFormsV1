@@ -1,38 +1,34 @@
 {
     "Parent":  "Armor_Iron_Chest",
     "TranslationProperties":  {
-                                  "Name":  "Primal Ram Spirit Mantle"
+                                  "Name":  "Hawk Spirit Mantle"
                               },
     "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
     "Armor":  {
-                  "ArmorSlot":  "Chest",
-                  "BaseDamageResistance":  0,
-                  "CosmeticsToHide":  [
-                                          "Overtop",
-                                          "Cape"
-                                      ],
+                  "StatModifiers":  {
+                                        "Health":  [
+                                                       {
+                                                           "Amount":  0,
+                                                           "CalculationType":  "Additive"
+                                                       }
+                                                   ]
+                                    },
                   "DamageResistance":  {
                                            "Physical":  [
                                                             {
-                                                                "Amount":  0.08,
+                                                                "Amount":  0,
                                                                 "CalculationType":  "Multiplicative"
                                                             }
                                                         ],
                                            "Projectile":  [
                                                               {
-                                                                  "Amount":  0.08,
+                                                                  "Amount":  0,
                                                                   "CalculationType":  "Multiplicative"
                                                               }
                                                           ]
                                        },
-                  "StatModifiers":  {
-                                        "Health":  [
-                                                       {
-                                                           "Amount":  18,
-                                                           "CalculationType":  "Additive"
-                                                       }
-                                                   ]
-                                    }
+                  "ArmorSlot":  "Chest",
+                  "BaseDamageResistance":  0
               }
 }
 

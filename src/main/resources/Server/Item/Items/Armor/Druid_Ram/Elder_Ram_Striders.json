@@ -1,37 +1,38 @@
 {
-  "Parent": "Armor_Iron_Legs",
-  "TranslationProperties": {
-    "Name": "Elder Ram Striders"
-  },
-  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
-  "Armor": {
-    "ArmorSlot": "Legs",
-    "BaseDamageResistance": 0,
-    "CosmeticsToHide": [
-      "Pants",
-      "Shoes"
-    ],
-    "DamageResistance": {
-      "Physical": [
-        {
-          "Amount": 0.085,
-          "CalculationType": "Multiplicative"
-        }
-      ],
-      "Projectile": [
-        {
-          "Amount": 0.085,
-          "CalculationType": "Multiplicative"
-        }
-      ]
-    },
-    "StatModifiers": {
-      "Health": [
-        {
-          "Amount": 15,
-          "CalculationType": "Additive"
-        }
-      ]
-    }
-  }
+    "Parent":  "Armor_Iron_Legs",
+    "TranslationProperties":  {
+                                  "Name":  "Elder Ram Striders"
+                              },
+    "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
+    "Armor":  {
+                  "ArmorSlot":  "Legs",
+                  "BaseDamageResistance":  0,
+                  "CosmeticsToHide":  [
+                                          "Pants",
+                                          "Shoes"
+                                      ],
+                  "DamageResistance":  {
+                                           "Physical":  [
+                                                            {
+                                                                "Amount":  0.065,
+                                                                "CalculationType":  "Multiplicative"
+                                                            }
+                                                        ],
+                                           "Projectile":  [
+                                                              {
+                                                                  "Amount":  0.065,
+                                                                  "CalculationType":  "Multiplicative"
+                                                              }
+                                                          ]
+                                       },
+                  "StatModifiers":  {
+                                        "Health":  [
+                                                       {
+                                                           "Amount":  15,
+                                                           "CalculationType":  "Additive"
+                                                       }
+                                                   ]
+                                    }
+              }
 }
+

@@ -1,14 +1,14 @@
 {
-    "Parent":  "Armor_Iron_Hands",
+    "Parent":  "Armor_Iron_Head",
     "TranslationProperties":  {
-                                  "Name":  "Bear Rune Bindings"
+                                  "Name":  "Duck Visage"
                               },
     "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
     "Armor":  {
                   "StatModifiers":  {
                                         "Health":  [
                                                        {
-                                                           "Amount":  7,
+                                                           "Amount":  0,
                                                            "CalculationType":  "Additive"
                                                        }
                                                    ]
@@ -16,18 +16,24 @@
                   "DamageResistance":  {
                                            "Physical":  [
                                                             {
-                                                                "Amount":  0.04,
+                                                                "Amount":  0,
                                                                 "CalculationType":  "Multiplicative"
                                                             }
                                                         ],
                                            "Projectile":  [
                                                               {
-                                                                  "Amount":  0.04,
+                                                                  "Amount":  0,
                                                                   "CalculationType":  "Multiplicative"
                                                               }
                                                           ]
                                        },
-                  "ArmorSlot":  "Hands",
+                  "ArmorSlot":  "Head",
+                  "CosmeticsToHide":  [
+                                          "EarAccessory",
+                                          "Ear",
+                                          "Haircut",
+                                          "HeadAccessory"
+                                      ],
                   "BaseDamageResistance":  0
               }
 }
