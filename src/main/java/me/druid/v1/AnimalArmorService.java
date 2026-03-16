@@ -487,10 +487,7 @@ class AnimalArmorService {
         if (form == null) {
             return null;
         }
-        String normalized = form.toLowerCase(Locale.ROOT);
-        if ("jackalope".equals(normalized)) return "rabbit";
-        if ("sabertooth".equals(normalized) || "sabretooth".equals(normalized)) return "tiger";
-        return normalized;
+        return form.toLowerCase(Locale.ROOT);
     }
 
     private int clampTier(int tier) {

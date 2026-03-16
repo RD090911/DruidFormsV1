@@ -23,10 +23,7 @@ public class ShapeshiftCommand extends AbstractCommand {
             "duck",
             "shark",
             "hawk",
-            "sabertooth",
-            "sabretooth",
             "tiger",
-            "jackalope",
             "rabbit",
             "antelope"
     );

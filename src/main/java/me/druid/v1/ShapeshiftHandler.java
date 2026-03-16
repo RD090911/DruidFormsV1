@@ -153,8 +153,6 @@ public class ShapeshiftHandler {
     }
 
     private static String canonicalizeFormKey(String key) {
-        if ("sabertooth".equals(key) || "sabretooth".equals(key)) return "tiger";
-        if ("jackalope".equals(key)) return "rabbit";
         return key;
     }
 
