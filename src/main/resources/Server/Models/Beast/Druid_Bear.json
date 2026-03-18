@@ -1,6 +1,6 @@
 {
-  "Model": "NPC/Beast/Druid_Bear/Models/Druid_Bear.blockymodel",
-  "Texture": "NPC/Beast/Druid_Bear/Models/Druid_Bear_Texture.png",
+  "Model": "NPC/Beast/Bear_Grizzly/Models/Model.blockymodel",
+  "Texture": "NPC/Beast/Bear_Grizzly/Models/Texture.png",
   "EyeHeight": 1.4,
   "CrouchOffset": -0.5,
   "HitBox": {
