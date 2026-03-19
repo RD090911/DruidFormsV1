@@ -68,6 +68,10 @@ public class ShapeshiftCommand extends AbstractCommand {
                 if (lowerForm.equals("human") || lowerForm.equals("reset") || lowerForm.equals("none")) {
                     handler.restoreHuman(player);
                 } else {
+                    if (!DruidPermissions.canTransform(player)) {
+                        DruidPermissions.sendDenied(player);
+                        return;
+                    }
                     if (!VALID_FORMS.contains(lowerForm)) {
                         sendResponse(player, "Unknown form '" + formName + "'. Valid: " + String.join(", ", VALID_FORMS));
                         return;
@@ -75,6 +79,8 @@ public class ShapeshiftCommand extends AbstractCommand {
                     boolean success = handler.shapeshift(player, lowerForm);
                     if (!success) {
                         sendResponse(player, "Hold a Druid Totem (or place it in hotbar slot 1) and try again.");
+                    } else {
+                        DruidPermissions.sendGrantedOnFirstSuccessfulTransform(player);
                     }
                 }
             } catch (Exception e) {
