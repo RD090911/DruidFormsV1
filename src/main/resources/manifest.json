@@ -1,7 +1,8 @@
 {
+    "id": "druidforms_clean",
     "Group": "druid",
     "Name": "Druid Forms",
-    "Version": "1.3.6",
+    "Version": "1.4.8",
     "Description": "Become a Druid and explore Hytale!",
     "Authors": [
         {
@@ -9,7 +10,8 @@
         }
     ],
     "Website": "",
-    "ServerVersion": "2026.02.19-1a311a592",
+    "Icon": "Common/Icons/DruidFormsV1.png",
+    "ServerVersion": "2026.03.26-89796e57b",
     "Dependencies": {
         
     },

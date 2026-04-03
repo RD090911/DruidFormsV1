@@ -1,9 +1,11 @@
 {
   "Parent": "Armor_Iron_Hands",
   "TranslationProperties": {
-    "Name": "Shark Rune Bindings"
+    "Name": "Shark Rune Bindings",
+                                  "Description":  "Gaia's power anchors your form."
   },
-  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
+  "Icon":  "Icons/Items/rune_bindings.png",
+    "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
   "Armor": {
     "ArmorSlot": "Hands",
     "BaseDamageResistance": 0,

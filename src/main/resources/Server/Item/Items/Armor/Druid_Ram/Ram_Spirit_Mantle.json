@@ -1,8 +1,10 @@
 {
     "Parent":  "Armor_Iron_Chest",
     "TranslationProperties":  {
-                                  "Name":  "Ram Spirit Mantle"
+                                  "Name":  "Ram Spirit Mantle",
+                                  "Description":  "The spirits shield your wild shape."
                               },
+    "Icon":  "Icons/Items/spirit_mantle.png",
     "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
     "Armor":  {
                   "ArmorSlot":  "Chest",

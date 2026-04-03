@@ -1,8 +1,10 @@
 {
     "Parent":  "Armor_Iron_Hands",
     "TranslationProperties":  {
-                                  "Name":  "Hawk Rune Bindings"
+                                  "Name":  "Hawk Rune Bindings",
+                                  "Description":  "Gaia's power anchors your form."
                               },
+    "Icon":  "Icons/Items/rune_bindings.png",
     "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
     "Armor":  {
                   "StatModifiers":  {

@@ -1,8 +1,10 @@
 {
     "Parent":  "Armor_Iron_Hands",
     "TranslationProperties":  {
-                                  "Name":  "Verdant Ram Rune Bindings"
+                                  "Name":  "Verdant Ram Rune Bindings",
+                                  "Description":  "Gaia's power anchors your form."
                               },
+    "Icon":  "Icons/Items/rune_bindings.png",
     "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
     "Armor":  {
                   "ArmorSlot":  "Hands",

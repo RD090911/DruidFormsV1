@@ -1,8 +1,10 @@
 {
     "Parent":  "Armor_Iron_Head",
     "TranslationProperties":  {
-                                  "Name":  "Antelope Visage"
+                                  "Name":  "Antelope Visage",
+                                  "Description":  "The beast within awakens."
                               },
+    "Icon":  "Icons/Items/visage.png",
     "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
     "Armor":  {
                   "StatModifiers":  {

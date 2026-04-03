@@ -8,6 +8,8 @@ import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.protocol.FormattedMessage;
+import me.druid.v1.hud.DruidHyUiAnimalSelectorHud;
+import me.druid.v1.hud.DruidHyUiCurrentFormHud;
 
 import java.util.Locale;
 import java.util.Set;
@@ -27,6 +29,7 @@ public class ShapeshiftCommand extends AbstractCommand {
             "rabbit",
             "antelope"
     );
+    private static final Set<String> MENU_ALIASES = Set.of("menu", "selector", "select", "ui");
 
     public ShapeshiftCommand(ShapeshiftHandler handler) {
         super("shapeshift", "Shapeshift into an animal", false);
@@ -56,40 +59,60 @@ public class ShapeshiftCommand extends AbstractCommand {
         Player player = (Player) sender;
         String formName = (String) context.get(this.formArg);
 
-        if (formName == null || formName.isEmpty()) {
+        if (formName == null || formName.isBlank()) {
             sendResponse(sender, "Usage: /shapeshift <form>");
             return CompletableFuture.completedFuture(null);
         }
 
+        queueSelection(player, formName);
+        return CompletableFuture.completedFuture(null);
+    }
+
+    private void queueSelection(Player player, String formName) {
+        if (player == null || formName == null) return;
         player.getWorld().execute(() -> {
             try {
-                String lowerForm = formName.toLowerCase(Locale.ROOT);
-
-                if (lowerForm.equals("human") || lowerForm.equals("reset") || lowerForm.equals("none")) {
-                    handler.restoreHuman(player);
-                } else {
-                    if (!DruidPermissions.canTransform(player)) {
-                        DruidPermissions.sendDenied(player);
-                        return;
-                    }
-                    if (!VALID_FORMS.contains(lowerForm)) {
-                        sendResponse(player, "Unknown form '" + formName + "'. Valid: " + String.join(", ", VALID_FORMS));
-                        return;
-                    }
-                    boolean success = handler.shapeshift(player, lowerForm);
-                    if (!success) {
-                        sendResponse(player, "Hold a Druid Totem (or place it in hotbar slot 1) and try again.");
-                    } else {
-                        DruidPermissions.sendGrantedOnFirstSuccessfulTransform(player);
-                    }
-                }
+                executeSelectionOnWorldThread(player, formName);
             } catch (Exception e) {
                 e.printStackTrace();
                 sendResponse(player, "Error shifting: " + e.getMessage());
             }
         });
+    }
 
-        return CompletableFuture.completedFuture(null);
+    private void executeSelectionOnWorldThread(Player player, String formName) {
+        String lowerForm = formName.toLowerCase(Locale.ROOT);
+
+        if (MENU_ALIASES.contains(lowerForm)) {
+            DruidHyUiAnimalSelectorHud.open(player);
+            sendResponse(player, "Animal selector opened. Use /shapeshift <form>.");
+            return;
+        }
+
+        if (lowerForm.equals("human") || lowerForm.equals("reset") || lowerForm.equals("none")) {
+            handler.restoreHuman(player);
+            DruidHyUiCurrentFormHud.attachOrRefresh(player);
+            return;
+        }
+
+        if (!DruidPermissions.canTransform(player)) {
+            DruidPermissions.sendDenied(player);
+            return;
+        }
+
+        if (!VALID_FORMS.contains(lowerForm)) {
+            sendResponse(player, "Unknown form '" + formName + "'. Valid: " + String.join(", ", VALID_FORMS) + ", human, menu");
+            return;
+        }
+
+        boolean success = handler.shapeshift(player, lowerForm);
+        if (!success) {
+            sendResponse(player, "Hold a Druid Totem (or place it in hotbar slot 1) and try again.");
+            return;
+        }
+
+        DruidHyUiCurrentFormHud.attachOrRefresh(player);
+        DruidPermissions.sendGrantedOnFirstSuccessfulTransform(player);
     }
 
     private void sendResponse(CommandSender sender, String text) {

@@ -3,6 +3,7 @@ package me.druid.v1;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
+import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -19,6 +20,8 @@ public class ShapeshiftHandler {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final ConcurrentHashMap<String, Boolean> maintenanceActive = new ConcurrentHashMap<>();
     private static final Set<String> duckOxygenBonusApplied = ConcurrentHashMap.newKeySet();
+    private static final Set<UUID> pendingLoginRestoreRetry = ConcurrentHashMap.newKeySet();
+    private static final Set<UUID> queuedLoginRestoreRetry = ConcurrentHashMap.newKeySet();
     private static final ConcurrentHashMap<UUID, DruidFormProgress> PLAYER_PROGRESS = new ConcurrentHashMap<>();
     private static final float DUCK_UNDERWATER_BASE_SPEED = 13.2f;
     private static final float DUCK_UNDERWATER_DRAG = 0.008f;
@@ -255,27 +258,64 @@ public class ShapeshiftHandler {
         try {
             Player player = event.getPlayer();
             if (player != null) {
+                UUID playerId = safePlayerUuid(player);
                 if (!isFormActive(player)) {
                     setDuckOxygenBonus(player.getDisplayName(), player, false);
                     restoreHumanStateOnLogin(player);
                 }
-                animalArmorService.recoverHumanArmorOnLogin(player, isFormActive(player));
+                boolean transformed = isFormActive(player);
+                animalArmorService.recoverHumanArmorOnLogin(player, transformed);
                 sanitizeAnimalFormItemOnLogin(player);
+
+                if (playerId != null) {
+                    if (areLoginContainersReady(player)) {
+                        pendingLoginRestoreRetry.remove(playerId);
+                        queuedLoginRestoreRetry.remove(playerId);
+                    } else {
+                        pendingLoginRestoreRetry.add(playerId);
+                        queuedLoginRestoreRetry.remove(playerId);
+                    }
+                }
             }
+        } catch (Exception ignored) {
+        }
+    }
+
+    public void handlePlayerReady(PlayerReadyEvent event) {
+        if (event == null) return;
+        try {
+            Player player = event.getPlayer();
+            if (player == null) return;
+
+            UUID playerId = safePlayerUuid(player);
+            if (playerId == null || !pendingLoginRestoreRetry.contains(playerId)) return;
+
+            runPendingRelogRestore(player, playerId, true);
         } catch (Exception ignored) {
         }
     }
 
     public void handlePlayerDisconnect(PlayerDisconnectEvent event) {
         if (event == null) return;
-        String playerName = getPlayerName(event.getPlayerRef());
-        if (playerName != null) {
-            boolean wasTransformed = activeForms.containsKey(playerName);
-            maintenanceActive.remove(playerName);
-            duckOxygenBonusApplied.remove(playerName);
-            activeForms.remove(playerName);
-            if (!wasTransformed) {
-                animalArmorService.clearPlayerState(playerName);
+        String username = getPlayerName(event.getPlayerRef());
+        String displayName = getDisconnectDisplayName(event);
+        if (username != null || displayName != null) {
+            boolean wasTransformed = (username != null && activeForms.containsKey(username))
+                    || (displayName != null && activeForms.containsKey(displayName));
+
+            if (username != null) {
+                maintenanceActive.remove(username);
+                duckOxygenBonusApplied.remove(username);
+                activeForms.remove(username);
+            }
+            if (displayName != null && !displayName.equals(username)) {
+                maintenanceActive.remove(displayName);
+                duckOxygenBonusApplied.remove(displayName);
+                activeForms.remove(displayName);
+            }
+
+            if (!wasTransformed && username != null) {
+                animalArmorService.clearPlayerState(username);
             }
         }
     }
@@ -287,6 +327,19 @@ public class ShapeshiftHandler {
         } catch (Exception ignored) {
             return null;
         }
+    }
+
+    private String getDisconnectDisplayName(PlayerDisconnectEvent event) {
+        if (event == null) return null;
+        try {
+            Method getPlayer = event.getClass().getMethod("getPlayer");
+            Object playerObj = getPlayer.invoke(event);
+            if (playerObj instanceof Player player) {
+                return player.getDisplayName();
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
     }
 
     private void restoreHumanStateOnLogin(Player player) {
@@ -342,11 +395,72 @@ public class ShapeshiftHandler {
         }
     }
 
+    private void runPendingRelogRestore(Player player, UUID playerId, boolean allowOneShotWorldRetry) {
+        if (player == null || playerId == null) return;
+        if (!pendingLoginRestoreRetry.contains(playerId)) return;
+
+        if (areLoginContainersReady(player)) {
+            boolean transformed = isFormActive(player);
+            animalArmorService.recoverHumanArmorOnLogin(player, transformed);
+            sanitizeAnimalFormItemOnLogin(player);
+            pendingLoginRestoreRetry.remove(playerId);
+            queuedLoginRestoreRetry.remove(playerId);
+            return;
+        }
+
+        if (!allowOneShotWorldRetry) {
+            pendingLoginRestoreRetry.remove(playerId);
+            queuedLoginRestoreRetry.remove(playerId);
+            return;
+        }
+
+        if (!queuedLoginRestoreRetry.add(playerId)) return;
+
+        try {
+            if (player.getWorld() != null) {
+                player.getWorld().execute(() -> runPendingRelogRestore(player, playerId, false));
+                return;
+            }
+        } catch (Exception ignored) {
+        }
+
+        pendingLoginRestoreRetry.remove(playerId);
+        queuedLoginRestoreRetry.remove(playerId);
+    }
+
     private boolean isFormActive(Player player) {
         if (player == null) return false;
         try {
             String playerName = player.getDisplayName();
             return activeForms.containsKey(playerName);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private UUID safePlayerUuid(Player player) {
+        if (player == null) return null;
+        try {
+            return player.getUuid();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private boolean areLoginContainersReady(Player player) {
+        if (player == null) return false;
+        try {
+            Method getInventory = player.getClass().getMethod("getInventory");
+            Object inventory = getInventory.invoke(player);
+            if (inventory == null) return false;
+
+            Method getArmor = inventory.getClass().getMethod("getArmor");
+            Object armor = getArmor.invoke(inventory);
+            if (armor == null) return false;
+
+            Method getHotbar = inventory.getClass().getMethod("getHotbar");
+            Object hotbar = getHotbar.invoke(inventory);
+            return hotbar != null;
         } catch (Exception ignored) {
             return false;
         }

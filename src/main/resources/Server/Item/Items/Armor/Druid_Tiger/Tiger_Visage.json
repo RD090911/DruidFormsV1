@@ -1,9 +1,11 @@
 {
   "Parent": "Armor_Iron_Head",
   "TranslationProperties": {
-    "Name": "Tiger Visage"
+    "Name": "Tiger Visage",
+                                  "Description":  "The beast within awakens."
   },
-  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
+  "Icon":  "Icons/Items/visage.png",
+    "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
   "Armor": {
     "ArmorSlot": "Head",
     "BaseDamageResistance": 0,

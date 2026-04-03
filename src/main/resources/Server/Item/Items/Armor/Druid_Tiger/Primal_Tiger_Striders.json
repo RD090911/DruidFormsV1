@@ -1,9 +1,11 @@
 {
   "Parent": "Armor_Iron_Legs",
   "TranslationProperties": {
-    "Name": "Primal Tiger Striders"
+    "Name": "Primal Tiger Striders",
+                                  "Description":  "The wind carries your steps."
   },
-  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
+  "Icon":  "Icons/Items/striders.png",
+    "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
   "Armor": {
     "ArmorSlot": "Legs",
     "BaseDamageResistance": 0,

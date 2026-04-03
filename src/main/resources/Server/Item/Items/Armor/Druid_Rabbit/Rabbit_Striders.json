@@ -1,8 +1,10 @@
 {
     "Parent":  "Armor_Iron_Legs",
     "TranslationProperties":  {
-                                  "Name":  "Rabbit Striders"
+                                  "Name":  "Rabbit Striders",
+                                  "Description":  "The wind carries your steps."
                               },
+    "Icon":  "Icons/Items/striders.png",
     "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
     "Armor":  {
                   "StatModifiers":  {

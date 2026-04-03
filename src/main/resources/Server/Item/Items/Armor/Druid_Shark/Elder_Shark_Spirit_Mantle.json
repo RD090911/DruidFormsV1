@@ -1,9 +1,11 @@
 {
   "Parent": "Armor_Iron_Chest",
   "TranslationProperties": {
-    "Name": "Elder Shark Spirit Mantle"
+    "Name": "Elder Shark Spirit Mantle",
+                                  "Description":  "The spirits shield your wild shape."
   },
-  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
+  "Icon":  "Icons/Items/spirit_mantle.png",
+    "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
   "Armor": {
     "ArmorSlot": "Chest",
     "BaseDamageResistance": 0,
