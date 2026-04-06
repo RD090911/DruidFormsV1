@@ -61,7 +61,7 @@ public class DruidAdminCommand extends AbstractCommand {
         switch (action) {
             case "allow":
                 DruidPermissions.setAllow(targetUuid);
-                sendResponse(player, "Druid access set to allowed for " + targetUuid + ".");
+                sendResponse(player, "Druid access set to allowed for " + targetUuid + ". They can enable the HUD with /shapeshift hud on.");
                 break;
             case "deny":
                 DruidPermissions.setDeny(targetUuid);

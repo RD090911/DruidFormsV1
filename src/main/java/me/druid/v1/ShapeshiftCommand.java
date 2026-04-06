@@ -35,6 +35,7 @@ public class ShapeshiftCommand extends AbstractCommand {
         super("shapeshift", "Shapeshift into an animal", false);
         this.handler = handler;
         this.formArg = this.withRequiredArg("formName", "The animal to turn into", ArgTypes.STRING);
+        this.setAllowsExtraArguments(true);
     }
 
     @Override
@@ -57,22 +58,39 @@ public class ShapeshiftCommand extends AbstractCommand {
         }
 
         Player player = (Player) sender;
-        String formName = (String) context.get(this.formArg);
-
-        if (formName == null || formName.isBlank()) {
-            sendResponse(sender, "Usage: /shapeshift <form>");
+        String[] args = extractArgs(context);
+        if (args.length == 0) {
+            sendHelp(player);
             return CompletableFuture.completedFuture(null);
         }
 
-        queueSelection(player, formName);
+        String primary = args[0].toLowerCase(Locale.ROOT);
+        if (primary.equals("help") || primary.equals("--help") || primary.equals("-h")) {
+            sendHelp(player);
+            return CompletableFuture.completedFuture(null);
+        }
+
+        if (primary.equals("hud")) {
+            String option = args.length >= 2 ? args[1] : null;
+            queueSelection(player, "hud", option);
+            return CompletableFuture.completedFuture(null);
+        }
+
+        String formName = primary;
+        if (formName.isBlank()) {
+            sendHelp(player);
+            return CompletableFuture.completedFuture(null);
+        }
+
+        queueSelection(player, formName, null);
         return CompletableFuture.completedFuture(null);
     }
 
-    private void queueSelection(Player player, String formName) {
+    private void queueSelection(Player player, String formName, String option) {
         if (player == null || formName == null) return;
         player.getWorld().execute(() -> {
             try {
-                executeSelectionOnWorldThread(player, formName);
+                executeSelectionOnWorldThread(player, formName, option);
             } catch (Exception e) {
                 e.printStackTrace();
                 sendResponse(player, "Error shifting: " + e.getMessage());
@@ -80,8 +98,13 @@ public class ShapeshiftCommand extends AbstractCommand {
         });
     }
 
-    private void executeSelectionOnWorldThread(Player player, String formName) {
+    private void executeSelectionOnWorldThread(Player player, String formName, String option) {
         String lowerForm = formName.toLowerCase(Locale.ROOT);
+
+        if (lowerForm.equals("hud")) {
+            handleHudCommand(player, option);
+            return;
+        }
 
         if (MENU_ALIASES.contains(lowerForm)) {
             DruidHyUiAnimalSelectorHud.open(player);
@@ -91,7 +114,7 @@ public class ShapeshiftCommand extends AbstractCommand {
 
         if (lowerForm.equals("human") || lowerForm.equals("reset") || lowerForm.equals("none")) {
             handler.restoreHuman(player);
-            DruidHyUiCurrentFormHud.attachOrRefresh(player);
+            refreshHudVisibility(player);
             return;
         }
 
@@ -111,8 +134,67 @@ public class ShapeshiftCommand extends AbstractCommand {
             return;
         }
 
-        DruidHyUiCurrentFormHud.attachOrRefresh(player);
+        refreshHudVisibility(player);
         DruidPermissions.sendGrantedOnFirstSuccessfulTransform(player);
+    }
+
+    private void handleHudCommand(Player player, String option) {
+        String normalized = option == null ? "" : option.toLowerCase(Locale.ROOT);
+        if (!normalized.equals("on") && !normalized.equals("off")) {
+            sendHelp(player);
+            return;
+        }
+
+        boolean enabled = normalized.equals("on");
+        DruidPermissions.setHudToggleEnabled(player, enabled);
+        refreshHudVisibility(player);
+
+        if (enabled && !DruidPermissions.canUseDruidFeatures(player)) {
+            sendResponse(player, "Druid HUD toggle is on, but you do not currently have druid access.");
+            return;
+        }
+        sendResponse(player, "Druid HUD " + (enabled ? "enabled." : "disabled."));
+    }
+
+    private String[] extractArgs(CommandContext context) {
+        if (context == null) return new String[0];
+        String raw = context.getInputString();
+        if (raw == null || raw.isBlank()) return new String[0];
+
+        String[] split = raw.trim().split("\\s+");
+        if (split.length == 0) return new String[0];
+
+        if (split[0].startsWith("/")) {
+            split[0] = split[0].substring(1);
+        }
+        if (split.length > 0 && split[0].equalsIgnoreCase(getName())) {
+            String[] trimmed = new String[split.length - 1];
+            System.arraycopy(split, 1, trimmed, 0, trimmed.length);
+            return trimmed;
+        }
+        return split;
+    }
+
+    private void sendHelp(CommandSender sender) {
+        sendResponse(sender, "Shapeshift commands:");
+        sendResponse(sender, "/shapeshift <formName>");
+        sendResponse(sender, "/shapeshift hud on");
+        sendResponse(sender, "/shapeshift hud off");
+        sendResponse(sender, "/shapeshift help");
+        sendResponse(sender, "Admin commands (requires druidforms.admin):");
+        sendResponse(sender, "/druid allow <player>");
+        sendResponse(sender, "/druid deny <player>");
+        sendResponse(sender, "/druid status <player>");
+    }
+
+    private void refreshHudVisibility(Player player) {
+        if (DruidPermissions.shouldShowHud(player)) {
+            DruidHyUiCurrentFormHud.attachOrRefresh(player);
+            return;
+        }
+        if (player != null && player.getUuid() != null) {
+            DruidHyUiCurrentFormHud.detach(player.getUuid());
+        }
     }
 
     private void sendResponse(CommandSender sender, String text) {

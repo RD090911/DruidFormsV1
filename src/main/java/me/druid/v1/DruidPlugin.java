@@ -5,11 +5,8 @@ import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.HytaleServer;
 import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
-import com.hypixel.hytale.server.core.event.events.player.PlayerInteractEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
-import com.hypixel.hytale.math.vector.Vector3i;
 import me.druid.v1.hud.DruidHyUiCurrentFormHud;
 
 import java.lang.reflect.Method;
@@ -51,7 +48,6 @@ public class DruidPlugin extends JavaPlugin {
             HytaleServer.get().getEventBus().register(PlayerDisconnectEvent.class, this::handleAuditedPlayerDisconnect);
             HytaleServer.get().getEventBus().register(PlayerConnectEvent.class, event -> DruidPermissions.rememberPlayer(event.getPlayer()));
             HytaleServer.get().getEventBus().register(PlayerDisconnectEvent.class, event -> DruidPermissions.forgetPlayer(event.getPlayerRef().getUuid()));
-            HytaleServer.get().getEventBus().register(PlayerInteractEvent.class, (String) null, this::handlePlayerInteract);
             System.out.println("[DruidPlugin] Player event handlers registered.");
         } catch (Exception e) {
             System.out.println("[DruidPlugin] Error registering player events: " + e.getMessage());
@@ -85,7 +81,7 @@ public class DruidPlugin extends JavaPlugin {
                 + " armorAfter=" + armorAfter
                 + " finalForm=" + resolvedForm);
 
-        DruidHyUiCurrentFormHud.attachOrRefresh(player);
+        applyHudVisibility(player);
     }
 
     private void handleAuditedPlayerDisconnect(PlayerDisconnectEvent event) {
@@ -133,7 +129,7 @@ public class DruidPlugin extends JavaPlugin {
                 + " slot1After=" + slotOneAfter
                 + " armorAfter=" + armorAfter);
 
-        DruidHyUiCurrentFormHud.attachOrRefresh(player);
+        applyHudVisibility(player);
     }
 
     private String tryReadDisconnectDisplayName(PlayerDisconnectEvent event) {
@@ -254,23 +250,12 @@ public class DruidPlugin extends JavaPlugin {
         }
     }
 
-    private void handlePlayerInteract(PlayerInteractEvent event) {
-        if (event == null) return;
-        Player player = event.getPlayer();
+    private void applyHudVisibility(Player player) {
         if (player == null) return;
-        if (DruidPermissions.canUseShrine(player)) return;
-
-        try {
-            Vector3i targetBlock = event.getTargetBlock();
-            if (targetBlock == null) return;
-
-            BlockType blockType = player.getWorld().getBlockType(targetBlock);
-            if (blockType == null) return;
-            if (!DruidPermissions.isDruidShrineBlock(blockType.getId())) return;
-
-            event.setCancelled(true);
-            DruidPermissions.sendDenied(player);
-        } catch (Exception ignored) {
+        if (DruidPermissions.shouldShowHud(player)) {
+            DruidHyUiCurrentFormHud.attachOrRefresh(player);
+            return;
         }
+        DruidHyUiCurrentFormHud.detach(player.getUuid());
     }
 }

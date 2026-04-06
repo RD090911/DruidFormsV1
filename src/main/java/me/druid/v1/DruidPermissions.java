@@ -20,13 +20,13 @@ import java.util.concurrent.ConcurrentHashMap;
 final class DruidPermissions {
     static final String USE = "druidforms.use";
     static final String TRANSFORM = "druidforms.transform";
-    static final String SHRINE = "druidforms.shrine";
     static final String ADMIN = "druidforms.admin";
     static final String ACCESS_DENIED_MESSAGE = "Gaia has not blessed you with the Druid's gift.";
     static final String ACCESS_GRANTED_MESSAGE = "Gaia has blessed you with the Druid's gift.";
 
     private static final Set<UUID> grantedTransformAck = ConcurrentHashMap.newKeySet();
     private static final Map<UUID, AccessOverride> accessOverrides = new ConcurrentHashMap<>();
+    private static final Map<UUID, HudPreference> hudPreferences = new ConcurrentHashMap<>();
     private static final Map<String, UUID> knownPlayersByName = new ConcurrentHashMap<>();
     private static final Map<UUID, Player> onlinePlayersByUuid = new ConcurrentHashMap<>();
     private static Path storagePath;
@@ -35,6 +35,11 @@ final class DruidPermissions {
     private enum AccessOverride {
         ALLOW,
         DENY
+    }
+
+    private enum HudPreference {
+        ON,
+        OFF
     }
 
     private DruidPermissions() {
@@ -54,22 +59,41 @@ final class DruidPermissions {
         return isAdmin(player) || (hasPermission(player, USE) && hasPermission(player, TRANSFORM));
     }
 
-    static boolean canUseShrine(Player player) {
+    static boolean canUseDruidFeatures(Player player) {
         rememberPlayer(player);
         AccessOverride accessOverride = getOverride(player);
         if (accessOverride == AccessOverride.DENY) return false;
         if (accessOverride == AccessOverride.ALLOW) return true;
-        return isAdmin(player) || hasPermission(player, SHRINE);
+        return isAdmin(player);
     }
 
-    static boolean isDruidShrineBlock(String blockId) {
-        if (blockId == null || blockId.isEmpty()) return false;
-        String normalized = blockId.toLowerCase(Locale.ROOT);
-        int namespaceSeparator = normalized.lastIndexOf(':');
-        if (namespaceSeparator >= 0 && namespaceSeparator + 1 < normalized.length()) {
-            normalized = normalized.substring(namespaceSeparator + 1);
-        }
-        return normalized.equals("druid_shrine");
+    static boolean isHudToggleEnabled(Player player) {
+        if (player == null) return false;
+        UUID playerId = player.getUuid();
+        return isHudToggleEnabled(playerId);
+    }
+
+    static boolean isHudToggleEnabled(UUID playerId) {
+        if (playerId == null) return false;
+        ensureLoaded();
+        return hudPreferences.get(playerId) == HudPreference.ON;
+    }
+
+    static void setHudToggleEnabled(Player player, boolean enabled) {
+        if (player == null) return;
+        rememberPlayer(player);
+        setHudToggleEnabled(player.getUuid(), enabled);
+    }
+
+    static void setHudToggleEnabled(UUID playerId, boolean enabled) {
+        if (playerId == null) return;
+        ensureLoaded();
+        hudPreferences.put(playerId, enabled ? HudPreference.ON : HudPreference.OFF);
+        save();
+    }
+
+    static boolean shouldShowHud(Player player) {
+        return canUseDruidFeatures(player) && isHudToggleEnabled(player);
     }
 
     static void sendDenied(CommandSender sender) {
@@ -219,6 +243,18 @@ final class DruidPermissions {
                     knownPlayersByName.put(name, UUID.fromString(value.trim()));
                 } catch (IllegalArgumentException ignored) {
                 }
+            } else if (key.startsWith("hud.")) {
+                String rawUuid = key.substring("hud.".length());
+                try {
+                    UUID uuid = UUID.fromString(rawUuid);
+                    String normalized = value.trim().toLowerCase(Locale.ROOT);
+                    if ("on".equals(normalized) || "true".equals(normalized)) {
+                        hudPreferences.put(uuid, HudPreference.ON);
+                    } else if ("off".equals(normalized) || "false".equals(normalized)) {
+                        hudPreferences.put(uuid, HudPreference.OFF);
+                    }
+                } catch (IllegalArgumentException ignored) {
+                }
             }
         }
     }
@@ -232,6 +268,9 @@ final class DruidPermissions {
         for (Map.Entry<String, UUID> entry : knownPlayersByName.entrySet()) {
             properties.setProperty("name." + entry.getKey(), entry.getValue().toString());
         }
+        for (Map.Entry<UUID, HudPreference> entry : hudPreferences.entrySet()) {
+            properties.setProperty("hud." + entry.getKey(), entry.getValue() == HudPreference.ON ? "on" : "off");
+        }
 
         try {
             Files.createDirectories(storagePath.getParent());
@@ -241,4 +280,5 @@ final class DruidPermissions {
         } catch (IOException ignored) {
         }
     }
+
 }
