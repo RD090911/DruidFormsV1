@@ -9,6 +9,7 @@ import au.ellie.hyui.builders.LabelBuilder;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import me.druid.v1.ShapeshiftHandler;
+import me.druid.v1.forms.FormRuntimeBridge;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -83,15 +84,45 @@ public final class DruidHyUiCurrentFormHud {
     private static String displayNameFromModelId(String modelId) {
         if (modelId == null || modelId.isBlank()) return "Human";
         String lower = modelId.toLowerCase(Locale.ROOT);
-        if (lower.contains("bear")) return "Bear";
-        if (lower.contains("ram")) return "Ram";
-        if (lower.contains("duck")) return "Duck";
-        if (lower.contains("shark")) return "Shark";
-        if (lower.contains("hawk")) return "Hawk";
-        if (lower.contains("tiger") || lower.contains("sabertooth")) return "Tiger";
-        if (lower.contains("rabbit") || lower.contains("jackalope")) return "Rabbit";
-        if (lower.contains("antelope")) return "Antelope";
+        String animalKey = resolveAnimalKeyFromModelIdLower(lower);
+        String legacyLabel = resolveLegacyLabelFromModelIdLower(lower);
+        if (animalKey == null) return "Human";
+
+        String formLabel = FormRuntimeBridge.resolveFormLabelForAnimal(animalKey);
+        if ("duck".equals(animalKey) && formLabel != null && !formLabel.isBlank()) {
+            return formLabel + " (Duck)";
+        }
+
+        if (legacyLabel != null) return legacyLabel;
+        if (formLabel != null && !formLabel.isBlank()) return formLabel;
         return "Human";
+    }
+
+    private static String resolveLegacyLabelFromModelIdLower(String lowerModelId) {
+        if (lowerModelId == null || lowerModelId.isBlank()) return null;
+        if (lowerModelId.contains("bear")) return "Bear";
+        if (lowerModelId.contains("ram")) return "Ram";
+        if (lowerModelId.contains("duck")) return "Duck";
+        if (lowerModelId.contains("shark")) return "Shark";
+        if (lowerModelId.contains("hawk")) return "Hawk";
+        if (lowerModelId.contains("tiger") || lowerModelId.contains("sabertooth")) return "Tiger";
+        if (lowerModelId.contains("rabbit") || lowerModelId.contains("jackalope")) return "Rabbit";
+        if (lowerModelId.contains("antelope")) return "Antelope";
+        return null;
+    }
+
+    private static String resolveAnimalKeyFromModelIdLower(String lowerModelId) {
+        if (lowerModelId == null || lowerModelId.isBlank()) return null;
+        if (lowerModelId.contains("bear")) return "bear";
+        if (lowerModelId.contains("ram")) return "ram";
+        if (lowerModelId.contains("duck")) return "duck";
+        if (lowerModelId.contains("shark")) return "shark";
+        if (lowerModelId.contains("bluegill")) return "bluegill";
+        if (lowerModelId.contains("hawk")) return "hawk";
+        if (lowerModelId.contains("tiger") || lowerModelId.contains("sabertooth")) return "tiger";
+        if (lowerModelId.contains("rabbit") || lowerModelId.contains("jackalope")) return "rabbit";
+        if (lowerModelId.contains("antelope")) return "antelope";
+        return null;
     }
 
     private static PlayerRef resolvePlayerRef(Player player) {

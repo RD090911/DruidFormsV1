@@ -8,10 +8,16 @@ import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.protocol.FormattedMessage;
+import me.druid.v1.forms.FormId;
+import me.druid.v1.forms.FormRegistry;
+import me.druid.v1.forms.FormRuntimeBridge;
+import me.druid.v1.forms.SkinId;
+import me.druid.v1.forms.SkinRegistry;
 import me.druid.v1.hud.DruidHyUiAnimalSelectorHud;
 import me.druid.v1.hud.DruidHyUiCurrentFormHud;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -27,9 +33,33 @@ public class ShapeshiftCommand extends AbstractCommand {
             "hawk",
             "tiger",
             "rabbit",
-            "antelope"
+            "antelope",
+            "bluegill"
+    );
+    private static final Set<String> VALID_FORM_ALIASES = Set.of(
+            "guardian",
+            "prowler",
+            "stalker",
+            "travel",
+            "flight",
+            "springer",
+            "forager",
+            "aquatic"
     );
     private static final Set<String> MENU_ALIASES = Set.of("menu", "selector", "select", "ui");
+    private static final Map<String, CommandIdentityAlias> IDENTITY_ALIASES = Map.of(
+            "duck", new CommandIdentityAlias("duck", FormId.FORM_FLIGHT, SkinId.SKIN_DUCK)
+    );
+    private static final Map<String, FormId> FORM_ALIASES = Map.of(
+            "guardian", FormId.FORM_GUARDIAN,
+            "prowler", FormId.FORM_PROWLER,
+            "stalker", FormId.FORM_STALKER,
+            "travel", FormId.FORM_TRAVEL,
+            "flight", FormId.FORM_FLIGHT,
+            "springer", FormId.FORM_SPRINGER,
+            "forager", FormId.FORM_FORAGER,
+            "aquatic", FormId.FORM_AQUATIC
+    );
 
     public ShapeshiftCommand(ShapeshiftHandler handler) {
         super("shapeshift", "Shapeshift into an animal", false);
@@ -123,12 +153,19 @@ public class ShapeshiftCommand extends AbstractCommand {
             return;
         }
 
-        if (!VALID_FORMS.contains(lowerForm)) {
-            sendResponse(player, "Unknown form '" + formName + "'. Valid: " + String.join(", ", VALID_FORMS) + ", human, menu");
+        if (!VALID_FORMS.contains(lowerForm) && !VALID_FORM_ALIASES.contains(lowerForm)) {
+            sendResponse(player, "Unknown form '" + formName + "'. Valid animals: " + String.join(", ", VALID_FORMS)
+                    + ". Valid forms: " + String.join(", ", VALID_FORM_ALIASES) + ", human, menu");
             return;
         }
 
-        boolean success = handler.shapeshift(player, lowerForm);
+        ResolvedCommandIdentity resolvedIdentity = resolveCommandIdentity(lowerForm);
+        if (resolvedIdentity == null || resolvedIdentity.runtimeAnimalKey == null || resolvedIdentity.runtimeAnimalKey.isBlank()) {
+            sendResponse(player, "Form '" + formName + "' is not currently available.");
+            return;
+        }
+        String runtimeAnimalKey = resolvedIdentity == null ? lowerForm : resolvedIdentity.runtimeAnimalKey;
+        boolean success = handler.shapeshift(player, runtimeAnimalKey);
         if (!success) {
             sendResponse(player, "Hold a Druid Totem (or place it in hotbar slot 1) and try again.");
             return;
@@ -201,5 +238,70 @@ public class ShapeshiftCommand extends AbstractCommand {
         FormattedMessage component = new FormattedMessage();
         component.rawText = text;
         sender.sendMessage(new Message(component));
+    }
+
+    private ResolvedCommandIdentity resolveCommandIdentity(String commandAnimalKey) {
+        if (commandAnimalKey == null || commandAnimalKey.isBlank()) {
+            return null;
+        }
+
+        String normalized = commandAnimalKey.toLowerCase(Locale.ROOT);
+        String runtimeAnimalKey = normalized;
+        FormId formId = null;
+        SkinId skinId = null;
+
+        FormId formAlias = FORM_ALIASES.get(normalized);
+        if (formAlias != null) {
+            formId = formAlias;
+            runtimeAnimalKey = FormRuntimeBridge.resolveAnimalKeyForForm(formAlias);
+            if (runtimeAnimalKey == null || runtimeAnimalKey.isBlank()) {
+                return new ResolvedCommandIdentity(null, formAlias, null);
+            }
+            skinId = SkinRegistry.getSkinForAnimal(runtimeAnimalKey);
+            return new ResolvedCommandIdentity(runtimeAnimalKey, formId, skinId);
+        }
+
+        CommandIdentityAlias alias = IDENTITY_ALIASES.get(normalized);
+        if (alias != null) {
+            runtimeAnimalKey = alias.runtimeAnimalKey;
+        }
+
+        formId = FormRuntimeBridge.resolveFormIdForAnimal(runtimeAnimalKey);
+        if (formId == null) {
+            formId = FormRegistry.getFormForAnimal(runtimeAnimalKey);
+        }
+        skinId = SkinRegistry.getSkinForAnimal(runtimeAnimalKey);
+
+        // Keep full backward compatibility while normalizing command identity semantics.
+        if (alias != null) {
+            if (formId == null) formId = alias.expectedFormId;
+            if (skinId == null) skinId = alias.expectedSkinId;
+        }
+
+        return new ResolvedCommandIdentity(runtimeAnimalKey, formId, skinId);
+    }
+
+    private static final class CommandIdentityAlias {
+        private final String runtimeAnimalKey;
+        private final FormId expectedFormId;
+        private final SkinId expectedSkinId;
+
+        private CommandIdentityAlias(String runtimeAnimalKey, FormId expectedFormId, SkinId expectedSkinId) {
+            this.runtimeAnimalKey = runtimeAnimalKey;
+            this.expectedFormId = expectedFormId;
+            this.expectedSkinId = expectedSkinId;
+        }
+    }
+
+    private static final class ResolvedCommandIdentity {
+        private final String runtimeAnimalKey;
+        private final FormId formId;
+        private final SkinId skinId;
+
+        private ResolvedCommandIdentity(String runtimeAnimalKey, FormId formId, SkinId skinId) {
+            this.runtimeAnimalKey = runtimeAnimalKey;
+            this.formId = formId;
+            this.skinId = skinId;
+        }
     }
 }

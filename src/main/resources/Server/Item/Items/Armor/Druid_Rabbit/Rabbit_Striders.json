@@ -1,7 +1,7 @@
 {
     "Parent":  "Armor_Iron_Legs",
     "TranslationProperties":  {
-                                  "Name":  "Rabbit Striders",
+                                  "Name":  "Springer Striders",
                                   "Description":  "The wind carries your steps."
                               },
     "Icon":  "Icons/Items/striders.png",
@@ -33,4 +33,3 @@
                   "BaseDamageResistance":  0
               }
 }
-

@@ -1,7 +1,7 @@
 {
     "Parent":  "Armor_Iron_Chest",
     "TranslationProperties":  {
-                                  "Name":  "Primal Ram Spirit Mantle",
+                                  "Name":  "Primal Forager Spirit Mantle",
                                   "Description":  "The spirits shield your wild shape."
                               },
     "Icon":  "Icons/Items/spirit_mantle.png",

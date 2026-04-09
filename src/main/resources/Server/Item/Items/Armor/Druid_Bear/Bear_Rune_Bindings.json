@@ -1,7 +1,7 @@
 {
     "Parent":  "Armor_Iron_Hands",
     "TranslationProperties":  {
-                                  "Name":  "Bear Rune Bindings",
+                                  "Name":  "Guardian Rune Bindings",
                                   "Description":  "Gaia's power anchors your form."
                               },
     "Icon":  "Icons/Items/rune_bindings.png",

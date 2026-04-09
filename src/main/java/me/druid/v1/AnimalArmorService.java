@@ -4,6 +4,10 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.Inventory;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
+import me.druid.v1.forms.FormAbilityProfile;
+import me.druid.v1.forms.FormAbilityResolver;
+import me.druid.v1.forms.FormId;
+import me.druid.v1.forms.FormRuntimeBridge;
 import org.bson.BsonDocument;
 import org.bson.BsonDouble;
 import org.bson.BsonInt32;
@@ -22,6 +26,21 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 class AnimalArmorService {
+    private static final String BEAR_ANIMAL_KEY = "bear";
+    private static final String SHARK_ANIMAL_KEY = "shark";
+    private static final String TIGER_ANIMAL_KEY = "tiger";
+    private static final String ANTELOPE_ANIMAL_KEY = "antelope";
+    private static final String HAWK_ANIMAL_KEY = "hawk";
+    private static final String RABBIT_ANIMAL_KEY = "rabbit";
+    private static final String RAM_ANIMAL_KEY = "ram";
+    private static final String BLUEGILL_ANIMAL_KEY = "bluegill";
+    private static final String GUARDIAN_ARMOR_OWNER_KEY = "guardian";
+    private static final String PROWLER_ARMOR_OWNER_KEY = "prowler";
+    private static final String STALKER_ARMOR_OWNER_KEY = "stalker";
+    private static final String TRAVEL_ARMOR_OWNER_KEY = "travel";
+    private static final String FLIGHT_ARMOR_OWNER_KEY = "flight";
+    private static final String SPRINGER_ARMOR_OWNER_KEY = "springer";
+    private static final String FORAGER_ARMOR_OWNER_KEY = "forager";
     private static final short HEAD_SLOT = 0;
     private static final short CHEST_SLOT = 1;
     private static final short HANDS_SLOT = 2;
@@ -32,7 +51,7 @@ class AnimalArmorService {
     private static final Path SNAPSHOT_FILE = Paths.get("run", "druid_armor_snapshots.properties");
 
     private static final Set<String> TIERED_ANIMAL_FORMS = Set.of("bear", "ram", "shark", "tiger");
-    private static final Set<String> NON_ARMOR_ANIMAL_FORMS = Set.of("hawk", "duck", "rabbit", "antelope");
+    private static final Set<String> NON_ARMOR_ANIMAL_FORMS = Set.of("hawk", "duck", "rabbit", "antelope", "bluegill");
 
     private static final Map<String, String[][]> ANIMAL_ARMOR_SETS = Map.of(
             "bear", new String[][] {
@@ -170,6 +189,14 @@ class AnimalArmorService {
                             "Hawk_Rune_Bindings",
                             "Hawk_Striders"
                     }
+            },
+            "bluegill", new String[][] {
+                    {
+                            "Aquatic_Visage",
+                            "Aquatic_Spirit_Mantle",
+                            "Aquatic_Rune_Bindings",
+                            "Aquatic_Striders"
+                    }
             }
     );
 
@@ -300,7 +327,21 @@ class AnimalArmorService {
         ItemContainer armor = getArmorContainer(player);
         if (armor == null) return;
 
-        String[] armorSet = getArmorSet(formKey, requestedTier);
+        // FORM MIGRATION BRIDGE (READ ONLY)
+        // Armor still owned by animal identity.
+        // Form resolution added for future migration.
+        // No behavior change.
+        FormId resolvedForm = resolveFormId(formKey);
+        FormAbilityProfile profile =
+                resolvedForm != null
+                        ? FormAbilityResolver.getProfile(resolvedForm)
+                        : null;
+        if (profile != null) {
+            // Read-only lookup intentionally not wired into armor behavior yet.
+        }
+
+        String armorOwnerKey = resolveArmorOwnerKey(formKey, resolvedForm);
+        String[] armorSet = getArmorSet(armorOwnerKey, requestedTier);
         if (armorSet == null) {
             if (isNonArmorForm(formKey)) {
                 clearArmorSlots(armor);
@@ -322,12 +363,56 @@ class AnimalArmorService {
     }
 
     private String[] getArmorSet(String formKey, int tier) {
-        String[][] sets = ANIMAL_ARMOR_SETS.get(formKey);
+        String lookupKey = formKey;
+        if (GUARDIAN_ARMOR_OWNER_KEY.equals(formKey)) {
+            lookupKey = BEAR_ANIMAL_KEY;
+        } else if (PROWLER_ARMOR_OWNER_KEY.equals(formKey)) {
+            lookupKey = TIGER_ANIMAL_KEY;
+        } else if (STALKER_ARMOR_OWNER_KEY.equals(formKey)) {
+            lookupKey = SHARK_ANIMAL_KEY;
+        } else if (TRAVEL_ARMOR_OWNER_KEY.equals(formKey)) {
+            lookupKey = ANTELOPE_ANIMAL_KEY;
+        } else if (FLIGHT_ARMOR_OWNER_KEY.equals(formKey)) {
+            lookupKey = HAWK_ANIMAL_KEY;
+        } else if (SPRINGER_ARMOR_OWNER_KEY.equals(formKey)) {
+            lookupKey = RABBIT_ANIMAL_KEY;
+        } else if (FORAGER_ARMOR_OWNER_KEY.equals(formKey)) {
+            lookupKey = RAM_ANIMAL_KEY;
+        }
+        String[][] sets = ANIMAL_ARMOR_SETS.get(lookupKey);
         if (sets == null || sets.length == 0) {
             return null;
         }
         int index = Math.max(0, Math.min(sets.length - 1, tier - 1));
         return sets[index];
+    }
+
+    private String resolveArmorOwnerKey(String animalKey, FormId resolvedFormId) {
+        if (BEAR_ANIMAL_KEY.equals(animalKey) && resolvedFormId == FormId.FORM_GUARDIAN) {
+            return GUARDIAN_ARMOR_OWNER_KEY;
+        }
+        if (TIGER_ANIMAL_KEY.equals(animalKey) && resolvedFormId == FormId.FORM_PROWLER) {
+            return PROWLER_ARMOR_OWNER_KEY;
+        }
+        if (SHARK_ANIMAL_KEY.equals(animalKey) && resolvedFormId == FormId.FORM_STALKER) {
+            return STALKER_ARMOR_OWNER_KEY;
+        }
+        if (ANTELOPE_ANIMAL_KEY.equals(animalKey) && resolvedFormId == FormId.FORM_TRAVEL) {
+            return TRAVEL_ARMOR_OWNER_KEY;
+        }
+        if (HAWK_ANIMAL_KEY.equals(animalKey) && resolvedFormId == FormId.FORM_FLIGHT) {
+            return FLIGHT_ARMOR_OWNER_KEY;
+        }
+        if (RABBIT_ANIMAL_KEY.equals(animalKey) && resolvedFormId == FormId.FORM_SPRINGER) {
+            return SPRINGER_ARMOR_OWNER_KEY;
+        }
+        if (RAM_ANIMAL_KEY.equals(animalKey) && resolvedFormId == FormId.FORM_FORAGER) {
+            return FORAGER_ARMOR_OWNER_KEY;
+        }
+        if (resolvedFormId == FormId.FORM_AQUATIC) {
+            return BLUEGILL_ANIMAL_KEY;
+        }
+        return animalKey;
     }
 
     private boolean isNonArmorForm(String formKey) {
@@ -488,6 +573,10 @@ class AnimalArmorService {
             return null;
         }
         return form.toLowerCase(Locale.ROOT);
+    }
+
+    private static FormId resolveFormId(String animalKey) {
+        return FormRuntimeBridge.resolveFormIdForAnimal(animalKey);
     }
 
     private int clampTier(int tier) {

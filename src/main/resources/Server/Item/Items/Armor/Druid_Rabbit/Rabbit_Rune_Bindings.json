@@ -1,7 +1,7 @@
 {
     "Parent":  "Armor_Iron_Hands",
     "TranslationProperties":  {
-                                  "Name":  "Rabbit Rune Bindings",
+                                  "Name":  "Springer Rune Bindings",
                                   "Description":  "Gaia's power anchors your form."
                               },
     "Icon":  "Icons/Items/rune_bindings.png",
@@ -33,4 +33,3 @@
                   "BaseDamageResistance":  0
               }
 }
-

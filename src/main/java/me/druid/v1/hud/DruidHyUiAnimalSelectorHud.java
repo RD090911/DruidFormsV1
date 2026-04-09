@@ -21,7 +21,7 @@ public final class DruidHyUiAnimalSelectorHud {
     private static final List<String> FORM_NAMES = List.of(
             "Bear",
             "Ram",
-            "Duck",
+            "Aquatic",
             "Shark",
             "Hawk",
             "Tiger",

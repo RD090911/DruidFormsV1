@@ -1,7 +1,7 @@
 {
     "Parent":  "Armor_Iron_Head",
     "TranslationProperties":  {
-                                  "Name":  "Rabbit Visage",
+                                  "Name":  "Springer Visage",
                                   "Description":  "The beast within awakens."
                               },
     "Icon":  "Icons/Items/visage.png",
@@ -39,4 +39,3 @@
                   "BaseDamageResistance":  0
               }
 }
-

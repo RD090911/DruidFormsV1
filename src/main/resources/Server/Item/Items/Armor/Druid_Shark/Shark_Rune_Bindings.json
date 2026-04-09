@@ -1,7 +1,7 @@
 {
   "Parent": "Armor_Iron_Hands",
   "TranslationProperties": {
-    "Name": "Shark Rune Bindings",
+    "Name": "Stalker Rune Bindings",
                                   "Description":  "Gaia's power anchors your form."
   },
   "Icon":  "Icons/Items/rune_bindings.png",

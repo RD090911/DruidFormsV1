@@ -1,7 +1,7 @@
 {
   "Parent": "Armor_Iron_Chest",
   "TranslationProperties": {
-    "Name": "Tiger Spirit Mantle",
+    "Name": "Prowler Spirit Mantle",
                                   "Description":  "The spirits shield your wild shape."
   },
   "Icon":  "Icons/Items/spirit_mantle.png",

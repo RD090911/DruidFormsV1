@@ -1,7 +1,7 @@
 {
     "Parent":  "Armor_Iron_Head",
     "TranslationProperties":  {
-                                  "Name":  "Ram Visage",
+                                  "Name":  "Forager Visage",
                                   "Description":  "The beast within awakens."
                               },
     "Icon":  "Icons/Items/visage.png",

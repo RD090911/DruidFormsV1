@@ -1,0 +1,35 @@
+{
+    "Parent":  "Armor_Iron_Legs",
+    "TranslationProperties":  {
+                                  "Name":  "Aquatic Striders",
+                                  "Description":  "The current carries your steps."
+                              },
+    "Icon":  "Icons/Items/striders.png",
+    "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
+    "Armor":  {
+                  "StatModifiers":  {
+                                        "Health":  [
+                                                       {
+                                                           "Amount":  0,
+                                                           "CalculationType":  "Additive"
+                                                       }
+                                                   ]
+                                    },
+                  "DamageResistance":  {
+                                           "Physical":  [
+                                                            {
+                                                                "Amount":  0,
+                                                                "CalculationType":  "Multiplicative"
+                                                            }
+                                                        ],
+                                           "Projectile":  [
+                                                              {
+                                                                  "Amount":  0,
+                                                                  "CalculationType":  "Multiplicative"
+                                                              }
+                                                          ]
+                                       },
+                  "ArmorSlot":  "Legs",
+                  "BaseDamageResistance":  0
+              }
+}

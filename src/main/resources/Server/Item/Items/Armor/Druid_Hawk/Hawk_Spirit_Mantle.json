@@ -1,7 +1,7 @@
 {
     "Parent":  "Armor_Iron_Chest",
     "TranslationProperties":  {
-                                  "Name":  "Hawk Spirit Mantle",
+                                  "Name":  "Flight Spirit Mantle",
                                   "Description":  "The spirits shield your wild shape."
                               },
     "Icon":  "Icons/Items/spirit_mantle.png",

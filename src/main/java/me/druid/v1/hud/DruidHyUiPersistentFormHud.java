@@ -12,6 +12,7 @@ import au.ellie.hyui.builders.LabelBuilder;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import me.druid.v1.ShapeshiftHandler;
+import me.druid.v1.forms.FormRuntimeBridge;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -28,7 +29,7 @@ public final class DruidHyUiPersistentFormHud {
     private static final String HAWK_FORM = "Hawk";
     private static final String SHARK_FORM = "Shark";
     private static final String RAM_FORM = "Ram";
-    private static final String DUCK_FORM = "Duck";
+    private static final String AQUATIC_FORM = "Aquatic";
     private static final String RABBIT_FORM = "Rabbit";
     private static final String ANTELOPE_FORM = "Antelope";
     private static final String BEAR_ICON_TEXTURE_PATH = "forms/bear.png";
@@ -41,20 +42,18 @@ public final class DruidHyUiPersistentFormHud {
     private static final String SHARK_ICON_CLASSPATH_PATH = "Common/UI/Custom/forms/shark.png";
     private static final String RAM_ICON_TEXTURE_PATH = "forms/ram.png";
     private static final String RAM_ICON_CLASSPATH_PATH = "Common/UI/Custom/forms/ram.png";
-    private static final String DUCK_ICON_TEXTURE_PATH = "forms/duck.png";
-    private static final String DUCK_ICON_CLASSPATH_PATH = "Common/UI/Custom/forms/duck.png";
+    private static final String AQUATIC_ICON_TEXTURE_PATH = "forms/aquatic.png";
+    private static final String AQUATIC_ICON_CLASSPATH_PATH = "Common/UI/Custom/forms/aquatic.png";
     private static final String RABBIT_ICON_TEXTURE_PATH = "forms/rabbit.png";
     private static final String RABBIT_ICON_CLASSPATH_PATH = "Common/UI/Custom/forms/rabbit.png";
     private static final String ANTELOPE_ICON_TEXTURE_PATH = "forms/antelope.png";
     private static final String ANTELOPE_ICON_CLASSPATH_PATH = "Common/UI/Custom/forms/antelope.png";
-    private static final String BEAR_RUNE_TEXTURE_PATH = "forms/bear_rune.png";
-    private static final String BEAR_RUNE_CLASSPATH_PATH = "Common/UI/Custom/forms/bear_rune.png";
     private static final List<String> FORM_ORDER = List.of(
             "Bear",
             "Tiger",
             "Shark",
             "Ram",
-            "Duck",
+            "Aquatic",
             "Hawk",
             "Rabbit",
             "Antelope"
@@ -171,7 +170,7 @@ public final class DruidHyUiPersistentFormHud {
                                 .withStyle(labelStyle)
                                 .withText("")
                 )
-                .addChild(createDuckSlot(activeForm, labelStyle))
+                .addChild(createAquaticSlot(activeForm, labelStyle))
                 .addChild(
                         LabelBuilder.label()
                                 .withRawId("druidPersistentFormHudSeparator7")
@@ -208,13 +207,8 @@ public final class DruidHyUiPersistentFormHud {
                     .withRawId("druidPersistentFormHudBearOverlay")
                     .withAnchor(new HyUIAnchor().setWidth(68).setHeight(68));
 
-            if (bearHighlighted && isBearRuneAvailable()) {
-                bearOverlay.addChild(
-                        ImageBuilder.image()
-                                .withRawId("druidPersistentFormHudBearRune")
-                                .withAnchor(new HyUIAnchor().setLeft(-2).setTop(-2).setWidth(68).setHeight(68))
-                                .withImage(BEAR_RUNE_TEXTURE_PATH)
-                );
+            if (bearHighlighted) {
+                bearOverlay.addChild(createSquareHighlight("druidPersistentFormHudBearHighlight"));
             }
 
             bearOverlay.addChild(
@@ -260,13 +254,8 @@ public final class DruidHyUiPersistentFormHud {
                     .withRawId("druidPersistentFormHudTigerOverlay")
                     .withAnchor(new HyUIAnchor().setWidth(68).setHeight(68));
 
-            if (tigerHighlighted && isBearRuneAvailable()) {
-                tigerOverlay.addChild(
-                        ImageBuilder.image()
-                                .withRawId("druidPersistentFormHudTigerRune")
-                                .withAnchor(new HyUIAnchor().setLeft(-2).setTop(-2).setWidth(68).setHeight(68))
-                                .withImage(BEAR_RUNE_TEXTURE_PATH)
-                );
+            if (tigerHighlighted) {
+                tigerOverlay.addChild(createSquareHighlight("druidPersistentFormHudTigerHighlight"));
             }
 
             tigerOverlay.addChild(
@@ -312,13 +301,8 @@ public final class DruidHyUiPersistentFormHud {
                     .withRawId("druidPersistentFormHudHawkOverlay")
                     .withAnchor(new HyUIAnchor().setWidth(68).setHeight(68));
 
-            if (hawkHighlighted && isBearRuneAvailable()) {
-                hawkOverlay.addChild(
-                        ImageBuilder.image()
-                                .withRawId("druidPersistentFormHudHawkRune")
-                                .withAnchor(new HyUIAnchor().setLeft(-2).setTop(-2).setWidth(68).setHeight(68))
-                                .withImage(BEAR_RUNE_TEXTURE_PATH)
-                );
+            if (hawkHighlighted) {
+                hawkOverlay.addChild(createSquareHighlight("druidPersistentFormHudHawkHighlight"));
             }
 
             hawkOverlay.addChild(
@@ -364,13 +348,8 @@ public final class DruidHyUiPersistentFormHud {
                     .withRawId("druidPersistentFormHudSharkOverlay")
                     .withAnchor(new HyUIAnchor().setWidth(68).setHeight(68));
 
-            if (sharkHighlighted && isBearRuneAvailable()) {
-                sharkOverlay.addChild(
-                        ImageBuilder.image()
-                                .withRawId("druidPersistentFormHudSharkRune")
-                                .withAnchor(new HyUIAnchor().setLeft(-2).setTop(-2).setWidth(68).setHeight(68))
-                                .withImage(BEAR_RUNE_TEXTURE_PATH)
-                );
+            if (sharkHighlighted) {
+                sharkOverlay.addChild(createSquareHighlight("druidPersistentFormHudSharkHighlight"));
             }
 
             sharkOverlay.addChild(
@@ -416,13 +395,8 @@ public final class DruidHyUiPersistentFormHud {
                     .withRawId("druidPersistentFormHudRamOverlay")
                     .withAnchor(new HyUIAnchor().setWidth(68).setHeight(68));
 
-            if (ramHighlighted && isBearRuneAvailable()) {
-                ramOverlay.addChild(
-                        ImageBuilder.image()
-                                .withRawId("druidPersistentFormHudRamRune")
-                                .withAnchor(new HyUIAnchor().setLeft(-2).setTop(-2).setWidth(68).setHeight(68))
-                                .withImage(BEAR_RUNE_TEXTURE_PATH)
-                );
+            if (ramHighlighted) {
+                ramOverlay.addChild(createSquareHighlight("druidPersistentFormHudRamHighlight"));
             }
 
             ramOverlay.addChild(
@@ -452,56 +426,51 @@ public final class DruidHyUiPersistentFormHud {
         return ramSlot;
     }
 
-    private static GroupBuilder createDuckSlot(String activeForm, HyUIStyle labelStyle) {
-        boolean duckHighlighted = DUCK_FORM.equalsIgnoreCase(activeForm);
-        GroupBuilder duckSlot = GroupBuilder.group()
-                .withRawId("druidPersistentFormHudDuckSlot")
+    private static GroupBuilder createAquaticSlot(String activeForm, HyUIStyle labelStyle) {
+        boolean aquaticHighlighted = AQUATIC_FORM.equalsIgnoreCase(activeForm);
+        GroupBuilder aquaticSlot = GroupBuilder.group()
+                .withRawId("druidPersistentFormHudAquaticSlot")
                 .withAnchor(new HyUIAnchor().setWidth(56).setHeight(30))
                 .withLayoutMode("Center")
                 .withBackground(new HyUIPatchStyle().setColor("#00000000"))
                 .withOutlineColor("#00000000")
                 .withOutlineSize(0f);
 
-        String resolvedTexturePath = resolveDuckTexturePath();
+        String resolvedTexturePath = resolveAquaticTexturePath();
         if (resolvedTexturePath != null) {
-            GroupBuilder duckOverlay = GroupBuilder.group()
-                    .withRawId("druidPersistentFormHudDuckOverlay")
+            GroupBuilder aquaticOverlay = GroupBuilder.group()
+                    .withRawId("druidPersistentFormHudAquaticOverlay")
                     .withAnchor(new HyUIAnchor().setWidth(68).setHeight(68));
 
-            if (duckHighlighted && isBearRuneAvailable()) {
-                duckOverlay.addChild(
-                        ImageBuilder.image()
-                                .withRawId("druidPersistentFormHudDuckRune")
-                                .withAnchor(new HyUIAnchor().setLeft(-2).setTop(-2).setWidth(68).setHeight(68))
-                                .withImage(BEAR_RUNE_TEXTURE_PATH)
-                );
+            if (aquaticHighlighted) {
+                aquaticOverlay.addChild(createSquareHighlight("druidPersistentFormHudAquaticHighlight"));
             }
 
-            duckOverlay.addChild(
+            aquaticOverlay.addChild(
                     GroupBuilder.group()
-                            .withRawId("druidPersistentFormHudDuckIconLayer")
+                            .withRawId("druidPersistentFormHudAquaticIconLayer")
                             .withAnchor(new HyUIAnchor().setWidth(68).setHeight(68))
                             .withLayoutMode("Center")
                             .addChild(
                                     ImageBuilder.image()
-                                            .withRawId("druidPersistentFormHudDuckIcon")
-                                            .withAnchor(new HyUIAnchor().setLeft(-3).setTop(0).setWidth(56).setHeight(56))
+                                            .withRawId("druidPersistentFormHudAquaticIcon")
+                                            .withAnchor(new HyUIAnchor().setLeft(-1).setWidth(56).setHeight(56))
                                             .withImage(resolvedTexturePath)
                             )
             );
 
-            duckSlot.addChild(duckOverlay);
-            return duckSlot;
+            aquaticSlot.addChild(aquaticOverlay);
+            return aquaticSlot;
         }
 
-        duckSlot.addChild(
+        aquaticSlot.addChild(
                 LabelBuilder.label()
-                        .withRawId("druidPersistentFormHudDuckFallback")
+                        .withRawId("druidPersistentFormHudAquaticFallback")
                         .withAnchor(new HyUIAnchor().setLeft(0).setRight(0).setTop(0).setHeight(30))
                         .withStyle(labelStyle)
-                        .withText(duckHighlighted ? "[DUCK]" : "Duck")
+                        .withText(aquaticHighlighted ? "[AQUATIC]" : "Aquatic")
         );
-        return duckSlot;
+        return aquaticSlot;
     }
 
     private static GroupBuilder createRabbitSlot(String activeForm, HyUIStyle labelStyle) {
@@ -520,13 +489,8 @@ public final class DruidHyUiPersistentFormHud {
                     .withRawId("druidPersistentFormHudRabbitOverlay")
                     .withAnchor(new HyUIAnchor().setWidth(68).setHeight(68));
 
-            if (rabbitHighlighted && isBearRuneAvailable()) {
-                rabbitOverlay.addChild(
-                        ImageBuilder.image()
-                                .withRawId("druidPersistentFormHudRabbitRune")
-                                .withAnchor(new HyUIAnchor().setLeft(-2).setTop(-2).setWidth(68).setHeight(68))
-                                .withImage(BEAR_RUNE_TEXTURE_PATH)
-                );
+            if (rabbitHighlighted) {
+                rabbitOverlay.addChild(createSquareHighlight("druidPersistentFormHudRabbitHighlight"));
             }
 
             rabbitOverlay.addChild(
@@ -572,13 +536,8 @@ public final class DruidHyUiPersistentFormHud {
                     .withRawId("druidPersistentFormHudAntelopeOverlay")
                     .withAnchor(new HyUIAnchor().setWidth(68).setHeight(68));
 
-            if (antelopeHighlighted && isBearRuneAvailable()) {
-                antelopeOverlay.addChild(
-                        ImageBuilder.image()
-                                .withRawId("druidPersistentFormHudAntelopeRune")
-                                .withAnchor(new HyUIAnchor().setLeft(-2).setTop(-2).setWidth(68).setHeight(68))
-                                .withImage(BEAR_RUNE_TEXTURE_PATH)
-                );
+            if (antelopeHighlighted) {
+                antelopeOverlay.addChild(createSquareHighlight("druidPersistentFormHudAntelopeHighlight"));
             }
 
             antelopeOverlay.addChild(
@@ -606,6 +565,15 @@ public final class DruidHyUiPersistentFormHud {
                         .withText(antelopeHighlighted ? "[ANTELOPE]" : "Antelope")
         );
         return antelopeSlot;
+    }
+
+    private static GroupBuilder createSquareHighlight(String rawId) {
+        return GroupBuilder.group()
+                .withRawId(rawId)
+                .withAnchor(new HyUIAnchor().setLeft(2).setTop(2).setWidth(64).setHeight(64))
+                .withBackground(new HyUIPatchStyle().setColor("#26FFB347"))
+                .withOutlineColor("#FFFFB347")
+                .withOutlineSize(3.5f);
     }
 
     private static String resolveBearTexturePath() {
@@ -673,16 +641,16 @@ public final class DruidHyUiPersistentFormHud {
         return null;
     }
 
-    private static String resolveDuckTexturePath() {
+    private static String resolveAquaticTexturePath() {
         ClassLoader classLoader = DruidHyUiPersistentFormHud.class.getClassLoader();
-        URL resource = classLoader == null ? null : classLoader.getResource(DUCK_ICON_CLASSPATH_PATH);
+        URL resource = classLoader == null ? null : classLoader.getResource(AQUATIC_ICON_CLASSPATH_PATH);
         if (resource != null) {
-            System.out.println("[DruidHyUI] Duck icon texture path resolved: " + DUCK_ICON_TEXTURE_PATH
-                    + " (classpath: " + DUCK_ICON_CLASSPATH_PATH + ")");
-            return DUCK_ICON_TEXTURE_PATH;
+            System.out.println("[DruidHyUI] Aquatic icon texture path resolved: " + AQUATIC_ICON_TEXTURE_PATH
+                    + " (classpath: " + AQUATIC_ICON_CLASSPATH_PATH + ")");
+            return AQUATIC_ICON_TEXTURE_PATH;
         }
-        System.out.println("[DruidHyUI] Duck icon texture missing on classpath: " + DUCK_ICON_CLASSPATH_PATH
-                + " (falling back to Duck text)");
+        System.out.println("[DruidHyUI] Aquatic icon texture missing on classpath: " + AQUATIC_ICON_CLASSPATH_PATH
+                + " (falling back to Aquatic text)");
         return null;
     }
 
@@ -712,16 +680,6 @@ public final class DruidHyUiPersistentFormHud {
         return null;
     }
 
-    private static boolean isBearRuneAvailable() {
-        ClassLoader classLoader = DruidHyUiPersistentFormHud.class.getClassLoader();
-        URL resource = classLoader == null ? null : classLoader.getResource(BEAR_RUNE_CLASSPATH_PATH);
-        if (resource == null) {
-            System.out.println("[DruidHyUI] Bear rune texture missing on classpath: " + BEAR_RUNE_CLASSPATH_PATH);
-            return false;
-        }
-        return true;
-    }
-
     private static String resolveActiveFormName(Player player) {
         String modelId;
         try {
@@ -735,15 +693,50 @@ public final class DruidHyUiPersistentFormHud {
     private static String displayNameFromModelId(String modelId) {
         if (modelId == null || modelId.isBlank()) return "Human";
         String lower = modelId.toLowerCase(Locale.ROOT);
-        if (lower.contains("bear")) return "Bear";
-        if (lower.contains("tiger") || lower.contains("sabertooth")) return "Tiger";
-        if (lower.contains("shark")) return "Shark";
-        if (lower.contains("ram")) return "Ram";
-        if (lower.contains("duck")) return "Duck";
-        if (lower.contains("hawk")) return "Hawk";
-        if (lower.contains("rabbit") || lower.contains("jackalope")) return "Rabbit";
-        if (lower.contains("antelope")) return "Antelope";
-        return "Human";
+        String animalKey = resolveAnimalKeyFromModelIdLower(lower);
+        if (animalKey == null) return "Human";
+
+        // Canonical read path: resolve label through the form bridge first.
+        String formLabel = FormRuntimeBridge.resolveFormLabelForAnimal(animalKey);
+        String currentAnimalLabel = resolveAnimalLabelFromModelIdLower(lower);
+
+        // Preserve existing player-facing output until form labels are intentionally surfaced.
+        if (formLabel != null && currentAnimalLabel != null && formLabel.equalsIgnoreCase(currentAnimalLabel)) {
+            return formLabel;
+        }
+
+        if (currentAnimalLabel == null) {
+            if (formLabel != null && !formLabel.isBlank()) return formLabel;
+            return "Human";
+        }
+        return currentAnimalLabel;
+    }
+
+    private static String resolveAnimalLabelFromModelIdLower(String lowerModelId) {
+        if (lowerModelId == null || lowerModelId.isBlank()) return null;
+        if (lowerModelId.contains("bear")) return "Bear";
+        if (lowerModelId.contains("tiger") || lowerModelId.contains("sabertooth")) return "Tiger";
+        if (lowerModelId.contains("shark")) return "Shark";
+        if (lowerModelId.contains("ram")) return "Ram";
+        if (lowerModelId.contains("duck")) return "Duck";
+        if (lowerModelId.contains("hawk")) return "Hawk";
+        if (lowerModelId.contains("rabbit") || lowerModelId.contains("jackalope")) return "Rabbit";
+        if (lowerModelId.contains("antelope")) return "Antelope";
+        return null;
+    }
+
+    private static String resolveAnimalKeyFromModelIdLower(String lowerModelId) {
+        if (lowerModelId == null || lowerModelId.isBlank()) return null;
+        if (lowerModelId.contains("bear")) return "bear";
+        if (lowerModelId.contains("tiger") || lowerModelId.contains("sabertooth")) return "tiger";
+        if (lowerModelId.contains("shark")) return "shark";
+        if (lowerModelId.contains("bluegill")) return "bluegill";
+        if (lowerModelId.contains("ram")) return "ram";
+        if (lowerModelId.contains("duck")) return "duck";
+        if (lowerModelId.contains("hawk")) return "hawk";
+        if (lowerModelId.contains("rabbit") || lowerModelId.contains("jackalope")) return "rabbit";
+        if (lowerModelId.contains("antelope")) return "antelope";
+        return null;
     }
 
     private static PlayerRef resolvePlayerRef(Player player) {

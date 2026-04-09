@@ -1,0 +1,35 @@
+{
+    "Parent":  "Armor_Iron_Chest",
+    "TranslationProperties":  {
+                                  "Name":  "Aquatic Spirit Mantle",
+                                  "Description":  "The spirits shield your wild shape."
+                              },
+    "Icon":  "Icons/Items/spirit_mantle.png",
+    "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
+    "Armor":  {
+                  "StatModifiers":  {
+                                        "Health":  [
+                                                       {
+                                                           "Amount":  0,
+                                                           "CalculationType":  "Additive"
+                                                       }
+                                                   ]
+                                    },
+                  "DamageResistance":  {
+                                           "Physical":  [
+                                                            {
+                                                                "Amount":  0,
+                                                                "CalculationType":  "Multiplicative"
+                                                            }
+                                                        ],
+                                           "Projectile":  [
+                                                              {
+                                                                  "Amount":  0,
+                                                                  "CalculationType":  "Multiplicative"
+                                                              }
+                                                          ]
+                                       },
+                  "ArmorSlot":  "Chest",
+                  "BaseDamageResistance":  0
+              }
+}

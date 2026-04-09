@@ -1,0 +1,41 @@
+{
+    "Parent":  "Armor_Iron_Head",
+    "TranslationProperties":  {
+                                  "Name":  "Aquatic Visage",
+                                  "Description":  "The beast within awakens."
+                              },
+    "Icon":  "Icons/Items/visage.png",
+    "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
+    "Armor":  {
+                  "StatModifiers":  {
+                                        "Health":  [
+                                                       {
+                                                           "Amount":  0,
+                                                           "CalculationType":  "Additive"
+                                                       }
+                                                   ]
+                                    },
+                  "DamageResistance":  {
+                                           "Physical":  [
+                                                            {
+                                                                "Amount":  0,
+                                                                "CalculationType":  "Multiplicative"
+                                                            }
+                                                        ],
+                                           "Projectile":  [
+                                                              {
+                                                                  "Amount":  0,
+                                                                  "CalculationType":  "Multiplicative"
+                                                              }
+                                                          ]
+                                       },
+                  "ArmorSlot":  "Head",
+                  "CosmeticsToHide":  [
+                                          "EarAccessory",
+                                          "Ear",
+                                          "Haircut",
+                                          "HeadAccessory"
+                                      ],
+                  "BaseDamageResistance":  0
+              }
+}

@@ -1,7 +1,7 @@
 {
     "Parent":  "Armor_Iron_Hands",
     "TranslationProperties":  {
-                                  "Name":  "Elder Ram Rune Bindings",
+                                  "Name":  "Elder Forager Rune Bindings",
                                   "Description":  "Gaia's power anchors your form."
                               },
     "Icon":  "Icons/Items/rune_bindings.png",

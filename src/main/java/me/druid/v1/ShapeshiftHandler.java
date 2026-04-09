@@ -4,6 +4,10 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
+import me.druid.v1.forms.FormAbilityProfile;
+import me.druid.v1.forms.FormAbilityResolver;
+import me.druid.v1.forms.FormId;
+import me.druid.v1.forms.FormRuntimeBridge;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -20,6 +24,7 @@ public class ShapeshiftHandler {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final ConcurrentHashMap<String, Boolean> maintenanceActive = new ConcurrentHashMap<>();
     private static final Set<String> duckOxygenBonusApplied = ConcurrentHashMap.newKeySet();
+    private static final Set<String> aquaticOxygenBonusApplied = ConcurrentHashMap.newKeySet();
     private static final Set<UUID> pendingLoginRestoreRetry = ConcurrentHashMap.newKeySet();
     private static final Set<UUID> queuedLoginRestoreRetry = ConcurrentHashMap.newKeySet();
     private static final ConcurrentHashMap<UUID, DruidFormProgress> PLAYER_PROGRESS = new ConcurrentHashMap<>();
@@ -27,6 +32,7 @@ public class ShapeshiftHandler {
     private static final float DUCK_UNDERWATER_DRAG = 0.008f;
     private static final float DUCK_UNDERWATER_SPRINT_MULTIPLIER = 1.18f;
     private static final int DUCK_OXYGEN_BONUS = 135;
+    private static final int AQUATIC_OXYGEN_BONUS = 10000;
 
     private static final String DRUID_ITEM = "Druid_Totem";
     private static final short HOTBAR_SLOT_ONE = 0;
@@ -45,6 +51,7 @@ public class ShapeshiftHandler {
         ALLOWED_FORMS.put("tiger", "Tiger_Sabertooth");
         ALLOWED_FORMS.put("rabbit", "Rabbit");
         ALLOWED_FORMS.put("antelope", "Antelope");
+        ALLOWED_FORMS.put("bluegill", "Bluegill");
     }
 
     public static class AbilityConfig { }
@@ -152,10 +159,24 @@ public class ShapeshiftHandler {
         }
 
         syncTierProgressFromInventory(player);
-        return transform(player, ALLOWED_FORMS.get(canonicalName), canonicalName);
+        String targetModelId = ALLOWED_FORMS.get(canonicalName);
+        if (!"bluegill".equals(canonicalName)) {
+            return transform(player, targetModelId, canonicalName);
+        }
+
+        if (transform(player, targetModelId, canonicalName)) {
+            return true;
+        }
+        if (!"Fish_Bluegill".equals(targetModelId)) {
+            return transform(player, "Fish_Bluegill", canonicalName);
+        }
+        return false;
     }
 
     private static String canonicalizeFormKey(String key) {
+        if ("aquatic".equals(key)) {
+            return "bluegill";
+        }
         return key;
     }
 
@@ -170,6 +191,7 @@ public class ShapeshiftHandler {
             case "Tiger_Sabertooth" -> "tiger";
             case "Rabbit" -> "rabbit";
             case "Antelope" -> "antelope";
+            case "Bluegill", "Fish_Bluegill" -> "bluegill";
             default -> null;
         };
     }
@@ -183,6 +205,7 @@ public class ShapeshiftHandler {
         String currentForm = activeForms.get(playerName);
         String previousForm = formKeyFromModel(currentForm);
         shortName = canonicalizeFormKey(shortName.toLowerCase(Locale.ROOT));
+        boolean enteringAquaticForm = isAquaticFormKey(shortName);
 
         if (currentForm != null && currentForm.equals(targetModelID)) {
             restoreHuman(player);
@@ -196,6 +219,9 @@ public class ShapeshiftHandler {
             }
             if ("duck".equals(previousForm) && !"duck".equals(shortName)) {
                 setDuckOxygenBonus(playerName, player, false);
+            }
+            if (isAquaticFormKey(previousForm) && !enteringAquaticForm) {
+                setAquaticOxygenBonus(playerName, player, false);
             }
         }
 
@@ -225,6 +251,10 @@ public class ShapeshiftHandler {
                 setDuckOxygenBonus(playerName, player, true);
                 startDuckMobilityMaintenance(player);
             }
+            if (enteringAquaticForm) {
+                setAquaticOxygenBonus(playerName, player, true);
+                startAquaticOxygenMaintenance(player);
+            }
             return true;
         }
 
@@ -248,6 +278,7 @@ public class ShapeshiftHandler {
             swapAbilityItems(player, "human");
             animalArmorService.onRestoreToHuman(player);
             setDuckOxygenBonus(playerName, player, false);
+            setAquaticOxygenBonus(playerName, player, false);
 
             toggleHumanoidFlag(player, true);
         }
@@ -261,6 +292,7 @@ public class ShapeshiftHandler {
                 UUID playerId = safePlayerUuid(player);
                 if (!isFormActive(player)) {
                     setDuckOxygenBonus(player.getDisplayName(), player, false);
+                    setAquaticOxygenBonus(player.getDisplayName(), player, false);
                     restoreHumanStateOnLogin(player);
                 }
                 boolean transformed = isFormActive(player);
@@ -306,11 +338,13 @@ public class ShapeshiftHandler {
             if (username != null) {
                 maintenanceActive.remove(username);
                 duckOxygenBonusApplied.remove(username);
+                aquaticOxygenBonusApplied.remove(username);
                 activeForms.remove(username);
             }
             if (displayName != null && !displayName.equals(username)) {
                 maintenanceActive.remove(displayName);
                 duckOxygenBonusApplied.remove(displayName);
+                aquaticOxygenBonusApplied.remove(displayName);
                 activeForms.remove(displayName);
             }
 
@@ -921,10 +955,43 @@ public class ShapeshiftHandler {
         }, 700, TimeUnit.MILLISECONDS);
     }
 
+    private void startAquaticOxygenMaintenance(Player player) {
+        if (player == null) return;
+        final String playerName = player.getDisplayName();
+
+        scheduler.schedule(() -> {
+            String activeForm = formKeyFromModel(activeForms.get(playerName));
+            if (!isAquaticFormKey(activeForm)) return;
+            if (player.getWorld() == null) {
+                return;
+            }
+
+            try {
+                player.getWorld().execute(() -> {
+                    try {
+                        String currentActiveForm = formKeyFromModel(activeForms.get(playerName));
+                        if (!isAquaticFormKey(currentActiveForm)) return;
+                        modifyStat(player, "Oxygen", true, 10.0f);
+                        if (isAquaticFormKey(formKeyFromModel(activeForms.get(playerName)))) {
+                            startAquaticOxygenMaintenance(player);
+                        }
+                    } catch (Exception ignored) {
+                    }
+                });
+            } catch (Exception ignored) {
+            }
+        }, 2000, TimeUnit.MILLISECONDS);
+    }
+
     private void updateCapabilities(Player player, String shortName) {
         try {
             Object movementManager = getMovementManager(player);
             if (movementManager == null) return;
+
+            String normalizedAnimalKey = shortName.toLowerCase(Locale.ROOT);
+            // Read-only bridge seam for future form-driven ability parity checks.
+            FormId resolvedFormId = FormRuntimeBridge.resolveFormIdForAnimal(normalizedAnimalKey);
+            FormAbilityProfile resolvedFormAbilityProfile = FormAbilityResolver.get(resolvedFormId);
 
             Method getSettings = movementManager.getClass().getMethod("getSettings");
             Object settings = getSettings.invoke(movementManager);
@@ -939,10 +1006,24 @@ public class ShapeshiftHandler {
             float fallMomentumLoss = 0.1f;
             boolean canFly = false;
             boolean duckUnderwater = false;
+            float aquaticSpeedMultiplier = 1.35f;
+            if (resolvedFormId == FormId.FORM_AQUATIC && resolvedFormAbilityProfile != null) {
+                float formOwnedMultiplier = resolvedFormAbilityProfile.moveSpeedMultiplier();
+                if (formOwnedMultiplier > 0.0f) {
+                    aquaticSpeedMultiplier = formOwnedMultiplier;
+                }
+            }
 
-            switch (shortName.toLowerCase(Locale.ROOT)) {
+            switch (normalizedAnimalKey) {
                 case "antelope":
-                    baseSpeed = 5.5f * 1.75f;
+                    float travelSpeedMultiplier = 1.75f;
+                    if (resolvedFormId == FormId.FORM_TRAVEL && resolvedFormAbilityProfile != null) {
+                        float formOwnedMultiplier = resolvedFormAbilityProfile.moveSpeedMultiplier();
+                        if (formOwnedMultiplier > 0.0f) {
+                            travelSpeedMultiplier = formOwnedMultiplier;
+                        }
+                    }
+                    baseSpeed = 5.5f * travelSpeedMultiplier;
                     break;
                 case "hawk":
                     baseSpeed = 5.5f * 1.0f;
@@ -971,6 +1052,10 @@ public class ShapeshiftHandler {
                     baseSpeed = 12.0f;
                     dragCoefficient = 0.01f;
                     break;
+                case "bluegill":
+                    baseSpeed = 12.0f * aquaticSpeedMultiplier;
+                    dragCoefficient = 0.006f;
+                    break;
                 case "rabbit":
                     baseSpeed = 8.0f;
                     jumpForce = 17.0f;
@@ -980,6 +1065,11 @@ public class ShapeshiftHandler {
                 case "bear":
                     baseSpeed = 6.0f;
                     break;
+            }
+
+            if (resolvedFormId == FormId.FORM_AQUATIC && !"bluegill".equals(normalizedAnimalKey)) {
+                baseSpeed = 12.0f * aquaticSpeedMultiplier;
+                dragCoefficient = 0.006f;
             }
 
             float tierMultiplier = getTierMultiplier(player, shortName);
@@ -1004,7 +1094,7 @@ public class ShapeshiftHandler {
                 setField(target, "horizontalFlySpeed", flySpeed);
                 setField(target, "dragCoefficient", dragCoefficient);
                 setField(target, "fallMomentumLoss", fallMomentumLoss);
-                if ("duck".equals(shortName.toLowerCase(Locale.ROOT))) {
+                if ("duck".equals(normalizedAnimalKey)) {
                     if (duckUnderwater) {
                         setField(target, "sprintMultiplier", DUCK_UNDERWATER_SPRINT_MULTIPLIER);
                         setField(target, "sprintSpeedMultiplier", DUCK_UNDERWATER_SPRINT_MULTIPLIER);
@@ -1140,6 +1230,24 @@ public class ShapeshiftHandler {
         if (duckOxygenBonusApplied.remove(playerName)) {
             modifyStat(player, "Oxygen", false, DUCK_OXYGEN_BONUS);
         }
+    }
+
+    private void setAquaticOxygenBonus(String playerName, Player player, boolean apply) {
+        if (playerName == null || player == null) return;
+        if (apply) {
+            if (aquaticOxygenBonusApplied.add(playerName)) {
+                modifyStat(player, "Oxygen", true, AQUATIC_OXYGEN_BONUS);
+            }
+            return;
+        }
+        if (aquaticOxygenBonusApplied.remove(playerName)) {
+            modifyStat(player, "Oxygen", false, AQUATIC_OXYGEN_BONUS);
+        }
+    }
+
+    private boolean isAquaticFormKey(String animalKey) {
+        if (animalKey == null || animalKey.isBlank()) return false;
+        return FormRuntimeBridge.resolveFormIdForAnimal(animalKey) == FormId.FORM_AQUATIC;
     }
 
     private boolean isPlayerInWater(Player player) {

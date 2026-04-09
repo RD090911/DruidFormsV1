@@ -1,7 +1,7 @@
 {
     "Parent":  "Armor_Iron_Legs",
     "TranslationProperties":  {
-                                  "Name":  "Bear Striders",
+                                  "Name":  "Guardian Striders",
                                   "Description":  "The wind carries your steps."
                               },
     "Icon":  "Icons/Items/striders.png",
