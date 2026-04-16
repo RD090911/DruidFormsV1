@@ -1,0 +1,228 @@
+﻿Compiled from "MovementManager.java"
+public class com.hypixel.hytale.server.core.entity.entities.player.movement.MovementManager implements com.hypixel.hytale.component.Component<com.hypixel.hytale.server.core.universe.world.storage.EntityStore> {
+  public static final java.util.function.BiFunction<com.hypixel.hytale.server.core.modules.physics.component.PhysicsValues, com.hypixel.hytale.protocol.GameMode, com.hypixel.hytale.protocol.MovementSettings> MASTER_DEFAULT;
+
+  protected com.hypixel.hytale.protocol.MovementSettings defaultSettings;
+
+  protected com.hypixel.hytale.protocol.MovementSettings settings;
+
+  static final boolean $assertionsDisabled;
+
+  public static com.hypixel.hytale.component.ComponentType<com.hypixel.hytale.server.core.universe.world.storage.EntityStore, com.hypixel.hytale.server.core.entity.entities.player.movement.MovementManager> getComponentType();
+    Code:
+         0: invokestatic  #1                  // Method com/hypixel/hytale/server/core/modules/entity/EntityModule.get:()Lcom/hypixel/hytale/server/core/modules/entity/EntityModule;
+         3: invokevirtual #7                  // Method com/hypixel/hytale/server/core/modules/entity/EntityModule.getMovementManagerComponentType:()Lcom/hypixel/hytale/component/ComponentType;
+         6: areturn
+
+  public com.hypixel.hytale.server.core.entity.entities.player.movement.MovementManager();
+    Code:
+         0: aload_0
+         1: invokespecial #11                 // Method java/lang/Object."<init>":()V
+         4: return
+
+  public com.hypixel.hytale.server.core.entity.entities.player.movement.MovementManager(com.hypixel.hytale.server.core.entity.entities.player.movement.MovementManager);
+    Code:
+         0: aload_0
+         1: invokespecial #17                 // Method "<init>":()V
+         4: aload_0
+         5: new           #20                 // class com/hypixel/hytale/protocol/MovementSettings
+         8: dup
+         9: aload_1
+        10: getfield      #22                 // Field defaultSettings:Lcom/hypixel/hytale/protocol/MovementSettings;
+        13: invokespecial #26                 // Method com/hypixel/hytale/protocol/MovementSettings."<init>":(Lcom/hypixel/hytale/protocol/MovementSettings;)V
+        16: putfield      #22                 // Field defaultSettings:Lcom/hypixel/hytale/protocol/MovementSettings;
+        19: aload_0
+        20: new           #20                 // class com/hypixel/hytale/protocol/MovementSettings
+        23: dup
+        24: aload_1
+        25: getfield      #29                 // Field settings:Lcom/hypixel/hytale/protocol/MovementSettings;
+        28: invokespecial #26                 // Method com/hypixel/hytale/protocol/MovementSettings."<init>":(Lcom/hypixel/hytale/protocol/MovementSettings;)V
+        31: putfield      #29                 // Field settings:Lcom/hypixel/hytale/protocol/MovementSettings;
+        34: return
+
+  public void resetDefaultsAndUpdate(com.hypixel.hytale.component.Ref<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>, com.hypixel.hytale.component.ComponentAccessor<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: aload_2
+         3: invokevirtual #32                 // Method refreshDefaultSettings:(Lcom/hypixel/hytale/component/Ref;Lcom/hypixel/hytale/component/ComponentAccessor;)V
+         6: aload_0
+         7: invokevirtual #36                 // Method applyDefaultSettings:()V
+        10: aload_2
+        11: aload_1
+        12: invokestatic  #39                 // Method com/hypixel/hytale/server/core/universe/PlayerRef.getComponentType:()Lcom/hypixel/hytale/component/ComponentType;
+        15: invokeinterface #44,  3           // InterfaceMethod com/hypixel/hytale/component/ComponentAccessor.getComponent:(Lcom/hypixel/hytale/component/Ref;Lcom/hypixel/hytale/component/ComponentType;)Lcom/hypixel/hytale/component/Component;
+        20: checkcast     #40                 // class com/hypixel/hytale/server/core/universe/PlayerRef
+        23: astore_3
+        24: getstatic     #50                 // Field $assertionsDisabled:Z
+        27: ifne          42
+        30: aload_3
+        31: ifnonnull     42
+        34: new           #54                 // class java/lang/AssertionError
+        37: dup
+        38: invokespecial #56                 // Method java/lang/AssertionError."<init>":()V
+        41: athrow
+        42: aload_0
+        43: aload_3
+        44: invokevirtual #57                 // Method com/hypixel/hytale/server/core/universe/PlayerRef.getPacketHandler:()Lcom/hypixel/hytale/server/core/io/PacketHandler;
+        47: invokevirtual #61                 // Method update:(Lcom/hypixel/hytale/server/core/io/PacketHandler;)V
+        50: return
+
+  public void refreshDefaultSettings(com.hypixel.hytale.component.Ref<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>, com.hypixel.hytale.component.ComponentAccessor<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>);
+    Code:
+         0: aload_2
+         1: invokeinterface #65,  1           // InterfaceMethod com/hypixel/hytale/component/ComponentAccessor.getExternalData:()Ljava/lang/Object;
+         6: checkcast     #69                 // class com/hypixel/hytale/server/core/universe/world/storage/EntityStore
+         9: invokevirtual #71                 // Method com/hypixel/hytale/server/core/universe/world/storage/EntityStore.getWorld:()Lcom/hypixel/hytale/server/core/universe/world/World;
+        12: astore_3
+        13: aload_3
+        14: invokevirtual #75                 // Method com/hypixel/hytale/server/core/universe/world/World.getGameplayConfig:()Lcom/hypixel/hytale/server/core/asset/type/gameplay/GameplayConfig;
+        17: invokevirtual #81                 // Method com/hypixel/hytale/server/core/asset/type/gameplay/GameplayConfig.getPlayerConfig:()Lcom/hypixel/hytale/server/core/asset/type/gameplay/PlayerConfig;
+        20: invokevirtual #87                 // Method com/hypixel/hytale/server/core/asset/type/gameplay/PlayerConfig.getMovementConfigIndex:()I
+        23: istore        4
+        25: invokestatic  #93                 // Method com/hypixel/hytale/server/core/entity/entities/player/movement/MovementConfig.getAssetStore:()Lcom/hypixel/hytale/assetstore/AssetStore;
+        28: invokevirtual #99                 // Method com/hypixel/hytale/assetstore/AssetStore.getAssetMap:()Lcom/hypixel/hytale/assetstore/AssetMap;
+        31: checkcast     #105                // class com/hypixel/hytale/assetstore/map/IndexedLookupTableAssetMap
+        34: iload         4
+        36: invokevirtual #107                // Method com/hypixel/hytale/assetstore/map/IndexedLookupTableAssetMap.getAsset:(I)Lcom/hypixel/hytale/assetstore/map/JsonAssetWithMap;
+        39: checkcast     #94                 // class com/hypixel/hytale/server/core/entity/entities/player/movement/MovementConfig
+        42: astore        5
+        44: aload_2
+        45: aload_1
+        46: invokestatic  #111                // Method com/hypixel/hytale/server/core/entity/entities/Player.getComponentType:()Lcom/hypixel/hytale/component/ComponentType;
+        49: invokeinterface #44,  3           // InterfaceMethod com/hypixel/hytale/component/ComponentAccessor.getComponent:(Lcom/hypixel/hytale/component/Ref;Lcom/hypixel/hytale/component/ComponentType;)Lcom/hypixel/hytale/component/Component;
+        54: checkcast     #112                // class com/hypixel/hytale/server/core/entity/entities/Player
+        57: astore        6
+        59: getstatic     #50                 // Field $assertionsDisabled:Z
+        62: ifne          78
+        65: aload         6
+        67: ifnonnull     78
+        70: new           #54                 // class java/lang/AssertionError
+        73: dup
+        74: invokespecial #56                 // Method java/lang/AssertionError."<init>":()V
+        77: athrow
+        78: aload_0
+        79: aload         5
+        81: invokevirtual #114                // Method com/hypixel/hytale/server/core/entity/entities/player/movement/MovementConfig.toPacket:()Lcom/hypixel/hytale/protocol/MovementSettings;
+        84: aload_1
+        85: aload_2
+        86: invokestatic  #118                // Method com/hypixel/hytale/server/core/entity/EntityUtils.getPhysicsValues:(Lcom/hypixel/hytale/component/Ref;Lcom/hypixel/hytale/component/ComponentAccessor;)Lcom/hypixel/hytale/server/core/modules/physics/component/PhysicsValues;
+        89: aload         6
+        91: invokevirtual #124                // Method com/hypixel/hytale/server/core/entity/entities/Player.getGameMode:()Lcom/hypixel/hytale/protocol/GameMode;
+        94: invokevirtual #128                // Method setDefaultSettings:(Lcom/hypixel/hytale/protocol/MovementSettings;Lcom/hypixel/hytale/server/core/modules/physics/component/PhysicsValues;Lcom/hypixel/hytale/protocol/GameMode;)V
+        97: return
+
+  public void applyDefaultSettings();
+    Code:
+         0: aload_0
+         1: new           #20                 // class com/hypixel/hytale/protocol/MovementSettings
+         4: dup
+         5: aload_0
+         6: getfield      #22                 // Field defaultSettings:Lcom/hypixel/hytale/protocol/MovementSettings;
+         9: invokespecial #26                 // Method com/hypixel/hytale/protocol/MovementSettings."<init>":(Lcom/hypixel/hytale/protocol/MovementSettings;)V
+        12: putfield      #29                 // Field settings:Lcom/hypixel/hytale/protocol/MovementSettings;
+        15: return
+
+  public void update(com.hypixel.hytale.server.core.io.PacketHandler);
+    Code:
+         0: aload_1
+         1: new           #132                // class com/hypixel/hytale/protocol/packets/player/UpdateMovementSettings
+         4: dup
+         5: aload_0
+         6: invokevirtual #134                // Method getSettings:()Lcom/hypixel/hytale/protocol/MovementSettings;
+         9: invokespecial #137                // Method com/hypixel/hytale/protocol/packets/player/UpdateMovementSettings."<init>":(Lcom/hypixel/hytale/protocol/MovementSettings;)V
+        12: invokevirtual #138                // Method com/hypixel/hytale/server/core/io/PacketHandler.writeNoCache:(Lcom/hypixel/hytale/protocol/ToClientPacket;)V
+        15: return
+
+  public com.hypixel.hytale.protocol.MovementSettings getSettings();
+    Code:
+         0: aload_0
+         1: getfield      #29                 // Field settings:Lcom/hypixel/hytale/protocol/MovementSettings;
+         4: areturn
+
+  public void setDefaultSettings(com.hypixel.hytale.protocol.MovementSettings, com.hypixel.hytale.server.core.modules.physics.component.PhysicsValues, com.hypixel.hytale.protocol.GameMode);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: putfield      #22                 // Field defaultSettings:Lcom/hypixel/hytale/protocol/MovementSettings;
+         5: aload_0
+         6: getfield      #22                 // Field defaultSettings:Lcom/hypixel/hytale/protocol/MovementSettings;
+         9: aload_2
+        10: invokevirtual #144                // Method com/hypixel/hytale/server/core/modules/physics/component/PhysicsValues.getMass:()D
+        13: d2f
+        14: putfield      #150                // Field com/hypixel/hytale/protocol/MovementSettings.mass:F
+        17: aload_0
+        18: getfield      #22                 // Field defaultSettings:Lcom/hypixel/hytale/protocol/MovementSettings;
+        21: aload_2
+        22: invokevirtual #154                // Method com/hypixel/hytale/server/core/modules/physics/component/PhysicsValues.getDragCoefficient:()D
+        25: d2f
+        26: putfield      #157                // Field com/hypixel/hytale/protocol/MovementSettings.dragCoefficient:F
+        29: aload_0
+        30: getfield      #22                 // Field defaultSettings:Lcom/hypixel/hytale/protocol/MovementSettings;
+        33: aload_2
+        34: invokevirtual #160                // Method com/hypixel/hytale/server/core/modules/physics/component/PhysicsValues.isInvertedGravity:()Z
+        37: putfield      #164                // Field com/hypixel/hytale/protocol/MovementSettings.invertedGravity:Z
+        40: aload_0
+        41: getfield      #22                 // Field defaultSettings:Lcom/hypixel/hytale/protocol/MovementSettings;
+        44: aload_3
+        45: getstatic     #167                // Field com/hypixel/hytale/protocol/GameMode.Creative:Lcom/hypixel/hytale/protocol/GameMode;
+        48: if_acmpne     55
+        51: iconst_1
+        52: goto          56
+        55: iconst_0
+        56: putfield      #173                // Field com/hypixel/hytale/protocol/MovementSettings.canFly:Z
+        59: return
+
+  public com.hypixel.hytale.protocol.MovementSettings getDefaultSettings();
+    Code:
+         0: aload_0
+         1: getfield      #22                 // Field defaultSettings:Lcom/hypixel/hytale/protocol/MovementSettings;
+         4: areturn
+
+  public java.lang.String toString();
+    Code:
+         0: aload_0
+         1: getfield      #22                 // Field defaultSettings:Lcom/hypixel/hytale/protocol/MovementSettings;
+         4: invokestatic  #176                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+         7: aload_0
+         8: getfield      #29                 // Field settings:Lcom/hypixel/hytale/protocol/MovementSettings;
+        11: invokestatic  #176                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+        14: invokedynamic #182,  0            // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+        19: areturn
+
+  public com.hypixel.hytale.component.Component<com.hypixel.hytale.server.core.universe.world.storage.EntityStore> clone();
+    Code:
+         0: new           #18                 // class com/hypixel/hytale/server/core/entity/entities/player/movement/MovementManager
+         3: dup
+         4: aload_0
+         5: invokespecial #186                // Method "<init>":(Lcom/hypixel/hytale/server/core/entity/entities/player/movement/MovementManager;)V
+         8: areturn
+
+  public java.lang.Object clone() throws java.lang.CloneNotSupportedException;
+    Code:
+         0: aload_0
+         1: invokevirtual #189                // Method clone:()Lcom/hypixel/hytale/component/Component;
+         4: areturn
+
+  private static com.hypixel.hytale.protocol.MovementSettings lambda$static$0(com.hypixel.hytale.server.core.modules.physics.component.PhysicsValues, com.hypixel.hytale.protocol.GameMode);
+    Code:
+         0: new           #193                // class com/hypixel/hytale/server/core/entity/entities/player/movement/MovementManager$1
+         3: dup
+         4: aload_0
+         5: aload_1
+         6: invokespecial #195                // Method com/hypixel/hytale/server/core/entity/entities/player/movement/MovementManager$1."<init>":(Lcom/hypixel/hytale/server/core/modules/physics/component/PhysicsValues;Lcom/hypixel/hytale/protocol/GameMode;)V
+         9: areturn
+
+  static {};
+    Code:
+         0: ldc           #18                 // class com/hypixel/hytale/server/core/entity/entities/player/movement/MovementManager
+         2: invokevirtual #198                // Method java/lang/Class.desiredAssertionStatus:()Z
+         5: ifne          12
+         8: iconst_1
+         9: goto          13
+        12: iconst_0
+        13: putstatic     #50                 // Field $assertionsDisabled:Z
+        16: invokedynamic #203,  0            // InvokeDynamic #1:apply:()Ljava/util/function/BiFunction;
+        21: putstatic     #207                // Field MASTER_DEFAULT:Ljava/util/function/BiFunction;
+        24: return
+}

@@ -6,20 +6,29 @@ import com.hypixel.hytale.server.core.command.system.CommandSender;
 import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.protocol.FormattedMessage;
 import me.druid.v1.forms.FormId;
 import me.druid.v1.forms.FormRegistry;
 import me.druid.v1.forms.FormRuntimeBridge;
+import me.druid.v1.forms.FormSkinResolver;
+import me.druid.v1.forms.PlayerFormSessionStore;
 import me.druid.v1.forms.SkinId;
+import me.druid.v1.forms.SkinDefinition;
 import me.druid.v1.forms.SkinRegistry;
 import me.druid.v1.hud.DruidHyUiAnimalSelectorHud;
 import me.druid.v1.hud.DruidHyUiCurrentFormHud;
+import me.druid.v1.hud.DruidHyUiFormSkinPrototypeHud;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.lang.reflect.Method;
 
 public class ShapeshiftCommand extends AbstractCommand {
     private final ShapeshiftHandler handler;
@@ -28,7 +37,6 @@ public class ShapeshiftCommand extends AbstractCommand {
     private static final Set<String> VALID_FORMS = Set.of(
             "bear",
             "ram",
-            "duck",
             "shark",
             "hawk",
             "tiger",
@@ -46,7 +54,7 @@ public class ShapeshiftCommand extends AbstractCommand {
             "forager",
             "aquatic"
     );
-    private static final Set<String> MENU_ALIASES = Set.of("menu", "selector", "select", "ui");
+    private static final Set<String> MENU_ALIASES = Set.of("selector", "select", "ui");
     private static final Map<String, CommandIdentityAlias> IDENTITY_ALIASES = Map.of(
             "duck", new CommandIdentityAlias("duck", FormId.FORM_FLIGHT, SkinId.SKIN_DUCK)
     );
@@ -100,6 +108,23 @@ public class ShapeshiftCommand extends AbstractCommand {
             return CompletableFuture.completedFuture(null);
         }
 
+        if (primary.equals("menu")) {
+            if (args.length >= 2 && "select".equalsIgnoreCase(args[1])) {
+                String classArg = args.length >= 3 ? args[2] : null;
+                queueMenuClassSelection(player, classArg);
+                return CompletableFuture.completedFuture(null);
+            }
+            queueSelection(player, "menu", null);
+            return CompletableFuture.completedFuture(null);
+        }
+
+        if (primary.equals("skin")) {
+            String classArg = args.length >= 2 ? args[1] : null;
+            String skinArg = args.length >= 3 ? joinArgs(args, 2) : null;
+            queueSkinPreferenceSelection(player, classArg, skinArg);
+            return CompletableFuture.completedFuture(null);
+        }
+
         if (primary.equals("hud")) {
             String option = args.length >= 2 ? args[1] : null;
             queueSelection(player, "hud", option);
@@ -128,6 +153,37 @@ public class ShapeshiftCommand extends AbstractCommand {
         });
     }
 
+    private void queueSkinPreferenceSelection(Player player, String classArg, String skinArg) {
+        if (player == null) return;
+        player.getWorld().execute(() -> {
+            try {
+                executeSkinPreferenceSelectionOnWorldThread(player, classArg, skinArg);
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendResponse(player, "Error updating skin preference: " + e.getMessage());
+            }
+        });
+    }
+
+    private void queueMenuClassSelection(Player player, String classArg) {
+        if (player == null) return;
+        player.getWorld().execute(() -> {
+            try {
+                executeMenuClassSelectionOnWorldThread(player, classArg);
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendResponse(player, "Error selecting menu class: " + e.getMessage());
+            }
+        });
+    }
+
+    public static void queueMenuClassSelectionFromUi(Player player, String classArg) {
+        if (player == null || classArg == null || classArg.isBlank() || player.getWorld() == null) {
+            return;
+        }
+        player.getWorld().execute(() -> applyMenuClassSelection(player, classArg));
+    }
+
     private void executeSelectionOnWorldThread(Player player, String formName, String option) {
         String lowerForm = formName.toLowerCase(Locale.ROOT);
 
@@ -136,9 +192,15 @@ public class ShapeshiftCommand extends AbstractCommand {
             return;
         }
 
+        if (lowerForm.equals("menu")) {
+            DruidHyUiFormSkinPrototypeHud.open(player);
+            sendResponse(player, "Form skin menu opened.");
+            return;
+        }
+
         if (MENU_ALIASES.contains(lowerForm)) {
             DruidHyUiAnimalSelectorHud.open(player);
-            sendResponse(player, "Animal selector opened. Use /shapeshift <form>.");
+            sendResponse(player, "Legacy selector opened. Primary UI is /shapeshift menu.");
             return;
         }
 
@@ -159,7 +221,7 @@ public class ShapeshiftCommand extends AbstractCommand {
             return;
         }
 
-        ResolvedCommandIdentity resolvedIdentity = resolveCommandIdentity(lowerForm);
+        ResolvedCommandIdentity resolvedIdentity = resolveCommandIdentity(player, lowerForm);
         if (resolvedIdentity == null || resolvedIdentity.runtimeAnimalKey == null || resolvedIdentity.runtimeAnimalKey.isBlank()) {
             sendResponse(player, "Form '" + formName + "' is not currently available.");
             return;
@@ -170,9 +232,97 @@ public class ShapeshiftCommand extends AbstractCommand {
             sendResponse(player, "Hold a Druid Totem (or place it in hotbar slot 1) and try again.");
             return;
         }
+        UUID playerUuid = resolveSessionPlayerUuid(player);
+        if (playerUuid != null) {
+            FormId transformedFormId = resolvedIdentity.formId != null
+                    ? resolvedIdentity.formId
+                    : FormRuntimeBridge.resolveFormIdForAnimal(runtimeAnimalKey);
+            SkinId transformedSkinId = resolvedIdentity.skinId != null
+                    ? resolvedIdentity.skinId
+                    : SkinRegistry.getSkinForAnimal(runtimeAnimalKey);
+            if (transformedFormId == null && transformedSkinId != null) {
+                transformedFormId = SkinRegistry.getFormForSkin(transformedSkinId);
+            }
+            if (transformedFormId != null) {
+                PlayerFormSessionStore.setSelectedForm(playerUuid, transformedFormId);
+                if (transformedSkinId != null) {
+                    PlayerFormSessionStore.setSelectedSkin(playerUuid, transformedFormId, transformedSkinId);
+                }
+            }
+            DruidHyUiFormSkinPrototypeHud.refreshFromSession(playerUuid);
+        }
 
         refreshHudVisibility(player);
         DruidPermissions.sendGrantedOnFirstSuccessfulTransform(player);
+    }
+
+    private void executeSkinPreferenceSelectionOnWorldThread(Player player, String classArg, String skinArg) {
+        if (classArg == null || skinArg == null) {
+            DruidHyUiFormSkinPrototypeHud.open(player);
+            sendResponse(player, "Usage: /shapeshift skin {class} {skin}");
+            return;
+        }
+
+        FormId formId = FORM_ALIASES.get(classArg.toLowerCase(Locale.ROOT));
+        if (formId == null) {
+            sendResponse(player, "Unknown class '" + classArg + "'. Valid classes: " + String.join(", ", VALID_FORM_ALIASES));
+            return;
+        }
+
+        SkinId skinId = resolveSkinIdForForm(formId, skinArg);
+        if (skinId == null) {
+            sendResponse(player, "Unknown skin '" + skinArg + "' for " + resolveFormDisplayName(formId)
+                    + ". Valid skins: " + String.join(", ", resolveSkinDisplayNames(formId)));
+            return;
+        }
+        if (!FormSkinResolver.isSkinImplemented(skinId)) {
+            sendResponse(player, "That skin is not available yet.");
+            return;
+        }
+
+        UUID playerUuid = resolveSessionPlayerUuid(player);
+        boolean applied = PlayerFormSessionStore.setSelectedSkin(playerUuid, formId, skinId);
+        if (!applied) {
+            sendResponse(player, "Unable to set skin preference for " + resolveFormDisplayName(formId) + ".");
+            return;
+        }
+
+        sendResponse(player, resolveFormDisplayName(formId) + " skin preference set to "
+                + resolveSkinDisplayName(skinId) + ". Use /shapeshift " + classArg.toLowerCase(Locale.ROOT) + ".");
+    }
+
+    private void executeMenuClassSelectionOnWorldThread(Player player, String classArg) {
+        MenuClassSelectionResult result = applyMenuClassSelection(player, classArg);
+        if (result.status == MenuClassSelectionStatus.USAGE) {
+            sendResponse(player, "Usage: /shapeshift menu select {class}");
+            return;
+        }
+        if (result.status == MenuClassSelectionStatus.UNKNOWN_CLASS) {
+            sendResponse(player, "Unknown class '" + classArg + "'. Valid classes: " + String.join(", ", VALID_FORM_ALIASES));
+            return;
+        }
+        if (result.formId != null) {
+            sendResponse(player, "Menu selected class set to " + resolveFormDisplayName(result.formId) + ".");
+        }
+    }
+
+    private static MenuClassSelectionResult applyMenuClassSelection(Player player, String classArg) {
+        if (player == null || classArg == null || classArg.isBlank()) {
+            if (player != null) {
+                DruidHyUiFormSkinPrototypeHud.open(player);
+            }
+            return new MenuClassSelectionResult(MenuClassSelectionStatus.USAGE, null);
+        }
+
+        FormId formId = FORM_ALIASES.get(classArg.toLowerCase(Locale.ROOT));
+        if (formId == null) {
+            return new MenuClassSelectionResult(MenuClassSelectionStatus.UNKNOWN_CLASS, null);
+        }
+
+        UUID playerUuid = resolveSessionPlayerUuid(player);
+        PlayerFormSessionStore.setSelectedForm(playerUuid, formId);
+        DruidHyUiFormSkinPrototypeHud.open(player);
+        return new MenuClassSelectionResult(MenuClassSelectionStatus.SUCCESS, formId);
     }
 
     private void handleHudCommand(Player player, String option) {
@@ -215,6 +365,9 @@ public class ShapeshiftCommand extends AbstractCommand {
     private void sendHelp(CommandSender sender) {
         sendResponse(sender, "Shapeshift commands:");
         sendResponse(sender, "/shapeshift <formName>");
+        sendResponse(sender, "/shapeshift menu");
+        sendResponse(sender, "/shapeshift menu select {class}");
+        sendResponse(sender, "/shapeshift skin {class} {skin}");
         sendResponse(sender, "/shapeshift hud on");
         sendResponse(sender, "/shapeshift hud off");
         sendResponse(sender, "/shapeshift help");
@@ -240,7 +393,7 @@ public class ShapeshiftCommand extends AbstractCommand {
         sender.sendMessage(new Message(component));
     }
 
-    private ResolvedCommandIdentity resolveCommandIdentity(String commandAnimalKey) {
+    private ResolvedCommandIdentity resolveCommandIdentity(Player player, String commandAnimalKey) {
         if (commandAnimalKey == null || commandAnimalKey.isBlank()) {
             return null;
         }
@@ -253,7 +406,12 @@ public class ShapeshiftCommand extends AbstractCommand {
         FormId formAlias = FORM_ALIASES.get(normalized);
         if (formAlias != null) {
             formId = formAlias;
-            runtimeAnimalKey = FormRuntimeBridge.resolveAnimalKeyForForm(formAlias);
+            UUID playerUuid = resolveSessionPlayerUuid(player);
+            SkinId selectedSkin = playerUuid == null ? null : PlayerFormSessionStore.getSelectedSkin(playerUuid, formAlias);
+            runtimeAnimalKey = FormSkinResolver.resolvePreferredAnimalKey(formAlias, selectedSkin);
+            if (runtimeAnimalKey == null || runtimeAnimalKey.isBlank()) {
+                runtimeAnimalKey = FormRuntimeBridge.resolveAnimalKeyForForm(formAlias);
+            }
             if (runtimeAnimalKey == null || runtimeAnimalKey.isBlank()) {
                 return new ResolvedCommandIdentity(null, formAlias, null);
             }
@@ -270,6 +428,16 @@ public class ShapeshiftCommand extends AbstractCommand {
         if (formId == null) {
             formId = FormRegistry.getFormForAnimal(runtimeAnimalKey);
         }
+
+        if (formId != null) {
+            UUID playerUuid = resolveSessionPlayerUuid(player);
+            SkinId selectedSkin = playerUuid == null ? null : PlayerFormSessionStore.getSelectedSkin(playerUuid, formId);
+            String preferredAnimalKey = FormSkinResolver.resolvePreferredAnimalKey(formId, selectedSkin);
+            if (preferredAnimalKey != null && !preferredAnimalKey.isBlank()) {
+                runtimeAnimalKey = preferredAnimalKey;
+            }
+        }
+
         skinId = SkinRegistry.getSkinForAnimal(runtimeAnimalKey);
 
         // Keep full backward compatibility while normalizing command identity semantics.
@@ -279,6 +447,134 @@ public class ShapeshiftCommand extends AbstractCommand {
         }
 
         return new ResolvedCommandIdentity(runtimeAnimalKey, formId, skinId);
+    }
+
+    private static String resolveFormDisplayName(FormId formId) {
+        if (formId == null) {
+            return "form";
+        }
+        if (FormRegistry.getDefinition(formId) != null && FormRegistry.getDefinition(formId).getDisplayName() != null) {
+            return FormRegistry.getDefinition(formId).getDisplayName();
+        }
+        return formId.name();
+    }
+
+    private SkinId resolveSkinIdForForm(FormId formId, String rawSkinInput) {
+        if (formId == null || rawSkinInput == null || rawSkinInput.isBlank()) {
+            return null;
+        }
+
+        String normalizedInput = normalizeSkinToken(rawSkinInput);
+        if (normalizedInput == null || normalizedInput.isBlank()) {
+            return null;
+        }
+
+        List<SkinId> skins = FormSkinResolver.getAvailableSkinsForForm(formId);
+        for (SkinId skinId : skins) {
+            for (String candidate : resolveSkinMatchTokens(skinId)) {
+                if (normalizedInput.equals(candidate)) {
+                    return skinId;
+                }
+            }
+        }
+        return null;
+    }
+
+    private List<String> resolveSkinDisplayNames(FormId formId) {
+        List<String> names = new ArrayList<>();
+        if (formId == null) {
+            return names;
+        }
+        for (SkinId skinId : FormSkinResolver.getAvailableSkinsForForm(formId)) {
+            names.add(resolveSkinDisplayName(skinId));
+        }
+        return names;
+    }
+
+    private String resolveSkinDisplayName(SkinId skinId) {
+        if (skinId == null) {
+            return "skin";
+        }
+        SkinDefinition definition = SkinRegistry.getDefinition(skinId);
+        if (definition != null && definition.getDisplayName() != null && !definition.getDisplayName().isBlank()) {
+            return definition.getDisplayName();
+        }
+        return skinId.name();
+    }
+
+    private List<String> resolveSkinMatchTokens(SkinId skinId) {
+        List<String> tokens = new ArrayList<>();
+        if (skinId == null) {
+            return tokens;
+        }
+
+        SkinDefinition definition = SkinRegistry.getDefinition(skinId);
+        if (definition != null) {
+            addToken(tokens, definition.getDisplayName());
+            addToken(tokens, definition.getBackingAnimal());
+
+            String display = definition.getDisplayName();
+            if (display != null && !display.isBlank()) {
+                String[] split = display.split("[/(),]");
+                for (String part : split) {
+                    addToken(tokens, part);
+                }
+            }
+        }
+
+        addToken(tokens, skinId.name().replace("SKIN_", ""));
+        return tokens;
+    }
+
+    private void addToken(List<String> tokens, String value) {
+        String normalized = normalizeSkinToken(value);
+        if (normalized == null || normalized.isBlank()) {
+            return;
+        }
+        if (!tokens.contains(normalized)) {
+            tokens.add(normalized);
+        }
+    }
+
+    private String normalizeSkinToken(String value) {
+        if (value == null) {
+            return null;
+        }
+        String normalized = value.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", "");
+        if (normalized.isBlank()) {
+            return null;
+        }
+        return normalized;
+    }
+
+    private String joinArgs(String[] args, int startIndex) {
+        if (args == null || startIndex >= args.length) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = startIndex; i < args.length; i++) {
+            if (args[i] == null || args[i].isBlank()) continue;
+            if (sb.length() > 0) sb.append(' ');
+            sb.append(args[i]);
+        }
+        return sb.isEmpty() ? null : sb.toString();
+    }
+
+    private static UUID resolveSessionPlayerUuid(Player player) {
+        if (player == null) return null;
+        try {
+            Method getPlayerRef = player.getClass().getMethod("getPlayerRef");
+            Object value = getPlayerRef.invoke(player);
+            if (value instanceof PlayerRef playerRef && playerRef.getUuid() != null) {
+                return playerRef.getUuid();
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            return player.getUuid();
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     private static final class CommandIdentityAlias {
@@ -302,6 +598,22 @@ public class ShapeshiftCommand extends AbstractCommand {
             this.runtimeAnimalKey = runtimeAnimalKey;
             this.formId = formId;
             this.skinId = skinId;
+        }
+    }
+
+    private enum MenuClassSelectionStatus {
+        SUCCESS,
+        USAGE,
+        UNKNOWN_CLASS
+    }
+
+    private static final class MenuClassSelectionResult {
+        private final MenuClassSelectionStatus status;
+        private final FormId formId;
+
+        private MenuClassSelectionResult(MenuClassSelectionStatus status, FormId formId) {
+            this.status = status;
+            this.formId = formId;
         }
     }
 }

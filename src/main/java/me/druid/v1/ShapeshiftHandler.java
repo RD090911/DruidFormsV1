@@ -160,6 +160,61 @@ public class ShapeshiftHandler {
 
         syncTierProgressFromInventory(player);
         String targetModelId = ALLOWED_FORMS.get(canonicalName);
+        if ("polarbear".equals(cleanName)) {
+            targetModelId = "Bear_Polar";
+        } else if ("hyena".equals(cleanName)) {
+            targetModelId = "Hyena";
+        } else if ("crow".equals(cleanName)) {
+            targetModelId = "Crow";
+        } else if ("bat".equals(cleanName)) {
+            targetModelId = "Bat";
+        } else if ("owl".equals(cleanName)) {
+            targetModelId = "Owl_Brown";
+        } else if ("parrot".equals(cleanName)) {
+            targetModelId = "Parrot";
+        } else if ("pigeon".equals(cleanName)) {
+            targetModelId = "Pigeon";
+        } else if ("pterodactyl".equals(cleanName)) {
+            targetModelId = "Pterodactyl";
+        } else if ("goat".equals(cleanName)) {
+            targetModelId = "Goat";
+        } else if ("moose".equals(cleanName)) {
+            targetModelId = "Moose_Bull";
+        } else if ("warthog".equals(cleanName)) {
+            targetModelId = "Warthog";
+        } else if ("bison".equals(cleanName)) {
+            targetModelId = "Bison";
+        } else if ("trilodon".equals(cleanName)) {
+            targetModelId = "Trillodon";
+        } else if ("eel_moray".equals(cleanName)) {
+            targetModelId = "Eel_Moray";
+        } else if ("clownfish".equals(cleanName)) {
+            targetModelId = "Clownfish";
+        } else if ("piranha".equals(cleanName)) {
+            targetModelId = "Piranha";
+        } else if ("pike".equals(cleanName)) {
+            targetModelId = "Pike";
+        } else if ("trout_rainbow".equals(cleanName)) {
+            targetModelId = "Trout_Rainbow";
+        } else if ("tang".equals(cleanName)) {
+            targetModelId = "Tang_Blue";
+        } else if ("snapjaw".equals(cleanName)) {
+            targetModelId = "Snapjaw";
+        } else if ("horse".equals(cleanName)) {
+            targetModelId = "Horse";
+        } else if ("horse_skeleton".equals(cleanName)) {
+            targetModelId = "Horse_Skeleton";
+        } else if ("snowleopard".equals(cleanName)) {
+            targetModelId = "Leopard_Snow";
+        } else if ("wolf".equals(cleanName)) {
+            targetModelId = "Wolf_Black";
+        } else if ("deer_stag".equals(cleanName)) {
+            targetModelId = "Model_Deer_Stag";
+        } else if ("camel".equals(cleanName)) {
+            targetModelId = "Camel";
+        } else if ("frostgill".equals(cleanName)) {
+            targetModelId = "Frostgill";
+        }
         if (!"bluegill".equals(canonicalName)) {
             return transform(player, targetModelId, canonicalName);
         }
@@ -177,6 +232,99 @@ public class ShapeshiftHandler {
         if ("aquatic".equals(key)) {
             return "bluegill";
         }
+        if ("polarbear".equals(key)) {
+            return "bear";
+        }
+        if ("hyena".equals(key)) {
+            return "tiger";
+        }
+        if ("crow".equals(key)) {
+            return "hawk";
+        }
+        if ("bat".equals(key)) {
+            return "hawk";
+        }
+        if ("owl".equals(key)) {
+            return "hawk";
+        }
+        if ("parrot".equals(key)) {
+            return "hawk";
+        }
+        if ("pigeon".equals(key)) {
+            return "hawk";
+        }
+        if ("pterodactyl".equals(key)) {
+            return "hawk";
+        }
+        if ("fox".equals(key)) {
+            return "rabbit";
+        }
+        if ("spider".equals(key)) {
+            return "rabbit";
+        }
+        if ("frog".equals(key)) {
+            return "rabbit";
+        }
+        if ("cat".equals(key)) {
+            return "rabbit";
+        }
+        if ("goat".equals(key)) {
+            return "ram";
+        }
+        if ("moose".equals(key)) {
+            return "ram";
+        }
+        if ("warthog".equals(key)) {
+            return "ram";
+        }
+        if ("bison".equals(key)) {
+            return "ram";
+        }
+        if ("trilodon".equals(key)) {
+            return "ram";
+        }
+        if ("eel_moray".equals(key)) {
+            return "bluegill";
+        }
+        if ("clownfish".equals(key)) {
+            return "bluegill";
+        }
+        if ("piranha".equals(key)) {
+            return "shark";
+        }
+        if ("pike".equals(key)) {
+            return "bluegill";
+        }
+        if ("trout_rainbow".equals(key)) {
+            return "bluegill";
+        }
+        if ("tang".equals(key)) {
+            return "bluegill";
+        }
+        if ("frostgill".equals(key)) {
+            return "bluegill";
+        }
+        if ("snapjaw".equals(key)) {
+            return "shark";
+        }
+        if ("horse".equals(key)) {
+            return "antelope";
+        }
+        if ("horse_skeleton".equals(key)) {
+            return "antelope";
+        }
+        if ("deer_stag".equals(key)) {
+            return "antelope";
+        }
+        if ("camel".equals(key)) {
+            return "antelope";
+        }
+        if ("snowleopard".equals(key)) {
+            return "tiger";
+        }
+        if ("wolf".equals(key)) {
+            return "tiger";
+        }
         return key;
     }
 
@@ -184,11 +332,42 @@ public class ShapeshiftHandler {
         if (modelId == null) return null;
         return switch (modelId) {
             case "Druid_Bear" -> "bear";
+            case "Bear_Polar" -> "bear";
             case "Druid_Ram" -> "ram";
+            case "Goat" -> "ram";
+            case "Moose_Bull" -> "ram";
+            case "Warthog" -> "ram";
+            case "Bison" -> "ram";
+            case "Trillodon" -> "ram";
             case "Duck" -> "duck";
             case "Shark_Hammerhead" -> "shark";
+            case "Eel_Moray" -> "bluegill";
+            case "Clownfish" -> "bluegill";
+            case "Piranha" -> "shark";
+            case "Pike" -> "bluegill";
+            case "Trout_Rainbow" -> "bluegill";
+            case "Tang_Blue" -> "bluegill";
+            case "Frostgill" -> "bluegill";
+            case "Snapjaw" -> "shark";
+            case "Horse" -> "antelope";
+            case "Horse_Skeleton" -> "antelope";
+            case "Model_Deer_Stag" -> "antelope";
+            case "Camel" -> "antelope";
             case "Hawk" -> "hawk";
+            case "Crow" -> "hawk";
+            case "Bat" -> "hawk";
+            case "Owl_Brown" -> "hawk";
+            case "Parrot" -> "hawk";
+            case "Pigeon" -> "hawk";
+            case "Pterodactyl" -> "hawk";
+            case "Fox" -> "rabbit";
+            case "Spider" -> "rabbit";
+            case "Frog_Green" -> "rabbit";
+            case "Cat" -> "rabbit";
             case "Tiger_Sabertooth" -> "tiger";
+            case "Hyena" -> "tiger";
+            case "Leopard_Snow" -> "tiger";
+            case "Wolf_Black" -> "tiger";
             case "Rabbit" -> "rabbit";
             case "Antelope" -> "antelope";
             case "Bluegill", "Fish_Bluegill" -> "bluegill";
@@ -206,7 +385,6 @@ public class ShapeshiftHandler {
         String previousForm = formKeyFromModel(currentForm);
         shortName = canonicalizeFormKey(shortName.toLowerCase(Locale.ROOT));
         boolean enteringAquaticForm = isAquaticFormKey(shortName);
-
         if (currentForm != null && currentForm.equals(targetModelID)) {
             restoreHuman(player);
             return true;
@@ -228,8 +406,15 @@ public class ShapeshiftHandler {
         playPoofEffect(player);
 
         if (swapModel(player, targetModelID)) {
+            if ("Horse".equals(targetModelID) || "Camel".equals(targetModelID) || "Horse_Skeleton".equals(targetModelID)) {
+                applyHorseAttachments(player, targetModelID);
+            }
             activeForms.put(playerName, targetModelID);
-            sendPlayerMessage(player, "You have shapeshifted into a " + shortName + "!");
+            String formLabel = FormRuntimeBridge.resolveFormLabelForAnimal(shortName);
+            if (formLabel == null || formLabel.isBlank()) {
+                formLabel = shortName;
+            }
+            sendPlayerMessage(player, "You have shapeshifted into the " + formLabel + " form!");
 
             updateCapabilities(player, shortName);
             swapAbilityItems(player, shortName);
@@ -260,6 +445,43 @@ public class ShapeshiftHandler {
 
         System.out.println("[Druid] Failed to shapeshift " + playerName + " into model: " + targetModelID);
         return false;
+    }
+
+    private void applyHorseAttachments(Player player, String modelAssetId) {
+        try {
+            Class<?> modelAssetClass = Class.forName("com.hypixel.hytale.server.core.asset.type.model.config.ModelAsset");
+            Class<?> modelClass = Class.forName("com.hypixel.hytale.server.core.asset.type.model.config.Model");
+
+            Method getMapMethod = modelAssetClass.getMethod("getAssetMap");
+            Object assetMap = getMapMethod.invoke(null);
+
+            Method getAssetMethod = null;
+            for (Method m : assetMap.getClass().getMethods()) {
+                if (m.getName().equals("getAsset") && m.getParameterCount() == 1) {
+                    getAssetMethod = m;
+                    break;
+                }
+            }
+            if (getAssetMethod == null) return;
+            getAssetMethod.setAccessible(true);
+
+            Object resolvedAsset = getAssetMethod.invoke(assetMap, modelAssetId);
+            if (resolvedAsset == null) resolvedAsset = getAssetMethod.invoke(assetMap, "Hytale:" + modelAssetId);
+            if (resolvedAsset == null) resolvedAsset = getAssetMethod.invoke(assetMap, "druid:" + modelAssetId);
+            if (resolvedAsset == null) resolvedAsset = getAssetMethod.invoke(assetMap, "Druid:" + modelAssetId);
+            if (resolvedAsset == null) return;
+
+            Method generateRandomAttachmentIds = modelAssetClass.getMethod("generateRandomAttachmentIds");
+            Object attachmentIdMap = generateRandomAttachmentIds.invoke(resolvedAsset);
+            if (!(attachmentIdMap instanceof Map)) return;
+
+            Method createScaledModel = modelClass.getMethod("createScaledModel", modelAssetClass, float.class, Map.class);
+            Object assembledModel = createScaledModel.invoke(null, resolvedAsset, 1.0f, attachmentIdMap);
+            if (assembledModel == null) return;
+
+            injectRawModel(player, assembledModel);
+        } catch (Exception ignored) {
+        }
     }
 
     public void restoreHuman(Player player) {

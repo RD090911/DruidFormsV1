@@ -1,0 +1,24 @@
+﻿Compiled from "TransformComponent.java"
+public class com.hypixel.hytale.server.core.modules.entity.component.TransformComponent implements com.hypixel.hytale.component.Component<com.hypixel.hytale.server.core.universe.world.storage.EntityStore> {
+  public static final com.hypixel.hytale.codec.builder.BuilderCodec<com.hypixel.hytale.server.core.modules.entity.component.TransformComponent> CODEC;
+  static final boolean $assertionsDisabled;
+  public static com.hypixel.hytale.component.ComponentType<com.hypixel.hytale.server.core.universe.world.storage.EntityStore, com.hypixel.hytale.server.core.modules.entity.component.TransformComponent> getComponentType();
+  public com.hypixel.hytale.server.core.modules.entity.component.TransformComponent();
+  public com.hypixel.hytale.server.core.modules.entity.component.TransformComponent(com.hypixel.hytale.math.vector.Vector3d, com.hypixel.hytale.math.vector.Vector3f);
+  public com.hypixel.hytale.math.vector.Vector3d getPosition();
+  public void setPosition(com.hypixel.hytale.math.vector.Vector3d);
+  public void teleportPosition(com.hypixel.hytale.math.vector.Vector3d);
+  public com.hypixel.hytale.math.vector.Vector3f getRotation();
+  public void setRotation(com.hypixel.hytale.math.vector.Vector3f);
+  public com.hypixel.hytale.math.vector.Transform getTransform();
+  public void teleportRotation(com.hypixel.hytale.math.vector.Vector3f);
+  public com.hypixel.hytale.protocol.ModelTransform getSentTransform();
+  public com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk getChunk();
+  public com.hypixel.hytale.component.Ref<com.hypixel.hytale.server.core.universe.world.storage.ChunkStore> getChunkRef();
+  public void markChunkDirty(com.hypixel.hytale.component.ComponentAccessor<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>);
+  public void setChunkLocation(com.hypixel.hytale.component.Ref<com.hypixel.hytale.server.core.universe.world.storage.ChunkStore>, com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk);
+  public com.hypixel.hytale.server.core.modules.entity.component.TransformComponent clone();
+  public java.lang.Object clone() throws java.lang.CloneNotSupportedException;
+  public com.hypixel.hytale.component.Component clone();
+  static {};
+}

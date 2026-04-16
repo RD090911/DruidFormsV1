@@ -1,11 +1,7 @@
 package me.druid.v1.hud;
 
-import au.ellie.hyui.builders.GroupBuilder;
 import au.ellie.hyui.builders.HudBuilder;
-import au.ellie.hyui.builders.HyUIAnchor;
 import au.ellie.hyui.builders.HyUIHud;
-import au.ellie.hyui.builders.HyUIStyle;
-import au.ellie.hyui.builders.LabelBuilder;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 
@@ -16,7 +12,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class DruidHyUiAnimalSelectorHud {
-    private static final String BASE_UI_FILE = "Pages/EllieAU_HyUI_Placeholder.ui";
     private static final ConcurrentHashMap<UUID, HyUIHud> SELECTOR_BY_PLAYER = new ConcurrentHashMap<>();
     private static final List<String> FORM_NAMES = List.of(
             "Bear",
@@ -46,8 +41,9 @@ public final class DruidHyUiAnimalSelectorHud {
         close(playerUuid);
 
         try {
-            HudBuilder builder = createHudBuilder(playerRef);
-            HyUIHud selectorHud = builder.show();
+            HyUIHud selectorHud = HudBuilder.hudForPlayer(playerRef)
+                    .fromHtml(buildSelectorHtml())
+                    .show();
             SELECTOR_BY_PLAYER.put(playerUuid, selectorHud);
             System.out.println("[DruidHyUI] Selector shown for " + playerUuid);
         } catch (Exception e) {
@@ -67,77 +63,37 @@ public final class DruidHyUiAnimalSelectorHud {
         }
     }
 
-    private static HudBuilder createHudBuilder(PlayerRef playerRef) {
-        HyUIAnchor rootAnchor = new HyUIAnchor()
-                .setLeft(12)
-                .setTop(46)
-                .setWidth(260)
-                .setHeight(300);
-
-        HyUIStyle titleStyle = new HyUIStyle()
-                .setFontSize(16f)
-                .setRenderBold(true)
-                .setTextColor("#FFFFFFFF");
-
-        HyUIStyle itemStyle = new HyUIStyle()
-                .setFontSize(14f)
-                .setTextColor("#FFFFFFFF");
-
-        HyUIStyle instructionStyle = new HyUIStyle()
-                .setFontSize(13f)
-                .setTextColor("#FFDDDDDD");
-
-        GroupBuilder root = GroupBuilder.group()
-                .withRawId("druidFormSelectorRoot")
-                .withAnchor(rootAnchor)
-                .addChild(
-                        LabelBuilder.label()
-                                .withRawId("druidFormSelectorTitle")
-                                .withAnchor(new HyUIAnchor().setLeft(0).setTop(0).setWidth(260).setHeight(24))
-                                .withStyle(titleStyle)
-                                .withText("Animal Selector")
-                );
-
-        int top = 28;
-        for (int i = 0; i < FORM_NAMES.size(); i++) {
-            String displayName = FORM_NAMES.get(i);
-            root.addChild(
-                    LabelBuilder.label()
-                            .withRawId("druidSelectorForm_" + i)
-                            .withAnchor(new HyUIAnchor().setLeft(0).setTop(top).setWidth(260).setHeight(18))
-                            .withStyle(itemStyle)
-                            .withText("- " + displayName)
-            );
-            top += 19;
+    private static String buildSelectorHtml() {
+        StringBuilder html = new StringBuilder();
+        html.append("<div class='panel' style='anchor-left: 18; anchor-top: 52; anchor-width: 380; anchor-height: 370;'>");
+        html.append("<div class='container' data-hyui-title='Druid Selector (Legacy)' style='anchor-left: 10; anchor-top: 10; anchor-right: 10; anchor-bottom: 10;'>");
+        html.append("<div class='container-contents' style='layout-mode: left;'>");
+        html.append("<p>Legacy transitional selector</p>");
+        html.append("<p>Primary UI: /shapeshift menu</p>");
+        html.append("<div style='anchor-top: 6; layout-mode: left;'>");
+        for (String formName : FORM_NAMES) {
+            html.append("<p>").append(escapeHtml(formName)).append("</p>");
         }
+        html.append("</div>");
+        html.append("<div style='anchor-top: 10; layout-mode: left;'>");
+        html.append("<p>Use command to transform:</p>");
+        html.append("<p>/shapeshift {form}</p>");
+        html.append("<p>Example: /shapeshift bear</p>");
+        html.append("</div>");
+        html.append("</div>");
+        html.append("</div>");
+        html.append("</div>");
+        return html.toString();
+    }
 
-        root.addChild(
-                LabelBuilder.label()
-                        .withRawId("druidSelectorInstruction1")
-                        .withAnchor(new HyUIAnchor().setLeft(0).setTop(top + 8).setWidth(260).setHeight(18))
-                        .withStyle(instructionStyle)
-                        .withText("Use command to transform:")
-        );
-
-        root.addChild(
-                LabelBuilder.label()
-                        .withRawId("druidSelectorInstruction2")
-                        .withAnchor(new HyUIAnchor().setLeft(0).setTop(top + 26).setWidth(260).setHeight(18))
-                        .withStyle(instructionStyle)
-                        .withText("/shapeshift <form>")
-        );
-
-        root.addChild(
-                LabelBuilder.label()
-                        .withRawId("druidSelectorInstruction3")
-                        .withAnchor(new HyUIAnchor().setLeft(0).setTop(top + 44).setWidth(260).setHeight(18))
-                        .withStyle(instructionStyle)
-                        .withText("Example: /shapeshift bear")
-        );
-
-        return HudBuilder.hudForPlayer(playerRef)
-                .fromFile(BASE_UI_FILE)
-                .addElement(root);
+    private static String escapeHtml(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;");
     }
 
     private static PlayerRef resolvePlayerRef(Player player) {
@@ -171,5 +127,4 @@ public final class DruidHyUiAnimalSelectorHud {
         }
         return null;
     }
-
 }

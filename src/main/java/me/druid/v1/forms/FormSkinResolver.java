@@ -62,6 +62,29 @@ public final class FormSkinResolver {
         return null;
     }
 
+    public static String resolvePreferredAnimalKey(FormId formId, SkinId selectedSkin) {
+        if (formId == null) {
+            return null;
+        }
+
+        if (selectedSkin != null && SkinRegistry.getFormForSkin(selectedSkin) == formId && isSkinImplemented(selectedSkin)) {
+            String selectedAnimal = SkinRegistry.getAnimalForSkin(selectedSkin);
+            if (selectedAnimal != null && !selectedAnimal.isBlank()) {
+                return selectedAnimal;
+            }
+        }
+
+        SkinId defaultSkin = getDefaultSkinForForm(formId);
+        if (defaultSkin != null && isSkinImplemented(defaultSkin)) {
+            String defaultAnimal = SkinRegistry.getAnimalForSkin(defaultSkin);
+            if (defaultAnimal != null && !defaultAnimal.isBlank()) {
+                return defaultAnimal;
+            }
+        }
+
+        return null;
+    }
+
     public static List<SkinId> getAvailableSkinsForForm(FormId formId) {
         if (formId == null) {
             return Collections.emptyList();

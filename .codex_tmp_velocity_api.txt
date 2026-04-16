@@ -1,0 +1,33 @@
+﻿Compiled from "Velocity.java"
+public class com.hypixel.hytale.server.core.modules.physics.component.Velocity implements com.hypixel.hytale.component.Component<com.hypixel.hytale.server.core.universe.world.storage.EntityStore> {
+  public static final com.hypixel.hytale.codec.builder.BuilderCodec<com.hypixel.hytale.server.core.modules.physics.component.Velocity> CODEC;
+  protected final java.util.List<com.hypixel.hytale.server.core.modules.physics.component.Velocity$Instruction> instructions;
+  protected final com.hypixel.hytale.math.vector.Vector3d velocity;
+  protected final com.hypixel.hytale.math.vector.Vector3d clientVelocity;
+  public static com.hypixel.hytale.component.ComponentType<com.hypixel.hytale.server.core.universe.world.storage.EntityStore, com.hypixel.hytale.server.core.modules.physics.component.Velocity> getComponentType();
+  public com.hypixel.hytale.server.core.modules.physics.component.Velocity();
+  public com.hypixel.hytale.server.core.modules.physics.component.Velocity(com.hypixel.hytale.server.core.modules.physics.component.Velocity);
+  public com.hypixel.hytale.server.core.modules.physics.component.Velocity(com.hypixel.hytale.math.vector.Vector3d);
+  public void setZero();
+  public void addForce(com.hypixel.hytale.math.vector.Vector3d);
+  public void addForce(double, double, double);
+  public void set(com.hypixel.hytale.math.vector.Vector3d);
+  public void set(double, double, double);
+  public void setClient(com.hypixel.hytale.math.vector.Vector3d);
+  public void setClient(double, double, double);
+  public void setX(double);
+  public void setY(double);
+  public void setZ(double);
+  public double getX();
+  public double getY();
+  public double getZ();
+  public double getSpeed();
+  public void addInstruction(com.hypixel.hytale.math.vector.Vector3d, com.hypixel.hytale.server.core.modules.splitvelocity.VelocityConfig, com.hypixel.hytale.protocol.ChangeVelocityType);
+  public java.util.List<com.hypixel.hytale.server.core.modules.physics.component.Velocity$Instruction> getInstructions();
+  public com.hypixel.hytale.math.vector.Vector3d getVelocity();
+  public com.hypixel.hytale.math.vector.Vector3d getClientVelocity();
+  public com.hypixel.hytale.math.vector.Vector3d assignVelocityTo(com.hypixel.hytale.math.vector.Vector3d);
+  public com.hypixel.hytale.component.Component<com.hypixel.hytale.server.core.universe.world.storage.EntityStore> clone();
+  public java.lang.Object clone() throws java.lang.CloneNotSupportedException;
+  static {};
+}

@@ -714,28 +714,119 @@ public final class DruidHyUiPersistentFormHud {
 
     private static String resolveAnimalLabelFromModelIdLower(String lowerModelId) {
         if (lowerModelId == null || lowerModelId.isBlank()) return null;
-        if (lowerModelId.contains("bear")) return "Bear";
-        if (lowerModelId.contains("tiger") || lowerModelId.contains("sabertooth")) return "Tiger";
-        if (lowerModelId.contains("shark")) return "Shark";
-        if (lowerModelId.contains("ram")) return "Ram";
-        if (lowerModelId.contains("duck")) return "Duck";
-        if (lowerModelId.contains("hawk")) return "Hawk";
-        if (lowerModelId.contains("rabbit") || lowerModelId.contains("jackalope")) return "Rabbit";
-        if (lowerModelId.contains("antelope")) return "Antelope";
+        if (lowerModelId.contains("grizzly")
+                || lowerModelId.contains("polar_bear")
+                || lowerModelId.contains("polarbear")
+                || lowerModelId.contains("bear")) return "Bear";
+        if (lowerModelId.contains("tiger")
+                || lowerModelId.contains("sabertooth")
+                || lowerModelId.contains("hyena")
+                || lowerModelId.contains("snow_leopard")
+                || lowerModelId.contains("snowleopard")
+                || lowerModelId.contains("leopard_snow")
+                || lowerModelId.contains("wolf")) return "Tiger";
+        if (lowerModelId.contains("shark")
+                || lowerModelId.contains("piranha")
+                || lowerModelId.contains("snapjaw")) return "Shark";
+        if (lowerModelId.contains("antelope")
+                || lowerModelId.contains("deer")
+                || lowerModelId.contains("stag")
+                || lowerModelId.contains("horse")
+                || lowerModelId.contains("horse_skeleton")
+                || lowerModelId.contains("skeletal_horse")
+                || lowerModelId.contains("skeletalhorse")
+                || lowerModelId.contains("camel")) return "Antelope";
+        if (lowerModelId.contains("bluegill")
+                || lowerModelId.contains("eel")
+                || lowerModelId.contains("eel_moray")
+                || lowerModelId.contains("clownfish")
+                || lowerModelId.contains("pike")
+                || lowerModelId.contains("trout_rainbow")
+                || lowerModelId.contains("rainbow_trout")
+                || lowerModelId.contains("rainbowtrout")
+                || lowerModelId.contains("tang")
+                || lowerModelId.contains("frostgill")) return "Aquatic";
+        if (lowerModelId.contains("hawk")
+                || lowerModelId.contains("crow")
+                || lowerModelId.contains("bat")
+                || lowerModelId.contains("duck")
+                || lowerModelId.contains("owl")
+                || lowerModelId.contains("parrot")
+                || lowerModelId.contains("pigeon")
+                || lowerModelId.contains("pterodactyl")) return "Hawk";
+        if (lowerModelId.contains("rabbit")
+                || lowerModelId.contains("frog")
+                || lowerModelId.contains("squirrel")
+                || lowerModelId.contains("cat")
+                || lowerModelId.contains("fox")
+                || lowerModelId.contains("spider")
+                || lowerModelId.contains("jackalope")) return "Rabbit";
+        if (lowerModelId.contains("ram")
+                || lowerModelId.contains("goat")
+                || lowerModelId.contains("moose")
+                || lowerModelId.contains("warthog")
+                || lowerModelId.contains("bison")
+                || lowerModelId.contains("trillodon")
+                || lowerModelId.contains("trilodon")) return "Ram";
         return null;
     }
 
     private static String resolveAnimalKeyFromModelIdLower(String lowerModelId) {
         if (lowerModelId == null || lowerModelId.isBlank()) return null;
-        if (lowerModelId.contains("bear")) return "bear";
-        if (lowerModelId.contains("tiger") || lowerModelId.contains("sabertooth")) return "tiger";
-        if (lowerModelId.contains("shark")) return "shark";
-        if (lowerModelId.contains("bluegill")) return "bluegill";
-        if (lowerModelId.contains("ram")) return "ram";
-        if (lowerModelId.contains("duck")) return "duck";
-        if (lowerModelId.contains("hawk")) return "hawk";
-        if (lowerModelId.contains("rabbit") || lowerModelId.contains("jackalope")) return "rabbit";
-        if (lowerModelId.contains("antelope")) return "antelope";
+        if (lowerModelId.contains("grizzly")
+                || lowerModelId.contains("polar_bear")
+                || lowerModelId.contains("polarbear")
+                || lowerModelId.contains("bear")) return "bear";
+        if (lowerModelId.contains("tiger")
+                || lowerModelId.contains("sabertooth")
+                || lowerModelId.contains("hyena")
+                || lowerModelId.contains("snow_leopard")
+                || lowerModelId.contains("snowleopard")
+                || lowerModelId.contains("leopard_snow")
+                || lowerModelId.contains("wolf")) return "tiger";
+        if (lowerModelId.contains("shark")
+                || lowerModelId.contains("piranha")
+                || lowerModelId.contains("snapjaw")) return "shark";
+        if (lowerModelId.contains("antelope")
+                || lowerModelId.contains("deer")
+                || lowerModelId.contains("stag")
+                || lowerModelId.contains("horse")
+                || lowerModelId.contains("horse_skeleton")
+                || lowerModelId.contains("skeletal_horse")
+                || lowerModelId.contains("skeletalhorse")
+                || lowerModelId.contains("camel")) return "antelope";
+        if (lowerModelId.contains("bluegill")
+                || lowerModelId.contains("eel")
+                || lowerModelId.contains("eel_moray")
+                || lowerModelId.contains("clownfish")
+                || lowerModelId.contains("pike")
+                || lowerModelId.contains("trout_rainbow")
+                || lowerModelId.contains("rainbow_trout")
+                || lowerModelId.contains("rainbowtrout")
+                || lowerModelId.contains("tang")
+                || lowerModelId.contains("frostgill")) return "aquatic";
+        if (lowerModelId.contains("hawk")
+                || lowerModelId.contains("crow")
+                || lowerModelId.contains("bat")
+                || lowerModelId.contains("duck")
+                || lowerModelId.contains("owl")
+                || lowerModelId.contains("parrot")
+                || lowerModelId.contains("pigeon")
+                || lowerModelId.contains("pterodactyl")) return "hawk";
+        if (lowerModelId.contains("rabbit")
+                || lowerModelId.contains("frog")
+                || lowerModelId.contains("squirrel")
+                || lowerModelId.contains("cat")
+                || lowerModelId.contains("fox")
+                || lowerModelId.contains("spider")
+                || lowerModelId.contains("jackalope")) return "rabbit";
+        if (lowerModelId.contains("ram")
+                || lowerModelId.contains("goat")
+                || lowerModelId.contains("moose")
+                || lowerModelId.contains("warthog")
+                || lowerModelId.contains("bison")
+                || lowerModelId.contains("trillodon")
+                || lowerModelId.contains("trilodon")) return "ram";
         return null;
     }
 

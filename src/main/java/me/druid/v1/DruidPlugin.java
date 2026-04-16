@@ -59,6 +59,7 @@ public class DruidPlugin extends JavaPlugin {
         if (event == null) return;
         Player player = event.getPlayer();
         if (player == null) return;
+        DruidPermissions.rememberPlayer(player);
 
         String displayName = safeDisplayName(player);
         String activeBefore = displayName == null ? null : ShapeshiftHandler.activeForms.get(displayName);

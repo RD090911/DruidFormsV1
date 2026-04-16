@@ -1,0 +1,23 @@
+﻿Compiled from "Vector3d.java"
+public class com.hypixel.hytale.protocol.Vector3d {
+  public static final int NULLABLE_BIT_FIELD_SIZE;
+  public static final int FIXED_BLOCK_SIZE;
+  public static final int VARIABLE_FIELD_COUNT;
+  public static final int VARIABLE_BLOCK_START;
+  public static final int MAX_SIZE;
+  public double x;
+  public double y;
+  public double z;
+  public com.hypixel.hytale.protocol.Vector3d();
+  public com.hypixel.hytale.protocol.Vector3d(double, double, double);
+  public com.hypixel.hytale.protocol.Vector3d(com.hypixel.hytale.protocol.Vector3d);
+  public static com.hypixel.hytale.protocol.Vector3d deserialize(io.netty.buffer.ByteBuf, int);
+  public static int computeBytesConsumed(io.netty.buffer.ByteBuf, int);
+  public void serialize(io.netty.buffer.ByteBuf);
+  public int computeSize();
+  public static com.hypixel.hytale.protocol.io.ValidationResult validateStructure(io.netty.buffer.ByteBuf, int);
+  public com.hypixel.hytale.protocol.Vector3d clone();
+  public boolean equals(java.lang.Object);
+  public int hashCode();
+  public java.lang.Object clone() throws java.lang.CloneNotSupportedException;
+}

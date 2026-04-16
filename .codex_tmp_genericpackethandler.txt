@@ -1,0 +1,151 @@
+﻿Compiled from "GenericPacketHandler.java"
+public abstract class com.hypixel.hytale.server.core.io.handlers.GenericPacketHandler extends com.hypixel.hytale.server.core.io.PacketHandler {
+  private static final java.util.function.Consumer<com.hypixel.hytale.protocol.ToServerPacket> EMPTY_CONSUMER;
+
+  protected final java.util.List<com.hypixel.hytale.server.core.io.handlers.SubPacketHandler> packetHandlers;
+
+  private java.util.function.Consumer<com.hypixel.hytale.protocol.ToServerPacket>[] handlers;
+
+  public static java.util.function.Consumer<com.hypixel.hytale.protocol.ToServerPacket>[] newHandlerArray(int);
+    Code:
+         0: iload_0
+         1: anewarray     #1                  // class java/util/function/Consumer
+         4: areturn
+
+  public com.hypixel.hytale.server.core.io.handlers.GenericPacketHandler(io.netty.channel.Channel, com.hypixel.hytale.server.core.io.ProtocolVersion);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: aload_2
+         3: invokespecial #3                  // Method com/hypixel/hytale/server/core/io/PacketHandler."<init>":(Lio/netty/channel/Channel;Lcom/hypixel/hytale/server/core/io/ProtocolVersion;)V
+         6: aload_0
+         7: new           #9                  // class it/unimi/dsi/fastutil/objects/ObjectArrayList
+        10: dup
+        11: invokespecial #11                 // Method it/unimi/dsi/fastutil/objects/ObjectArrayList."<init>":()V
+        14: putfield      #14                 // Field packetHandlers:Ljava/util/List;
+        17: aload_0
+        18: iconst_0
+        19: invokestatic  #20                 // Method newHandlerArray:(I)[Ljava/util/function/Consumer;
+        22: putfield      #24                 // Field handlers:[Ljava/util/function/Consumer;
+        25: return
+
+  public void registerSubPacketHandler(com.hypixel.hytale.server.core.io.handlers.SubPacketHandler);
+    Code:
+         0: aload_0
+         1: getfield      #14                 // Field packetHandlers:Ljava/util/List;
+         4: aload_1
+         5: invokeinterface #28,  2           // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        10: pop
+        11: return
+
+  public void registerHandler(int, java.util.function.Consumer<com.hypixel.hytale.protocol.ToServerPacket>);
+    Code:
+         0: iload_1
+         1: aload_0
+         2: getfield      #24                 // Field handlers:[Ljava/util/function/Consumer;
+         5: arraylength
+         6: if_icmplt     36
+         9: iload_1
+        10: iconst_1
+        11: iadd
+        12: invokestatic  #20                 // Method newHandlerArray:(I)[Ljava/util/function/Consumer;
+        15: astore_3
+        16: aload_0
+        17: getfield      #24                 // Field handlers:[Ljava/util/function/Consumer;
+        20: iconst_0
+        21: aload_3
+        22: iconst_0
+        23: aload_0
+        24: getfield      #24                 // Field handlers:[Ljava/util/function/Consumer;
+        27: arraylength
+        28: invokestatic  #34                 // Method java/lang/System.arraycopy:(Ljava/lang/Object;ILjava/lang/Object;II)V
+        31: aload_0
+        32: aload_3
+        33: putfield      #24                 // Field handlers:[Ljava/util/function/Consumer;
+        36: aload_0
+        37: getfield      #24                 // Field handlers:[Ljava/util/function/Consumer;
+        40: iload_1
+        41: aload_2
+        42: aastore
+        43: return
+
+  public void registerNoOpHandlers(int...);
+    Code:
+         0: aload_1
+         1: astore_2
+         2: aload_2
+         3: arraylength
+         4: istore_3
+         5: iconst_0
+         6: istore        4
+         8: iload         4
+        10: iload_3
+        11: if_icmpge     35
+        14: aload_2
+        15: iload         4
+        17: iaload
+        18: istore        5
+        20: aload_0
+        21: iload         5
+        23: getstatic     #40                 // Field EMPTY_CONSUMER:Ljava/util/function/Consumer;
+        26: invokevirtual #44                 // Method registerHandler:(ILjava/util/function/Consumer;)V
+        29: iinc          4, 1
+        32: goto          8
+        35: return
+
+  public final void accept(com.hypixel.hytale.protocol.ToServerPacket);
+    Code:
+         0: aload_1
+         1: invokeinterface #48,  1           // InterfaceMethod com/hypixel/hytale/protocol/ToServerPacket.getId:()I
+         6: istore_2
+         7: aload_0
+         8: getfield      #24                 // Field handlers:[Ljava/util/function/Consumer;
+        11: arraylength
+        12: iload_2
+        13: if_icmple     25
+        16: aload_0
+        17: getfield      #24                 // Field handlers:[Ljava/util/function/Consumer;
+        20: iload_2
+        21: aaload
+        22: goto          26
+        25: aconst_null
+        26: astore_3
+        27: aload_3
+        28: ifnull        63
+        31: aload_3
+        32: aload_1
+        33: invokeinterface #54,  2           // InterfaceMethod java/util/function/Consumer.accept:(Ljava/lang/Object;)V
+        38: goto          81
+        41: astore        4
+        43: new           #60                 // class java/lang/RuntimeException
+        46: dup
+        47: iload_2
+        48: aload_1
+        49: invokestatic  #62                 // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+        52: invokedynamic #68,  0             // InvokeDynamic #0:makeConcatWithConstants:(ILjava/lang/String;)Ljava/lang/String;
+        57: aload         4
+        59: invokespecial #72                 // Method java/lang/RuntimeException."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+        62: athrow
+        63: new           #60                 // class java/lang/RuntimeException
+        66: dup
+        67: iload_2
+        68: aload_1
+        69: invokestatic  #62                 // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+        72: invokedynamic #75,  0             // InvokeDynamic #1:makeConcatWithConstants:(ILjava/lang/String;)Ljava/lang/String;
+        77: invokespecial #76                 // Method java/lang/RuntimeException."<init>":(Ljava/lang/String;)V
+        80: athrow
+        81: return
+      Exception table:
+         from    to  target type
+            31    38    41   Class java/lang/Throwable
+
+  private static void lambda$static$0(com.hypixel.hytale.protocol.ToServerPacket);
+    Code:
+         0: return
+
+  static {};
+    Code:
+         0: invokedynamic #79,  0             // InvokeDynamic #2:accept:()Ljava/util/function/Consumer;
+         5: putstatic     #40                 // Field EMPTY_CONSUMER:Ljava/util/function/Consumer;
+         8: return
+}

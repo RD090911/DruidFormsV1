@@ -89,10 +89,6 @@ public final class DruidHyUiCurrentFormHud {
         if (animalKey == null) return "Human";
 
         String formLabel = FormRuntimeBridge.resolveFormLabelForAnimal(animalKey);
-        if ("duck".equals(animalKey) && formLabel != null && !formLabel.isBlank()) {
-            return formLabel + " (Duck)";
-        }
-
         if (legacyLabel != null) return legacyLabel;
         if (formLabel != null && !formLabel.isBlank()) return formLabel;
         return "Human";
@@ -102,11 +98,16 @@ public final class DruidHyUiCurrentFormHud {
         if (lowerModelId == null || lowerModelId.isBlank()) return null;
         if (lowerModelId.contains("bear")) return "Bear";
         if (lowerModelId.contains("ram")) return "Ram";
-        if (lowerModelId.contains("duck")) return "Duck";
+        if (lowerModelId.contains("piranha")) return "Shark";
+        if (lowerModelId.contains("snapjaw")) return "Shark";
         if (lowerModelId.contains("shark")) return "Shark";
         if (lowerModelId.contains("hawk")) return "Hawk";
         if (lowerModelId.contains("tiger") || lowerModelId.contains("sabertooth")) return "Tiger";
+        if (lowerModelId.contains("hyena")) return "Tiger";
+        if (lowerModelId.contains("leopard_snow")) return "Tiger";
+        if (lowerModelId.contains("wolf")) return "Tiger";
         if (lowerModelId.contains("rabbit") || lowerModelId.contains("jackalope")) return "Rabbit";
+        if (lowerModelId.contains("horse")) return "Antelope";
         if (lowerModelId.contains("antelope")) return "Antelope";
         return null;
     }
@@ -116,11 +117,17 @@ public final class DruidHyUiCurrentFormHud {
         if (lowerModelId.contains("bear")) return "bear";
         if (lowerModelId.contains("ram")) return "ram";
         if (lowerModelId.contains("duck")) return "duck";
+        if (lowerModelId.contains("piranha")) return "piranha";
+        if (lowerModelId.contains("snapjaw")) return "snapjaw";
         if (lowerModelId.contains("shark")) return "shark";
         if (lowerModelId.contains("bluegill")) return "bluegill";
         if (lowerModelId.contains("hawk")) return "hawk";
         if (lowerModelId.contains("tiger") || lowerModelId.contains("sabertooth")) return "tiger";
+        if (lowerModelId.contains("hyena")) return "hyena";
+        if (lowerModelId.contains("leopard_snow")) return "snowleopard";
+        if (lowerModelId.contains("wolf")) return "wolf";
         if (lowerModelId.contains("rabbit") || lowerModelId.contains("jackalope")) return "rabbit";
+        if (lowerModelId.contains("horse")) return "horse";
         if (lowerModelId.contains("antelope")) return "antelope";
         return null;
     }

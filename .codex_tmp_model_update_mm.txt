@@ -1,0 +1,153 @@
+﻿Compiled from "ModelSystems.java"
+public class com.hypixel.hytale.server.core.modules.entity.system.ModelSystems$PlayerUpdateMovementManager extends com.hypixel.hytale.component.system.RefChangeSystem<com.hypixel.hytale.server.core.universe.world.storage.EntityStore, com.hypixel.hytale.server.core.modules.entity.component.ModelComponent> {
+  private final com.hypixel.hytale.component.ComponentType<com.hypixel.hytale.server.core.universe.world.storage.EntityStore, com.hypixel.hytale.server.core.modules.entity.component.ModelComponent> modelComponentType;
+
+  private final com.hypixel.hytale.component.ComponentType<com.hypixel.hytale.server.core.universe.world.storage.EntityStore, com.hypixel.hytale.server.core.entity.entities.Player> playerComponentType;
+
+  private final com.hypixel.hytale.component.query.Query<com.hypixel.hytale.server.core.universe.world.storage.EntityStore> query;
+
+  private final java.util.Set<com.hypixel.hytale.component.dependency.Dependency<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>> dependencies;
+
+  static final boolean $assertionsDisabled;
+
+  public com.hypixel.hytale.server.core.modules.entity.system.ModelSystems$PlayerUpdateMovementManager();
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method com/hypixel/hytale/component/system/RefChangeSystem."<init>":()V
+         4: aload_0
+         5: invokestatic  #7                  // Method com/hypixel/hytale/server/core/modules/entity/component/ModelComponent.getComponentType:()Lcom/hypixel/hytale/component/ComponentType;
+         8: putfield      #13                 // Field modelComponentType:Lcom/hypixel/hytale/component/ComponentType;
+        11: aload_0
+        12: invokestatic  #19                 // Method com/hypixel/hytale/server/core/entity/entities/Player.getComponentType:()Lcom/hypixel/hytale/component/ComponentType;
+        15: putfield      #22                 // Field playerComponentType:Lcom/hypixel/hytale/component/ComponentType;
+        18: aload_0
+        19: iconst_2
+        20: anewarray     #25                 // class com/hypixel/hytale/component/query/Query
+        23: dup
+        24: iconst_0
+        25: aload_0
+        26: getfield      #22                 // Field playerComponentType:Lcom/hypixel/hytale/component/ComponentType;
+        29: aastore
+        30: dup
+        31: iconst_1
+        32: invokestatic  #27                 // Method com/hypixel/hytale/server/core/entity/entities/player/movement/MovementManager.getComponentType:()Lcom/hypixel/hytale/component/ComponentType;
+        35: aastore
+        36: invokestatic  #30                 // InterfaceMethod com/hypixel/hytale/component/query/Query.and:([Lcom/hypixel/hytale/component/query/Query;)Lcom/hypixel/hytale/component/query/AndQuery;
+        39: putfield      #34                 // Field query:Lcom/hypixel/hytale/component/query/Query;
+        42: aload_0
+        43: new           #38                 // class com/hypixel/hytale/component/dependency/SystemDependency
+        46: dup
+        47: getstatic     #40                 // Field com/hypixel/hytale/component/dependency/Order.AFTER:Lcom/hypixel/hytale/component/dependency/Order;
+        50: ldc           #46                 // class com/hypixel/hytale/server/core/modules/entity/system/ModelSystems$UpdateBoundingBox
+        52: invokespecial #48                 // Method com/hypixel/hytale/component/dependency/SystemDependency."<init>":(Lcom/hypixel/hytale/component/dependency/Order;Ljava/lang/Class;)V
+        55: invokestatic  #51                 // InterfaceMethod java/util/Set.of:(Ljava/lang/Object;)Ljava/util/Set;
+        58: putfield      #57                 // Field dependencies:Ljava/util/Set;
+        61: return
+
+  public com.hypixel.hytale.component.query.Query<com.hypixel.hytale.server.core.universe.world.storage.EntityStore> getQuery();
+    Code:
+         0: aload_0
+         1: getfield      #34                 // Field query:Lcom/hypixel/hytale/component/query/Query;
+         4: areturn
+
+  public java.util.Set<com.hypixel.hytale.component.dependency.Dependency<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>> getDependencies();
+    Code:
+         0: aload_0
+         1: getfield      #57                 // Field dependencies:Ljava/util/Set;
+         4: areturn
+
+  public com.hypixel.hytale.component.ComponentType<com.hypixel.hytale.server.core.universe.world.storage.EntityStore, com.hypixel.hytale.server.core.modules.entity.component.ModelComponent> componentType();
+    Code:
+         0: aload_0
+         1: getfield      #13                 // Field modelComponentType:Lcom/hypixel/hytale/component/ComponentType;
+         4: areturn
+
+  public void onComponentAdded(com.hypixel.hytale.component.Ref<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>, com.hypixel.hytale.server.core.modules.entity.component.ModelComponent, com.hypixel.hytale.component.Store<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>, com.hypixel.hytale.component.CommandBuffer<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>);
+    Code:
+         0: aload_1
+         1: aload         4
+         3: invokestatic  #61                 // Method updateMovementController:(Lcom/hypixel/hytale/component/Ref;Lcom/hypixel/hytale/component/ComponentAccessor;)V
+         6: return
+
+  public void onComponentSet(com.hypixel.hytale.component.Ref<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>, com.hypixel.hytale.server.core.modules.entity.component.ModelComponent, com.hypixel.hytale.server.core.modules.entity.component.ModelComponent, com.hypixel.hytale.component.Store<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>, com.hypixel.hytale.component.CommandBuffer<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>);
+    Code:
+         0: aload_1
+         1: aload         5
+         3: invokestatic  #61                 // Method updateMovementController:(Lcom/hypixel/hytale/component/Ref;Lcom/hypixel/hytale/component/ComponentAccessor;)V
+         6: return
+
+  public void onComponentRemoved(com.hypixel.hytale.component.Ref<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>, com.hypixel.hytale.server.core.modules.entity.component.ModelComponent, com.hypixel.hytale.component.Store<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>, com.hypixel.hytale.component.CommandBuffer<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>);
+    Code:
+         0: aload_1
+         1: aload         4
+         3: invokestatic  #61                 // Method updateMovementController:(Lcom/hypixel/hytale/component/Ref;Lcom/hypixel/hytale/component/ComponentAccessor;)V
+         6: return
+
+  private static void updateMovementController(com.hypixel.hytale.component.Ref<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>, com.hypixel.hytale.component.ComponentAccessor<com.hypixel.hytale.server.core.universe.world.storage.EntityStore>);
+    Code:
+         0: aload_1
+         1: aload_0
+         2: invokestatic  #27                 // Method com/hypixel/hytale/server/core/entity/entities/player/movement/MovementManager.getComponentType:()Lcom/hypixel/hytale/component/ComponentType;
+         5: invokeinterface #65,  3           // InterfaceMethod com/hypixel/hytale/component/ComponentAccessor.getComponent:(Lcom/hypixel/hytale/component/Ref;Lcom/hypixel/hytale/component/ComponentType;)Lcom/hypixel/hytale/component/Component;
+        10: checkcast     #28                 // class com/hypixel/hytale/server/core/entity/entities/player/movement/MovementManager
+        13: astore_2
+        14: getstatic     #71                 // Field $assertionsDisabled:Z
+        17: ifne          32
+        20: aload_2
+        21: ifnonnull     32
+        24: new           #75                 // class java/lang/AssertionError
+        27: dup
+        28: invokespecial #77                 // Method java/lang/AssertionError."<init>":()V
+        31: athrow
+        32: aload_2
+        33: aload_0
+        34: aload_1
+        35: invokevirtual #78                 // Method com/hypixel/hytale/server/core/entity/entities/player/movement/MovementManager.resetDefaultsAndUpdate:(Lcom/hypixel/hytale/component/Ref;Lcom/hypixel/hytale/component/ComponentAccessor;)V
+        38: return
+
+  public void onComponentRemoved(com.hypixel.hytale.component.Ref, com.hypixel.hytale.component.Component, com.hypixel.hytale.component.Store, com.hypixel.hytale.component.CommandBuffer);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: aload_2
+         3: checkcast     #8                  // class com/hypixel/hytale/server/core/modules/entity/component/ModelComponent
+         6: aload_3
+         7: aload         4
+         9: invokevirtual #81                 // Method onComponentRemoved:(Lcom/hypixel/hytale/component/Ref;Lcom/hypixel/hytale/server/core/modules/entity/component/ModelComponent;Lcom/hypixel/hytale/component/Store;Lcom/hypixel/hytale/component/CommandBuffer;)V
+        12: return
+
+  public void onComponentSet(com.hypixel.hytale.component.Ref, com.hypixel.hytale.component.Component, com.hypixel.hytale.component.Component, com.hypixel.hytale.component.Store, com.hypixel.hytale.component.CommandBuffer);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: aload_2
+         3: checkcast     #8                  // class com/hypixel/hytale/server/core/modules/entity/component/ModelComponent
+         6: aload_3
+         7: checkcast     #8                  // class com/hypixel/hytale/server/core/modules/entity/component/ModelComponent
+        10: aload         4
+        12: aload         5
+        14: invokevirtual #85                 // Method onComponentSet:(Lcom/hypixel/hytale/component/Ref;Lcom/hypixel/hytale/server/core/modules/entity/component/ModelComponent;Lcom/hypixel/hytale/server/core/modules/entity/component/ModelComponent;Lcom/hypixel/hytale/component/Store;Lcom/hypixel/hytale/component/CommandBuffer;)V
+        17: return
+
+  public void onComponentAdded(com.hypixel.hytale.component.Ref, com.hypixel.hytale.component.Component, com.hypixel.hytale.component.Store, com.hypixel.hytale.component.CommandBuffer);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: aload_2
+         3: checkcast     #8                  // class com/hypixel/hytale/server/core/modules/entity/component/ModelComponent
+         6: aload_3
+         7: aload         4
+         9: invokevirtual #89                 // Method onComponentAdded:(Lcom/hypixel/hytale/component/Ref;Lcom/hypixel/hytale/server/core/modules/entity/component/ModelComponent;Lcom/hypixel/hytale/component/Store;Lcom/hypixel/hytale/component/CommandBuffer;)V
+        12: return
+
+  static {};
+    Code:
+         0: ldc           #92                 // class com/hypixel/hytale/server/core/modules/entity/system/ModelSystems
+         2: invokevirtual #94                 // Method java/lang/Class.desiredAssertionStatus:()Z
+         5: ifne          12
+         8: iconst_1
+         9: goto          13
+        12: iconst_0
+        13: putstatic     #71                 // Field $assertionsDisabled:Z
+        16: return
+}

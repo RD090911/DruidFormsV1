@@ -53,13 +53,25 @@ public final class FormRegistry {
 
         Map<String, FormId> formByAnimal = new HashMap<>();
         formByAnimal.put("bear", FormId.FORM_GUARDIAN);
+        formByAnimal.put("polarbear", FormId.FORM_GUARDIAN);
         formByAnimal.put("tiger", FormId.FORM_PROWLER);
+        formByAnimal.put("hyena", FormId.FORM_PROWLER);
+        formByAnimal.put("wolf", FormId.FORM_PROWLER);
+        formByAnimal.put("snowleopard", FormId.FORM_PROWLER);
         formByAnimal.put("shark", FormId.FORM_STALKER);
+        formByAnimal.put("piranha", FormId.FORM_STALKER);
+        formByAnimal.put("snapjaw", FormId.FORM_STALKER);
         formByAnimal.put("antelope", FormId.FORM_TRAVEL);
+        formByAnimal.put("deer", FormId.FORM_TRAVEL);
+        formByAnimal.put("horse", FormId.FORM_TRAVEL);
         formByAnimal.put("hawk", FormId.FORM_FLIGHT);
         formByAnimal.put("duck", FormId.FORM_FLIGHT);
         formByAnimal.put("rabbit", FormId.FORM_SPRINGER);
         formByAnimal.put("ram", FormId.FORM_FORAGER);
+        formByAnimal.put("goat", FormId.FORM_FORAGER);
+        formByAnimal.put("trilodon", FormId.FORM_FORAGER);
+        formByAnimal.put("trillodon", FormId.FORM_FORAGER);
+        formByAnimal.put("moose", FormId.FORM_FORAGER);
         formByAnimal.put("bluegill", FormId.FORM_AQUATIC);
         FORM_BY_ANIMAL = Collections.unmodifiableMap(formByAnimal);
     }
