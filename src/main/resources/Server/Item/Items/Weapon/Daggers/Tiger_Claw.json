@@ -28,6 +28,7 @@
   },
   "Interactions": {
     "Primary": "Poison_Dagger_Interaction_T1",
+    "Secondary": "Druid_Open_Radial_Menu",
     "Ability1": "Root_Weapon_Daggers_Signature_Razorstrike"
   },
   "Tags": {

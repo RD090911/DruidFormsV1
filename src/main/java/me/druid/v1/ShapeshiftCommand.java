@@ -198,9 +198,13 @@ public class ShapeshiftCommand extends AbstractCommand {
             return;
         }
 
+        if (lowerForm.equals("radial")) {
+            openRadialSelector(player);
+            return;
+        }
+
         if (MENU_ALIASES.contains(lowerForm)) {
-            DruidHyUiAnimalSelectorHud.open(player);
-            sendResponse(player, "Legacy selector opened. Primary UI is /shapeshift menu.");
+            openRadialSelector(player);
             return;
         }
 
@@ -341,6 +345,29 @@ public class ShapeshiftCommand extends AbstractCommand {
             return;
         }
         sendResponse(player, "Druid HUD " + (enabled ? "enabled." : "disabled."));
+    }
+
+    private void openRadialSelector(Player player) {
+        if (player == null) {
+            return;
+        }
+        if (!DruidPermissions.canTransform(player)) {
+            DruidPermissions.sendDenied(player);
+            return;
+        }
+
+        int activeSlot = resolveActiveHotbarSlot(player);
+        boolean isSlot1Selected = activeSlot == 0 || activeSlot == 1;
+        String heldItemId = resolveHeldItemId(player);
+        boolean isDruidControlItem = DruidControlItemMatcher.matches(handler, heldItemId);
+
+        if (!isSlot1Selected || !isDruidControlItem) {
+            sendResponse(player, "Hold a druid control item in hotbar slot 1 and use secondary interaction.");
+            return;
+        }
+
+        DruidHyUiAnimalSelectorHud.open(player);
+        sendResponse(player, "Class radial opened.");
     }
 
     private String[] extractArgs(CommandContext context) {
@@ -572,6 +599,36 @@ public class ShapeshiftCommand extends AbstractCommand {
         }
         try {
             return player.getUuid();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private int resolveActiveHotbarSlot(Player player) {
+        if (player == null) return -1;
+        try {
+            Object inventory = player.getClass().getMethod("getInventory").invoke(player);
+            if (inventory == null) return -1;
+            Method getActiveSlot = inventory.getClass().getMethod("getActiveHotbarSlot");
+            Object value = getActiveSlot.invoke(inventory);
+            if (value instanceof Number) {
+                return ((Number) value).intValue();
+            }
+        } catch (Exception ignored) {
+        }
+        return -1;
+    }
+
+    private String resolveHeldItemId(Player player) {
+        if (player == null) return null;
+        try {
+            Object inventory = player.getClass().getMethod("getInventory").invoke(player);
+            if (inventory == null) return null;
+            Object held = inventory.getClass().getMethod("getItemInHand").invoke(inventory);
+            if (held == null) return null;
+            Method getItemId = held.getClass().getMethod("getItemId");
+            Object itemId = getItemId.invoke(held);
+            return itemId instanceof String ? (String) itemId : null;
         } catch (Exception ignored) {
             return null;
         }

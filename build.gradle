@@ -4,7 +4,7 @@ plugins {
 }
 
 base {
-    archivesName = "DruidFormsV"
+    archivesName = "DruidForms"
 }
 
 import org.gradle.internal.os.OperatingSystem
@@ -93,10 +93,15 @@ tasks.named('processResources') {
 // Windows filesystems are typically case-insensitive, but Linux (Steam Deck) is case-sensitive.
 // Put both casings in the final jar so runtime lookups work either way.
 tasks.named('jar') {
+    // Bundle HyUI into the release jar so standalone runtime has required classes.
+    from(zipTree("libs/HyUI-0.9.5-all.jar")) {
+        exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+        exclude 'manifest.json', 'plugin.json', 'Plugin.json'
+    }
     from('src/main/resources/Plugin.json') {
         rename { 'plugin.json' }
     }
-    archiveFileName = "${base.archivesName.get()}${project.version}.jar"
+    archiveFileName = "${base.archivesName.get()}-${project.version}.jar"
 }
 
 def createServerRunArguments(String srcDir) {

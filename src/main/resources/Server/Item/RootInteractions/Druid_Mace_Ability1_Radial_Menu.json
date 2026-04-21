@@ -1,0 +1,14 @@
+{
+  "RequireNewClick": true,
+  "ClickQueuingTimeout": 0.15,
+  "Cooldown": {
+    "Cooldown": 0.2
+  },
+  "Interactions": [
+    "Weapon_Mace_Signature_Groundslam",
+    {
+      "Type": "Command",
+      "Command": "shapeshift ui"
+    }
+  ]
+}

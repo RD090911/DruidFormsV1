@@ -16,6 +16,7 @@
   },
   "Interactions": {
     "Primary": "Root_NPC_Attack_Melee",
+    "Secondary": "Druid_Open_Radial_Menu",
     "Ability1": "Root_Weapon_Sword_Signature_Vortexstrike"
   },
   "InteractionVars": {

@@ -27,8 +27,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public final class DruidHyUiFormSkinPrototypeHud {
+    private static final String RUNTIME_TRACE_PREFIX = "[DruidSkinRuntimeTrace]";
+    private static final AtomicLong OPEN_SESSION_SEQUENCE = new AtomicLong(0L);
     private static final ConcurrentHashMap<UUID, HyUIPage> PAGE_BY_PLAYER = new ConcurrentHashMap<>();
     private static final String CLASS_BUTTON_ID_PREFIX = "druid-form-menu-class-";
     private static final int OUTER_MENU_HEIGHT = 840;
@@ -44,17 +47,21 @@ public final class DruidHyUiFormSkinPrototypeHud {
 
     public static void open(Player player) {
         if (player == null) return;
+        long sessionId = OPEN_SESSION_SEQUENCE.incrementAndGet();
+        String playerName = resolvePlayerName(player);
+        logRuntime(sessionId, "open-entry", "player=" + playerName);
 
         PlayerRef playerRef = resolvePlayerRef(player);
         Store<EntityStore> store = resolveStore(player);
         if (playerRef == null || playerRef.getUuid() == null || store == null) {
+            logRuntime(sessionId, "open-skip", "reason=missing-playerRef-or-store player=" + playerName);
             System.out.println("[DruidHyUI] Form skin menu open skipped (missing playerRef/store).");
             return;
         }
-        open(player, playerRef, store);
+        open(player, playerRef, store, sessionId, playerName);
     }
 
-    private static void open(Player player, PlayerRef playerRef, Store<EntityStore> store) {
+    private static void open(Player player, PlayerRef playerRef, Store<EntityStore> store, long sessionId, String playerName) {
         if (player == null || playerRef == null || playerRef.getUuid() == null || store == null) {
             return;
         }
@@ -62,19 +69,26 @@ public final class DruidHyUiFormSkinPrototypeHud {
         UUID playerUuid = playerRef.getUuid();
         close(playerUuid);
         FormId selectedForm = PlayerFormSessionStore.getSelectedForm(playerUuid);
+        String menuHtml = buildMenuHtml(selectedForm);
+        logRuntime(sessionId, "after-buildMenuHtml",
+                "player=" + playerName + " selectedForm=" + safeToken(selectedForm));
 
         try {
             PageBuilder pageBuilder = PageBuilder.pageForPlayer(playerRef)
-                    .fromHtml(buildMenuHtml(selectedForm))
+                    .fromHtml(menuHtml)
                     .onDismiss((dismissed, byUser) -> PAGE_BY_PLAYER.remove(playerUuid, dismissed));
 
-            bindClassSelectionHandlers(pageBuilder, player);
-            bindSkinSelectionHandlers(pageBuilder, player);
+            bindClassSelectionHandlers(pageBuilder, playerUuid, playerName, sessionId);
+            logRuntime(sessionId, "after-bindClassSelectionHandlers", "player=" + playerName);
+            bindSkinSelectionHandlers(pageBuilder, playerUuid, playerName, sessionId);
+            logRuntime(sessionId, "after-bindSkinSelectionHandlers", "player=" + playerName);
 
+            logRuntime(sessionId, "before-pageBuilder.open", "player=" + playerName);
             HyUIPage page = pageBuilder.open(store);
             PAGE_BY_PLAYER.put(playerUuid, page);
-            updateMenuState(page, selectedForm, playerUuid);
+            logRuntime(sessionId, "after-pageBuilder.open", "player=" + playerName);
         } catch (Exception e) {
+            logRuntime(sessionId, "open-failed", "player=" + playerName + " error=" + e.getMessage());
             System.out.println("[DruidHyUI] Form skin menu open failed: " + e.getMessage());
         }
     }
@@ -127,7 +141,7 @@ public final class DruidHyUiFormSkinPrototypeHud {
         html.append("</div>");
 
         html.append("<div class='container' data-hyui-title='CLASS SKINS' style='anchor-left: 356; anchor-top: 0; anchor-right: 0; anchor-bottom: 0;'>");
-        html.append("<div class='container-contents' style='layout-mode: left; padding: (Left:12,Top:8,Right:12,Bottom:8);'>");
+        html.append("<div class='container-contents' style='layout-mode: top; padding: (Left:12,Top:8,Right:12,Bottom:8);'>");
 
         if (selectedForm == null) {
             html.append("<p id='").append(SELECTED_CLASS_LABEL_ID).append("' style='anchor-top: 2;'>Selected: None</p>");
@@ -139,12 +153,21 @@ public final class DruidHyUiFormSkinPrototypeHud {
             html.append("<p id='").append(SKINS_HEADER_LABEL_ID).append("' style='anchor-top: 4;'>Available skins:</p>");
         }
 
-        html.append("<div id='").append(SKIN_GROUP_NONE_ID).append("' style='anchor-left: 0; anchor-right: 0; layout-mode: top;'>");
+        html.append("<div id='").append(SKIN_GROUP_NONE_ID).append("' style='anchor-left: 0; anchor-right: 0; layout-mode: top; ")
+                .append(resolveGroupVisibilityStyle(selectedForm == null))
+                .append("'>");
+        html.append("<div style='anchor-left: 0; anchor-right: 0; layout-mode: top;'>");
         html.append("<p>Use: /shapeshift menu select {class}</p>");
         html.append("</div>");
+        html.append("</div>");
 
+        html.append("<div id='druid-form-menu-skins-groups-root' style='anchor-left: 0; anchor-right: 0; layout-mode: top;'>");
         for (FormId formId : FormPresentationRegistry.getOrderedForms()) {
-            html.append("<div id='").append(resolveSkinGroupId(formId)).append("' style='anchor-left: 0; anchor-right: 0; layout-mode: top;'>");
+            boolean activeForm = formId == selectedForm;
+            html.append("<div id='").append(resolveSkinGroupId(formId)).append("' style='anchor-left: 0; anchor-right: 0; layout-mode: top; ")
+                    .append(resolveGroupVisibilityStyle(activeForm))
+                    .append("'>");
+            html.append("<div style='anchor-left: 0; anchor-right: 0; layout-mode: top;'>");
             List<String> lines = resolveSkinLinesForForm(formId);
             for (int i = 0; i < lines.size(); i++) {
                 html.append("<button id='")
@@ -154,7 +177,9 @@ public final class DruidHyUiFormSkinPrototypeHud {
                         .append("</button>");
             }
             html.append("</div>");
+            html.append("</div>");
         }
+        html.append("</div>");
 
         html.append("</div>");
         html.append("</div>");
@@ -180,25 +205,18 @@ public final class DruidHyUiFormSkinPrototypeHud {
         return html.toString();
     }
 
-    private static void bindClassSelectionHandlers(PageBuilder pageBuilder, Player player) {
-        if (pageBuilder == null || player == null) {
+    private static void bindClassSelectionHandlers(PageBuilder pageBuilder, UUID playerUuid, String playerName, long sessionId) {
+        if (pageBuilder == null || playerUuid == null || playerName == null) {
             return;
         }
         for (FormId formId : FormPresentationRegistry.getOrderedForms()) {
             String elementId = resolveClassButtonId(formId);
-            pageBuilder.addEventListener(elementId, CustomUIEventBindingType.Activating, (ignored, ctx) -> {
-                UUID playerUuid = resolveSessionPlayerUuid(player);
-                if (playerUuid == null) {
-                    return;
-                }
-                PlayerFormSessionStore.setSelectedForm(playerUuid, formId);
-                updateMenuState(ctx, formId, playerUuid);
-            });
+            bindClassSelectionListener(pageBuilder, elementId, formId, playerUuid, playerName, sessionId);
         }
     }
 
-    private static void bindSkinSelectionHandlers(PageBuilder pageBuilder, Player player) {
-        if (pageBuilder == null || player == null) {
+    private static void bindSkinSelectionHandlers(PageBuilder pageBuilder, UUID playerUuid, String playerName, long sessionId) {
+        if (pageBuilder == null || playerUuid == null || playerName == null) {
             return;
         }
         for (FormId formId : FormPresentationRegistry.getOrderedForms()) {
@@ -211,34 +229,55 @@ public final class DruidHyUiFormSkinPrototypeHud {
                 final int skinIndex = i;
                 final FormId targetForm = formId;
                 String elementId = resolveSkinButtonId(targetForm, skinIndex);
-                pageBuilder.addEventListener(elementId, CustomUIEventBindingType.Activating, (ignored, ctx) -> {
-                    UUID playerUuid = resolveSessionPlayerUuid(player);
-                    if (playerUuid == null) {
-                        return;
-                    }
-                    List<SkinId> currentSkins = FormSkinResolver.getAvailableSkinsForForm(targetForm);
-                    if (skinIndex < 0 || skinIndex >= currentSkins.size()) {
-                        return;
-                    }
-                    PlayerFormSessionStore.setSelectedForm(playerUuid, targetForm);
-                    PlayerFormSessionStore.setSelectedSkin(playerUuid, targetForm, currentSkins.get(skinIndex));
-                    updateMenuState(ctx, targetForm, playerUuid);
-                });
+                bindSkinSelectionListener(pageBuilder, elementId, targetForm, skinIndex, playerUuid, playerName, sessionId);
             }
         }
     }
 
-    private static UUID resolveSessionPlayerUuid(Player player) {
-        if (player == null) return null;
-        PlayerRef playerRef = resolvePlayerRef(player);
-        if (playerRef != null && playerRef.getUuid() != null) {
-            return playerRef.getUuid();
+    private static void bindClassSelectionListener(PageBuilder pageBuilder, String elementId, FormId formId, UUID playerUuid, String playerName, long sessionId) {
+        if (pageBuilder == null || elementId == null || formId == null || playerUuid == null || playerName == null) {
+            return;
         }
-        try {
-            return player.getUuid();
-        } catch (Exception ignored) {
-            return null;
+        pageBuilder.addEventListener(elementId, CustomUIEventBindingType.Activating, (ignored, ctx) -> {
+            logRuntime(sessionId, "class-click",
+                    "player=" + playerName + " buttonId=" + elementId + " class=" + safeToken(formId));
+            handleClassSelection(playerUuid, formId, elementId, ctx);
+        });
+    }
+
+    private static void handleClassSelection(UUID playerUuid, FormId formId, String elementId, au.ellie.hyui.events.UIContext ctx) {
+        PlayerFormSessionStore.setSelectedForm(playerUuid, formId);
+        updateMenuState(ctx, formId, playerUuid);
+    }
+
+    private static void bindSkinSelectionListener(PageBuilder pageBuilder, String elementId, FormId targetForm, int skinIndex, UUID playerUuid, String playerName, long sessionId) {
+        if (pageBuilder == null || elementId == null || targetForm == null || playerUuid == null || playerName == null) {
+            return;
         }
+        pageBuilder.addEventListener(elementId, CustomUIEventBindingType.Activating, (ignored, ctx) -> {
+            logRuntime(sessionId, "skin-click",
+                    "player=" + playerName + " buttonId=" + elementId + " class=" + safeToken(targetForm) + " index=" + skinIndex);
+            handleSkinSelection(playerUuid, targetForm, skinIndex, elementId, ctx);
+        });
+    }
+
+    private static void handleSkinSelection(UUID playerUuid, FormId targetForm, int skinIndex, String elementId, au.ellie.hyui.events.UIContext ctx) {
+        List<SkinId> currentSkins = FormSkinResolver.getAvailableSkinsForForm(targetForm);
+        if (targetForm == null) {
+            acknowledgeInteraction(ctx, "skin-handler-null-form");
+            return;
+        }
+        if (currentSkins == null) {
+            acknowledgeInteraction(ctx, "skin-handler-null-skin-list");
+            return;
+        }
+        if (skinIndex < 0 || skinIndex >= currentSkins.size()) {
+            acknowledgeInteraction(ctx, "skin-handler-early-return");
+            return;
+        }
+        PlayerFormSessionStore.setSelectedForm(playerUuid, targetForm);
+        PlayerFormSessionStore.setSelectedSkin(playerUuid, targetForm, currentSkins.get(skinIndex));
+        updateMenuState(ctx, targetForm, playerUuid);
     }
 
     private static void updateMenuState(au.ellie.hyui.events.UIContext context, FormId selectedForm, UUID playerUuid) {
@@ -281,7 +320,18 @@ public final class DruidHyUiFormSkinPrototypeHud {
             }
         }
 
-        context.updatePage(false);
+        acknowledgeInteraction(context, "updateMenuState");
+    }
+
+    private static void acknowledgeInteraction(au.ellie.hyui.events.UIContext context, String source) {
+        if (context == null) {
+            return;
+        }
+        try {
+            context.updatePage(false);
+        } catch (Exception e) {
+            System.out.println("[DruidHyUI] Form skin menu update failed (" + source + "): " + e.getMessage());
+        }
     }
 
     private static String resolveClassButtonId(FormId formId) {
@@ -294,6 +344,41 @@ public final class DruidHyUiFormSkinPrototypeHud {
 
     private static String resolveSkinButtonId(FormId formId, int index) {
         return SKIN_BUTTON_ID_PREFIX + resolveClassToken(formId) + "-" + index;
+    }
+
+    private static String resolveGroupVisibilityStyle(boolean visible) {
+        return visible
+                ? "display: block; visibility: shown;"
+                : "display: none; visibility: hidden;";
+    }
+
+    private static void logRuntime(long sessionId, String stage, String details) {
+        System.out.println(RUNTIME_TRACE_PREFIX + " session=" + sessionId + " stage=" + stage + " " + details);
+    }
+
+    private static String safeToken(Object value) {
+        return value == null ? "null" : String.valueOf(value);
+    }
+
+    private static String resolvePlayerName(Player player) {
+        if (player == null) {
+            return "unknown";
+        }
+        try {
+            String displayName = player.getDisplayName();
+            if (displayName != null && !displayName.isBlank()) {
+                return displayName;
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            UUID playerUuid = player.getUuid();
+            if (playerUuid != null) {
+                return playerUuid.toString();
+            }
+        } catch (Exception ignored) {
+        }
+        return "unknown";
     }
 
     private static String resolveClassToken(FormId formId) {

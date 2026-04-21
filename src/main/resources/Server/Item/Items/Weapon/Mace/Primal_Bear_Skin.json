@@ -32,6 +32,7 @@
   },
   "Interactions": {
     "Primary": "Root_Weapon_Mace_Primary",
+    "Secondary": "Druid_Open_Radial_Menu",
     "Ability1": "Root_Weapon_Mace_Signature_Groundslam"
   },
   "Weapon": {

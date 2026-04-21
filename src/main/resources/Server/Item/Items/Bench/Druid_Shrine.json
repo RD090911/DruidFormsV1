@@ -60,7 +60,7 @@
         "Scale": 0.8
       }
     ],
-    "HitboxType": "Bench_Salvage",
+    "HitboxType": "Statue_Large",
     "VariantRotation": "NESW",
     "Bench": {
       "Type": "Crafting",

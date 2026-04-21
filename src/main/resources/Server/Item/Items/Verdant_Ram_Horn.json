@@ -74,7 +74,8 @@
     "Compatible": true
   },
   "Interactions": {
-    "Primary": "Pickaxe_Attack"
+    "Primary": "Pickaxe_Attack",
+    "Secondary": "Druid_Open_Radial_Menu"
   },
   "MaxDurability": 400,
   "DurabilityLossOnHit": 0,
