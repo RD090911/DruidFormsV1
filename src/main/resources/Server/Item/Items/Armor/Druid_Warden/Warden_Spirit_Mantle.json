@@ -1,0 +1,39 @@
+{
+    "Parent":  "Armor_Iron_Chest",
+    "TranslationProperties":  {
+                                  "Name":  "Warden Spirit Mantle",
+                                  "Description":  "The spirits shield your wild shape."
+                              },
+    "Icon":  "Icons/Items/spirit_mantle.png",
+    "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
+    "Armor":  {
+                  "ArmorSlot":  "Chest",
+                  "BaseDamageResistance":  0,
+                  "CosmeticsToHide":  [
+                                          "Overtop",
+                                          "Cape"
+                                      ],
+                  "DamageResistance":  {
+                                           "Physical":  [
+                                                            {
+                                                                "Amount":  0.07,
+                                                                "CalculationType":  "Multiplicative"
+                                                            }
+                                                        ],
+                                           "Projectile":  [
+                                                              {
+                                                                  "Amount":  0.07,
+                                                                  "CalculationType":  "Multiplicative"
+                                                              }
+                                                          ]
+                                       },
+                  "StatModifiers":  {
+                                        "Health":  [
+                                                       {
+                                                           "Amount":  16,
+                                                           "CalculationType":  "Additive"
+                                                       }
+                                                   ]
+                                    }
+              }
+}

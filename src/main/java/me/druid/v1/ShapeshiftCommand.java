@@ -46,6 +46,7 @@ public class ShapeshiftCommand extends AbstractCommand {
     );
     private static final Set<String> VALID_FORM_ALIASES = Set.of(
             "guardian",
+            "warden",
             "prowler",
             "stalker",
             "travel",
@@ -60,6 +61,7 @@ public class ShapeshiftCommand extends AbstractCommand {
     );
     private static final Map<String, FormId> FORM_ALIASES = Map.of(
             "guardian", FormId.FORM_GUARDIAN,
+            "warden", FormId.FORM_WARDEN,
             "prowler", FormId.FORM_PROWLER,
             "stalker", FormId.FORM_STALKER,
             "travel", FormId.FORM_TRAVEL,
@@ -231,16 +233,34 @@ public class ShapeshiftCommand extends AbstractCommand {
             return;
         }
         String runtimeAnimalKey = resolvedIdentity == null ? lowerForm : resolvedIdentity.runtimeAnimalKey;
-        boolean success = handler.shapeshift(player, runtimeAnimalKey);
+        FormId transformedFormId = resolvedIdentity.formId != null
+                ? resolvedIdentity.formId
+                : FormRuntimeBridge.resolveFormIdForAnimal(runtimeAnimalKey);
+        UUID playerUuid = resolveSessionPlayerUuid(player);
+        boolean bypassCooldownForHumanRestore = shouldBypassTransformCooldownForHumanRestore(player, transformedFormId, runtimeAnimalKey);
+        if (!bypassCooldownForHumanRestore) {
+            long remainingCooldownMillis = TransformCooldownService.getRemainingMillis(player);
+            if (remainingCooldownMillis > 0L) {
+                double remainingCooldownSeconds = remainingCooldownMillis / 1000.0d;
+                sendResponse(player, String.format(Locale.ROOT, "Shapeshift recharging: %.1fs", remainingCooldownSeconds));
+                System.out.println(String.format(
+                        Locale.ROOT,
+                        "[Druid] Transform cooldown blocked player=%s remainingMillis=%d remainingSeconds=%.1f",
+                        safeDisplayName(player),
+                        remainingCooldownMillis,
+                        remainingCooldownSeconds
+                ));
+                return;
+            }
+        }
+
+        boolean success = handler.shapeshift(player, runtimeAnimalKey, transformedFormId);
         if (!success) {
             sendResponse(player, "Hold a Druid Totem (or place it in hotbar slot 1) and try again.");
             return;
         }
-        UUID playerUuid = resolveSessionPlayerUuid(player);
+
         if (playerUuid != null) {
-            FormId transformedFormId = resolvedIdentity.formId != null
-                    ? resolvedIdentity.formId
-                    : FormRuntimeBridge.resolveFormIdForAnimal(runtimeAnimalKey);
             SkinId transformedSkinId = resolvedIdentity.skinId != null
                     ? resolvedIdentity.skinId
                     : SkinRegistry.getSkinForAnimal(runtimeAnimalKey);
@@ -257,6 +277,24 @@ public class ShapeshiftCommand extends AbstractCommand {
         }
 
         refreshHudVisibility(player);
+        FormId activeFormAfterTransform = ShapeshiftHandler.getActiveFormId(player);
+        if (activeFormAfterTransform != null) {
+            TransformCooldownService.startCooldown(player);
+            DruidHyUiClassCooldownOverlayHud.startOrRestart(player);
+            System.out.println(String.format(
+                    Locale.ROOT,
+                    "[Druid] Transform cooldown started player=%s activeForm=%s cooldownEndMillis=%d",
+                    safeDisplayName(player),
+                    activeFormAfterTransform.name(),
+                    System.currentTimeMillis() + TransformCooldownService.getRemainingMillis(player)
+            ));
+        } else {
+            System.out.println(String.format(
+                    Locale.ROOT,
+                    "[Druid] Transform cooldown not started for human restore player=%s",
+                    safeDisplayName(player)
+            ));
+        }
         DruidPermissions.sendGrantedOnFirstSuccessfulTransform(player);
     }
 
@@ -602,6 +640,36 @@ public class ShapeshiftCommand extends AbstractCommand {
         } catch (Exception ignored) {
             return null;
         }
+    }
+
+    private static boolean shouldBypassTransformCooldownForHumanRestore(Player player, FormId transformedFormId, String runtimeAnimalKey) {
+        if (player == null) {
+            return false;
+        }
+        FormId activeFormId = ShapeshiftHandler.getActiveFormId(player);
+        if (activeFormId == null) {
+            return false;
+        }
+
+        FormId targetFormId = transformedFormId;
+        if (targetFormId == null && runtimeAnimalKey != null && !runtimeAnimalKey.isBlank()) {
+            targetFormId = FormRuntimeBridge.resolveFormIdForAnimal(runtimeAnimalKey);
+        }
+        return targetFormId != null && targetFormId == activeFormId;
+    }
+
+    private static String safeDisplayName(Player player) {
+        if (player == null) {
+            return "unknown";
+        }
+        try {
+            String displayName = player.getDisplayName();
+            if (displayName != null && !displayName.isBlank()) {
+                return displayName;
+            }
+        } catch (Exception ignored) {
+        }
+        return "unknown";
     }
 
     private int resolveActiveHotbarSlot(Player player) {

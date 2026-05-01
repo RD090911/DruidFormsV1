@@ -1,11 +1,11 @@
 {
   "TranslationProperties": {
-    "Name": "Druid Totem",
-    "Description": "Through this totem, Gaia grants you the forms of her wild children."
+    "Name": "Verdant Life Seed",
+    "Description": "A focus totem carried by the Warden form."
   },
   "Scale": 0.305,
-  "Quality": "Legendary",
-  "ItemLevel": 50,
+  "Quality": "Rare",
+  "ItemLevel": 35,
   "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
   "MaxStack": 1,
   "IconProperties": {
@@ -20,12 +20,12 @@
       -39.6
     ]
   },
-  "Icon": "Icons/ItemsGenerated/Healing_Totem.png",
+  "Icon": "Icons/ItemsGenerated/Ingredient_Life_Essence.png",
   "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
   "Recipe": {
     "Input": [
       {
-        "ItemId": "Ingredient_Stick",
+        "ItemId": "Life_Seed",
         "Quantity": 1
       },
       {
@@ -33,37 +33,42 @@
         "Quantity": 1
       },
       {
-        "ItemId": "Plant_Crop_Health1",
-        "Quantity": 1
+        "ItemId": "Ingredient_Crystal_Green",
+        "Quantity": 25
       },
       {
-        "ItemId": "Ingredient_Feathers_Light",
-        "Quantity": 3
+        "ItemId": "Ingredient_Crystal_Pink",
+        "Quantity": 25
       },
       {
-        "ItemId": "Plant_Coral_Bush_Cyan",
-        "Quantity": 1
+        "ItemId": "Ingredient_Crystal_Red",
+        "Quantity": 25
+      },
+      {
+        "ItemId": "Ingredient_Crystal_Yellow",
+        "Quantity": 25
+      },
+      {
+        "ItemId": "Ingredient_Crystal_Purple",
+        "Quantity": 25
+      },
+      {
+        "ItemId": "Ingredient_Crystal_Blue",
+        "Quantity": 25
       }
     ],
     "BenchRequirement": [
       {
         "Type": "Crafting",
         "Categories": [
-          "Tools"
+          "Verdant"
         ],
         "Id": "Druid_Shrine"
       }
     ]
   },
   "Interactions": {
-    "Primary": {
-      "Interactions": [
-        {
-          "Type": "Simple",
-          "RunTime": 0.1
-        }
-      ]
-    },
+    "Primary": "Druid_Warden_Life_Seed_Primary",
     "Secondary": "Druid_Open_Radial_Menu"
   }
 }

@@ -1,0 +1,21 @@
+{
+  "RequireNewClick": true,
+  "ClickQueuingTimeout": 0.15,
+  "Cooldown": {
+    "Cooldown": 20.0
+  },
+  "Interactions": [
+    {
+      "Type": "Simple",
+      "RunTime": 0.1,
+      "Effects": {
+        "ItemPlayerAnimationsId": "Item",
+        "ItemAnimationId": "Throw"
+      }
+    },
+    {
+      "Type": "Command",
+      "Command": "wardenlifeseed"
+    }
+  ]
+}

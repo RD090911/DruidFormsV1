@@ -17,6 +17,10 @@ public final class FormRegistry {
                 new FormDefinition(FormId.FORM_GUARDIAN, "Guardian", "bear", "Defensive beast form class.")
         );
         definitions.put(
+                FormId.FORM_WARDEN,
+                new FormDefinition(FormId.FORM_WARDEN, "Warden", "kweebec_rootling", "Support sustain form class. Future Healing Totem role.")
+        );
+        definitions.put(
                 FormId.FORM_PROWLER,
                 new FormDefinition(FormId.FORM_PROWLER, "Prowler", "tiger", "Predator strike form class.")
         );
@@ -67,6 +71,8 @@ public final class FormRegistry {
         formByAnimal.put("hawk", FormId.FORM_FLIGHT);
         formByAnimal.put("duck", FormId.FORM_FLIGHT);
         formByAnimal.put("rabbit", FormId.FORM_SPRINGER);
+        formByAnimal.put("warden", FormId.FORM_WARDEN);
+        formByAnimal.put("kweebec_rootling", FormId.FORM_WARDEN);
         formByAnimal.put("ram", FormId.FORM_FORAGER);
         formByAnimal.put("goat", FormId.FORM_FORAGER);
         formByAnimal.put("trilodon", FormId.FORM_FORAGER);

@@ -41,6 +41,7 @@ public final class DruidHyUiFormSkinPrototypeHud {
     private static final String SKIN_BUTTON_ID_PREFIX = "druid-form-menu-skin-";
     private static final String SKIN_GROUP_ID_PREFIX = "druid-form-menu-skin-group-";
     private static final String SKIN_GROUP_NONE_ID = SKIN_GROUP_ID_PREFIX + "none";
+    private static final String CLOSE_BUTTON_ID = "druid-form-menu-close";
 
     private DruidHyUiFormSkinPrototypeHud() {
     }
@@ -82,6 +83,8 @@ public final class DruidHyUiFormSkinPrototypeHud {
             logRuntime(sessionId, "after-bindClassSelectionHandlers", "player=" + playerName);
             bindSkinSelectionHandlers(pageBuilder, playerUuid, playerName, sessionId);
             logRuntime(sessionId, "after-bindSkinSelectionHandlers", "player=" + playerName);
+            bindCloseHandler(pageBuilder, playerUuid);
+            logRuntime(sessionId, "after-bindCloseHandler", "player=" + playerName);
 
             logRuntime(sessionId, "before-pageBuilder.open", "player=" + playerName);
             HyUIPage page = pageBuilder.open(store);
@@ -115,7 +118,7 @@ public final class DruidHyUiFormSkinPrototypeHud {
     private static String buildMenuHtml(FormId selectedForm) {
         StringBuilder html = new StringBuilder();
         html.append("<div class='page-overlay'>");
-        html.append("<div class='panel' style='anchor-left: 130; anchor-top: 68; anchor-width: 1080; anchor-height: ")
+        html.append("<div class='panel' style='anchor-left: 500; anchor-top: 120; anchor-width: 1080; anchor-height: ")
                 .append(OUTER_MENU_HEIGHT)
                 .append(";'>");
 
@@ -187,7 +190,7 @@ public final class DruidHyUiFormSkinPrototypeHud {
         html.append("</div>");
         html.append("</div>");
 
-        html.append("<div class='container' data-hyui-title='HELP' style='anchor-left: 14; anchor-right: 14; anchor-bottom: 0; anchor-height: ")
+        html.append("<div class='container' data-hyui-title='HELP' style='anchor-left: 14; anchor-right: 14; anchor-bottom: 58; anchor-height: ")
                 .append(HELP_FOOTER_HEIGHT)
                 .append(";'>");
         html.append("<div class='container-contents' style='layout-mode: left; padding: (Left: 8, Top: 6, Right: 12, Bottom: 12);'>");
@@ -201,6 +204,11 @@ public final class DruidHyUiFormSkinPrototypeHud {
         html.append("<p>/druid deny {player}</p>");
         html.append("</div>");
         html.append("</div>");
+        html.append("<button id='")
+                .append(CLOSE_BUTTON_ID)
+                .append("' class='negative-button' style='anchor-left: 28; anchor-bottom: 8; anchor-width: 208; anchor-height: 44; border-radius: 12; border-width: 2; border-color: #9fb2c29a; background-color: #1d3a50c8;'>")
+                .append("Cancel")
+                .append("</button>");
         html.append("</div>");
         return html.toString();
     }
@@ -232,6 +240,27 @@ public final class DruidHyUiFormSkinPrototypeHud {
                 bindSkinSelectionListener(pageBuilder, elementId, targetForm, skinIndex, playerUuid, playerName, sessionId);
             }
         }
+    }
+
+    private static void bindCloseHandler(PageBuilder pageBuilder, UUID playerUuid) {
+        if (pageBuilder == null || playerUuid == null) return;
+        pageBuilder.addEventListener(CLOSE_BUTTON_ID, CustomUIEventBindingType.Activating, (ignored, ctx) -> closeFromContext(ctx, playerUuid));
+        pageBuilder.addEventListener(CLOSE_BUTTON_ID, CustomUIEventBindingType.MouseButtonReleased, (ignored, ctx) -> closeFromContext(ctx, playerUuid));
+    }
+
+    private static void closeFromContext(au.ellie.hyui.events.UIContext context, UUID playerUuid) {
+        if (context != null) {
+            try {
+                context.getPage().ifPresent(page -> {
+                    try {
+                        page.close();
+                    } catch (Exception ignored) {
+                    }
+                });
+            } catch (Exception ignored) {
+            }
+        }
+        close(playerUuid);
     }
 
     private static void bindClassSelectionListener(PageBuilder pageBuilder, String elementId, FormId formId, UUID playerUuid, String playerName, long sessionId) {

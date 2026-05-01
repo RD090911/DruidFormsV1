@@ -30,10 +30,12 @@ public class DruidPlugin extends JavaPlugin {
             Object cmdManager = HytaleServer.get().getCommandManager();
             Object command = new ShapeshiftCommand(shapeshiftHandler);
             Object druidCommand = new DruidAdminCommand(shapeshiftHandler);
+            Object wardenLifeSeedCommand = new WardenLifeSeedCommand();
             for (Method m : cmdManager.getClass().getMethods()) {
                 if (m.getName().equals("register") && m.getParameterCount() == 1) {
                     m.invoke(cmdManager, command);
                     m.invoke(cmdManager, druidCommand);
+                    m.invoke(cmdManager, wardenLifeSeedCommand);
                     System.out.println("[DruidPlugin] Command /shapeshift successfully registered.");
                     break;
                 }
@@ -90,6 +92,8 @@ public class DruidPlugin extends JavaPlugin {
         Object playerRef = event.getPlayerRef();
         if (playerRef != null) {
             DruidHyUiCurrentFormHud.detach(event.getPlayerRef().getUuid());
+            DruidHyUiClassCooldownOverlayHud.remove(event.getPlayerRef().getUuid());
+            WardenLifeSeedCooldownHud.remove(event.getPlayerRef().getUuid());
         }
         String username = safeUsername(playerRef);
         String displayName = tryReadDisconnectDisplayName(event);

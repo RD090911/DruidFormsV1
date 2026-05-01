@@ -5,6 +5,7 @@
   "Icon": "Icons/ItemsGenerated/Rock_Ice_Stalactite_Large.png",
   "Quality": "Uncommon",
   "ItemLevel": 20,
+  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
   "Tags": {
     "Type": [
       "Weapon",

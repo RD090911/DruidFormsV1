@@ -7,6 +7,7 @@
   "Quality": "Legendary",
   "ItemSoundSetId": "ISS_Weapon_Blunt_Large",
   "ItemLevel": 65,
+  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
   "Categories": [
     "Items.Weapons"
   ],

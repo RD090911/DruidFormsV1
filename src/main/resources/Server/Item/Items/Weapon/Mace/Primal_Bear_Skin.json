@@ -7,6 +7,7 @@
   "Quality": "Epic",
   "ItemSoundSetId": "ISS_Weapon_Blunt_Large",
   "ItemLevel": 50,
+  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
   "Categories": [
     "Items.Weapons"
   ],

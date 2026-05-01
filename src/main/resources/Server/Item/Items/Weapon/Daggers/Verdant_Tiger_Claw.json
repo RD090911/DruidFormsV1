@@ -8,6 +8,7 @@
   "Quality": "Rare",
   "ItemSoundSetId": "ISS_Weapon_Blade_Small",
   "ItemLevel": 35,
+  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
   "Categories": [
     "Items.Weapons"
   ],

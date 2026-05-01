@@ -1,7 +1,7 @@
 {
   "id": "druidforms",
   "name": "Druid Forms",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "mainClass": "me.druid.v1.DruidPlugin",
   "description": "A plugin that allows druids to shapeshift into various forms.",
   "commands": [

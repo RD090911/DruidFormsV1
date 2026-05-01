@@ -12,6 +12,11 @@ import au.ellie.hyui.builders.LabelBuilder;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import me.druid.v1.ShapeshiftHandler;
+import me.druid.v1.forms.FormDefinition;
+import me.druid.v1.forms.FormId;
+import me.druid.v1.forms.FormPresentationDefinition;
+import me.druid.v1.forms.FormPresentationRegistry;
+import me.druid.v1.forms.FormRegistry;
 import me.druid.v1.forms.FormRuntimeBridge;
 
 import java.lang.reflect.Field;
@@ -28,6 +33,7 @@ public final class DruidHyUiPersistentFormHud {
     private static final String TIGER_FORM = "Tiger";
     private static final String HAWK_FORM = "Hawk";
     private static final String SHARK_FORM = "Shark";
+    private static final String WARDEN_FORM = "Warden";
     private static final String RAM_FORM = "Ram";
     private static final String AQUATIC_FORM = "Aquatic";
     private static final String RABBIT_FORM = "Rabbit";
@@ -40,6 +46,8 @@ public final class DruidHyUiPersistentFormHud {
     private static final String HAWK_ICON_CLASSPATH_PATH = "Common/UI/Custom/forms/hawk.png";
     private static final String SHARK_ICON_TEXTURE_PATH = "forms/shark.png";
     private static final String SHARK_ICON_CLASSPATH_PATH = "Common/UI/Custom/forms/shark.png";
+    private static final String WARDEN_ICON_TEXTURE_PATH = "forms/warden.png";
+    private static final String WARDEN_ICON_CLASSPATH_PATH = "Common/UI/Custom/forms/warden.png";
     private static final String RAM_ICON_TEXTURE_PATH = "forms/ram.png";
     private static final String RAM_ICON_CLASSPATH_PATH = "Common/UI/Custom/forms/ram.png";
     private static final String AQUATIC_ICON_TEXTURE_PATH = "forms/aquatic.png";
@@ -158,6 +166,14 @@ public final class DruidHyUiPersistentFormHud {
                 .addChild(
                         LabelBuilder.label()
                                 .withRawId("druidPersistentFormHudSeparator5")
+                                .withAnchor(new HyUIAnchor().setWidth(24).setHeight(30))
+                                .withStyle(labelStyle)
+                                .withText("")
+                )
+                .addChild(createWardenSlot(activeForm, labelStyle))
+                .addChild(
+                        LabelBuilder.label()
+                                .withRawId("druidPersistentFormHudSeparatorWarden")
                                 .withAnchor(new HyUIAnchor().setWidth(24).setHeight(30))
                                 .withStyle(labelStyle)
                                 .withText("")
@@ -377,6 +393,53 @@ public final class DruidHyUiPersistentFormHud {
                         .withText(sharkHighlighted ? "[SHARK]" : "Shark")
         );
         return sharkSlot;
+    }
+
+    private static GroupBuilder createWardenSlot(String activeForm, HyUIStyle labelStyle) {
+        boolean wardenHighlighted = WARDEN_FORM.equalsIgnoreCase(activeForm);
+        GroupBuilder wardenSlot = GroupBuilder.group()
+                .withRawId("druidPersistentFormHudWardenSlot")
+                .withAnchor(new HyUIAnchor().setWidth(56).setHeight(30))
+                .withLayoutMode("Center")
+                .withBackground(new HyUIPatchStyle().setColor("#00000000"))
+                .withOutlineColor("#00000000")
+                .withOutlineSize(0f);
+
+        String resolvedTexturePath = resolveWardenTexturePath();
+        if (resolvedTexturePath != null) {
+            GroupBuilder wardenOverlay = GroupBuilder.group()
+                    .withRawId("druidPersistentFormHudWardenOverlay")
+                    .withAnchor(new HyUIAnchor().setWidth(68).setHeight(68));
+
+            if (wardenHighlighted) {
+                wardenOverlay.addChild(createSquareHighlight("druidPersistentFormHudWardenHighlight"));
+            }
+
+            wardenOverlay.addChild(
+                    GroupBuilder.group()
+                            .withRawId("druidPersistentFormHudWardenIconLayer")
+                            .withAnchor(new HyUIAnchor().setWidth(68).setHeight(68))
+                            .withLayoutMode("Center")
+                            .addChild(
+                                    ImageBuilder.image()
+                                            .withRawId("druidPersistentFormHudWardenIcon")
+                                            .withAnchor(new HyUIAnchor().setLeft(-2).setWidth(56).setHeight(56))
+                                            .withImage(resolvedTexturePath)
+                            )
+            );
+
+            wardenSlot.addChild(wardenOverlay);
+            return wardenSlot;
+        }
+
+        wardenSlot.addChild(
+                LabelBuilder.label()
+                        .withRawId("druidPersistentFormHudWardenFallback")
+                        .withAnchor(new HyUIAnchor().setLeft(0).setRight(0).setTop(0).setHeight(30))
+                        .withStyle(labelStyle)
+                        .withText(wardenHighlighted ? "[WARDEN]" : "Warden")
+        );
+        return wardenSlot;
     }
 
     private static GroupBuilder createRamSlot(String activeForm, HyUIStyle labelStyle) {
@@ -628,6 +691,19 @@ public final class DruidHyUiPersistentFormHud {
         return null;
     }
 
+    private static String resolveWardenTexturePath() {
+        ClassLoader classLoader = DruidHyUiPersistentFormHud.class.getClassLoader();
+        URL resource = classLoader == null ? null : classLoader.getResource(WARDEN_ICON_CLASSPATH_PATH);
+        if (resource != null) {
+            System.out.println("[DruidHyUI] Warden icon texture path resolved: " + WARDEN_ICON_TEXTURE_PATH
+                    + " (classpath: " + WARDEN_ICON_CLASSPATH_PATH + ")");
+            return WARDEN_ICON_TEXTURE_PATH;
+        }
+        System.out.println("[DruidHyUI] Warden icon texture missing on classpath: " + WARDEN_ICON_CLASSPATH_PATH
+                + " (falling back to Warden text)");
+        return null;
+    }
+
     private static String resolveRamTexturePath() {
         ClassLoader classLoader = DruidHyUiPersistentFormHud.class.getClassLoader();
         URL resource = classLoader == null ? null : classLoader.getResource(RAM_ICON_CLASSPATH_PATH);
@@ -681,6 +757,12 @@ public final class DruidHyUiPersistentFormHud {
     }
 
     private static String resolveActiveFormName(Player player) {
+        FormId activeFormId = ShapeshiftHandler.getActiveFormId(player);
+        String formNameFromFormId = resolveHudFormNameFromFormId(activeFormId);
+        if (formNameFromFormId != null) {
+            return formNameFromFormId;
+        }
+
         String modelId;
         try {
             modelId = ShapeshiftHandler.activeForms.get(player.getDisplayName());
@@ -688,6 +770,82 @@ public final class DruidHyUiPersistentFormHud {
             modelId = null;
         }
         return displayNameFromModelId(modelId);
+    }
+
+    private static String resolveHudFormNameFromFormId(FormId formId) {
+        if (formId == null) {
+            return null;
+        }
+
+        FormPresentationDefinition presentation = FormPresentationRegistry.getDefinition(formId);
+        if (presentation != null) {
+            String mappedFromPresentation = mapHudFormNameFromToken(presentation.getShortLabel());
+            if (mappedFromPresentation != null) {
+                return mappedFromPresentation;
+            }
+        }
+
+        FormDefinition definition = FormRegistry.getDefinition(formId);
+        if (definition != null) {
+            String mappedFromDisplayName = mapHudFormNameFromToken(definition.getDisplayName());
+            if (mappedFromDisplayName != null) {
+                return mappedFromDisplayName;
+            }
+        }
+
+        String mappedFromAnimal = mapHudFormNameFromAnimalKey(FormRegistry.getBaseAnimal(formId));
+        if (mappedFromAnimal != null) {
+            return mappedFromAnimal;
+        }
+
+        return switch (formId) {
+            case FORM_GUARDIAN -> BEAR_FORM;
+            case FORM_WARDEN -> WARDEN_FORM;
+            case FORM_FORAGER -> RAM_FORM;
+            case FORM_PROWLER -> TIGER_FORM;
+            case FORM_STALKER -> SHARK_FORM;
+            case FORM_TRAVEL -> ANTELOPE_FORM;
+            case FORM_FLIGHT -> HAWK_FORM;
+            case FORM_SPRINGER -> RABBIT_FORM;
+            case FORM_AQUATIC -> AQUATIC_FORM;
+        };
+    }
+
+    private static String mapHudFormNameFromToken(String token) {
+        if (token == null || token.isBlank()) {
+            return null;
+        }
+        String normalized = token.trim().toLowerCase(Locale.ROOT);
+        return switch (normalized) {
+            case "guardian", "bear" -> BEAR_FORM;
+            case "warden" -> WARDEN_FORM;
+            case "forager", "ram" -> RAM_FORM;
+            case "prowler", "tiger" -> TIGER_FORM;
+            case "stalker", "shark" -> SHARK_FORM;
+            case "travel", "antelope" -> ANTELOPE_FORM;
+            case "flight", "hawk" -> HAWK_FORM;
+            case "springer", "rabbit" -> RABBIT_FORM;
+            case "aquatic" -> AQUATIC_FORM;
+            default -> null;
+        };
+    }
+
+    private static String mapHudFormNameFromAnimalKey(String animalKey) {
+        if (animalKey == null || animalKey.isBlank()) {
+            return null;
+        }
+        String normalized = animalKey.trim().toLowerCase(Locale.ROOT);
+        return switch (normalized) {
+            case "bear", "polarbear" -> BEAR_FORM;
+            case "tiger", "hyena", "snowleopard", "wolf" -> TIGER_FORM;
+            case "shark", "piranha", "snapjaw" -> SHARK_FORM;
+            case "antelope", "deer", "horse", "camel" -> ANTELOPE_FORM;
+            case "bluegill", "eel_moray", "clownfish", "pike", "trout_rainbow", "tang", "frostgill" -> AQUATIC_FORM;
+            case "hawk", "crow", "bat", "duck", "owl", "parrot", "pigeon", "pterodactyl" -> HAWK_FORM;
+            case "rabbit", "frog", "cat", "fox", "spider", "squirrel", "jackalope" -> RABBIT_FORM;
+            case "ram", "goat", "moose", "warthog", "bison", "trillodon", "trilodon" -> RAM_FORM;
+            default -> null;
+        };
     }
 
     private static String displayNameFromModelId(String modelId) {

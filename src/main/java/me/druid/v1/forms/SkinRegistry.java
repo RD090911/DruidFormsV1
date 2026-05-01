@@ -16,6 +16,9 @@ public final class SkinRegistry {
         add(definitions, SkinId.SKIN_GRIZZLY, FormId.FORM_GUARDIAN, "Grizzly", "bear", null);
         add(definitions, SkinId.SKIN_POLAR_BEAR, FormId.FORM_GUARDIAN, "Polar Bear", "polarbear", null);
         add(definitions, SkinId.SKIN_CAVE_REX, FormId.FORM_GUARDIAN, "Cave Rex", null, null);
+        add(definitions, SkinId.SKIN_WARDEN_KWEEBEC, FormId.FORM_WARDEN, "Kweebec", "kweebec_rootling", null);
+        add(definitions, SkinId.SKIN_WARDEN_KWEEBEC_OAK, FormId.FORM_WARDEN, "Kweebec Elder", null, "Coming Soon");
+        add(definitions, SkinId.SKIN_WARDEN_KWEEBEC_RAZORLEAF, FormId.FORM_WARDEN, "Kweebec Treesinger", null, "Coming Soon");
 
         add(definitions, SkinId.SKIN_TIGER_SABERTOOTH, FormId.FORM_PROWLER, "Tiger / Sabertooth", "tiger", null);
         add(definitions, SkinId.SKIN_CAVE_RAPTOR, FormId.FORM_PROWLER, "Cave Raptor", null, null);
@@ -76,6 +79,9 @@ public final class SkinRegistry {
         Map<String, SkinId> skinByAnimal = new HashMap<>();
         skinByAnimal.put("bear", SkinId.SKIN_GRIZZLY);
         skinByAnimal.put("polarbear", SkinId.SKIN_POLAR_BEAR);
+        skinByAnimal.put("kweebec_rootling", SkinId.SKIN_WARDEN_KWEEBEC);
+        skinByAnimal.put("kweebec_elder", SkinId.SKIN_WARDEN_KWEEBEC_OAK);
+        skinByAnimal.put("kweebec_sapling_treesinger", SkinId.SKIN_WARDEN_KWEEBEC_RAZORLEAF);
         skinByAnimal.put("tiger", SkinId.SKIN_TIGER_SABERTOOTH);
         skinByAnimal.put("hyena", SkinId.SKIN_HYENA);
         skinByAnimal.put("wolf", SkinId.SKIN_WOLF);

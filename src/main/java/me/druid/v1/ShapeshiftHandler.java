@@ -35,6 +35,7 @@ public class ShapeshiftHandler {
     private static final int AQUATIC_OXYGEN_BONUS = 10000;
 
     private static final String DRUID_ITEM = "Druid_Totem";
+    private static final String WARDEN_ITEM = "Life_Seed";
     private static final short HOTBAR_SLOT_ONE = 0;
     private static final short HOTBAR_SLOT_ONE_ALT = 1;
     private static final short HOTBAR_SIZE = 10;
@@ -60,7 +61,8 @@ public class ShapeshiftHandler {
         TIGER("tiger", new String[]{"Tiger_Claw", "Verdant_Tiger_Claw", "Primal_Tiger_Claw", "Elder_Tiger_Claw"}),
         BEAR("bear", new String[]{"Bear_Skin", "Verdant_Bear_Skin", "Primal_Bear_Skin", "Elder_Bear_Skin"}),
         SHARK("shark", new String[]{"Shark_Tooth", "Verdant_Shark_Tooth", "Primal_Shark_Tooth", "Elder_Shark_Tooth"}),
-        RAM("ram", new String[]{"Ram_Horn", "Verdant_Ram_Horn", "Primal_Ram_Horn", "Elder_Ram_Horn"});
+        RAM("ram", new String[]{"Ram_Horn", "Verdant_Ram_Horn", "Primal_Ram_Horn", "Elder_Ram_Horn"}),
+        WARDEN("warden", new String[]{"Life_Seed", "Verdant_Life_Seed", "Primal_Life_Seed", "Elder_Life_Seed"});
 
         private final String formKey;
         private final String[] itemIdsByTier;
@@ -88,6 +90,7 @@ public class ShapeshiftHandler {
         private int bearTier = 1;
         private int sharkTier = 1;
         private int ramTier = 1;
+        private int wardenTier = 1;
 
         int getTier(TieredForm form) {
             switch (form) {
@@ -95,6 +98,7 @@ public class ShapeshiftHandler {
                 case BEAR: return bearTier;
                 case SHARK: return sharkTier;
                 case RAM: return ramTier;
+                case WARDEN: return wardenTier;
                 default: return 1;
             }
         }
@@ -106,6 +110,7 @@ public class ShapeshiftHandler {
                 case BEAR: bearTier = clamped; break;
                 case SHARK: sharkTier = clamped; break;
                 case RAM: ramTier = clamped; break;
+                case WARDEN: wardenTier = clamped; break;
                 default: break;
             }
         }
@@ -160,7 +165,9 @@ public class ShapeshiftHandler {
 
         syncTierProgressFromInventory(player);
         String targetModelId = ALLOWED_FORMS.get(canonicalName);
-        if ("polarbear".equals(cleanName)) {
+        if ("kweebec_rootling".equals(cleanName)) {
+            targetModelId = "Kweebec_Rootling";
+        } else if ("polarbear".equals(cleanName)) {
             targetModelId = "Bear_Polar";
         } else if ("hyena".equals(cleanName)) {
             targetModelId = "Hyena";
@@ -228,9 +235,54 @@ public class ShapeshiftHandler {
         return false;
     }
 
+    public boolean shapeshift(Player player, String formName, FormId formId) {
+        if (formId == FormId.FORM_WARDEN) {
+            if (!isHoldingValidItem(player)) {
+                sendPlayerMessage(player, "You must focus through a Druid Totem to channel this form.");
+                return false;
+            }
+
+            syncTierProgressFromInventory(player);
+            String requestedWardenSkinKey = formName == null ? "" : formName.trim().toLowerCase(Locale.ROOT);
+            String targetModelId = switch (requestedWardenSkinKey) {
+                case "kweebec_elder" -> "Kweebec_Elder";
+                case "kweebec_sapling_treesinger" -> "Kweebec_Sapling_Treesinger";
+                default -> "Kweebec_Rootling";
+            };
+            return transform(player, targetModelId, "warden");
+        }
+        return shapeshift(player, formName);
+    }
+
+    public static FormId getActiveFormId(Player player) {
+        if (player == null) {
+            return null;
+        }
+        try {
+            String playerName = player.getDisplayName();
+            if (playerName == null || playerName.isBlank()) {
+                return null;
+            }
+            String activeModelId = activeForms.get(playerName);
+            if (activeModelId == null || activeModelId.isBlank()) {
+                return null;
+            }
+            String activeFormKey = new ShapeshiftHandler().formKeyFromModel(activeModelId);
+            if (activeFormKey == null || activeFormKey.isBlank()) {
+                return null;
+            }
+            return FormRuntimeBridge.resolveFormIdForAnimal(activeFormKey);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
     private static String canonicalizeFormKey(String key) {
         if ("aquatic".equals(key)) {
             return "bluegill";
+        }
+        if ("kweebec_rootling".equals(key)) {
+            return "ram";
         }
         if ("polarbear".equals(key)) {
             return "bear";
@@ -334,6 +386,9 @@ public class ShapeshiftHandler {
             case "Druid_Bear" -> "bear";
             case "Bear_Polar" -> "bear";
             case "Druid_Ram" -> "ram";
+            case "Kweebec_Rootling" -> "warden";
+            case "Kweebec_Elder" -> "warden";
+            case "Kweebec_Sapling_Treesinger" -> "warden";
             case "Goat" -> "ram";
             case "Moose_Bull" -> "ram";
             case "Warthog" -> "ram";
@@ -792,6 +847,9 @@ public class ShapeshiftHandler {
         try {
             String canonical = canonicalizeFormKey(targetForm.toLowerCase(Locale.ROOT));
             String itemToGive = DRUID_ITEM;
+            if ("warden".equals(canonical)) {
+                itemToGive = WARDEN_ITEM;
+            }
             TieredForm tieredForm = TieredForm.fromFormKey(canonical);
             if (tieredForm != null) {
                 itemToGive = tieredForm.itemForTier(getProgress(player).getTier(tieredForm));
@@ -862,6 +920,7 @@ public class ShapeshiftHandler {
         if (lowerId == null) return false;
         if (lowerId.contains("druid_totem")) return true;
         if (lowerId.contains("druid") && lowerId.contains("totem")) return true;
+        if (lowerId.contains("life_seed")) return true;
         for (TieredForm tieredForm : TieredForm.values()) {
             for (int tier = 1; tier <= 4; tier++) {
                 String itemId = tieredForm.itemForTier(tier).toLowerCase(Locale.ROOT);

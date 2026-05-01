@@ -5,6 +5,7 @@
   "Icon": "Icons/ItemsGenerated/Bone_Spike.png",
   "Quality": "Legendary",
   "ItemLevel": 65,
+  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
   "Categories": [
     "Items.Tools"
   ],

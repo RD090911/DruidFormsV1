@@ -9,6 +9,11 @@ import au.ellie.hyui.builders.LabelBuilder;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import me.druid.v1.ShapeshiftHandler;
+import me.druid.v1.forms.FormDefinition;
+import me.druid.v1.forms.FormId;
+import me.druid.v1.forms.FormPresentationDefinition;
+import me.druid.v1.forms.FormPresentationRegistry;
+import me.druid.v1.forms.FormRegistry;
 import me.druid.v1.forms.FormRuntimeBridge;
 
 import java.lang.reflect.Field;
@@ -71,6 +76,12 @@ public final class DruidHyUiCurrentFormHud {
     }
 
     private static String resolveActiveFormText(Player player) {
+        FormId activeFormId = ShapeshiftHandler.getActiveFormId(player);
+        String formLabelFromFormId = resolveFormLabelFromFormId(activeFormId);
+        if (formLabelFromFormId != null) {
+            return "Active Form: " + formLabelFromFormId;
+        }
+
         String modelId;
         try {
             modelId = ShapeshiftHandler.activeForms.get(player.getDisplayName());
@@ -79,6 +90,30 @@ public final class DruidHyUiCurrentFormHud {
         }
 
         return "Active Form: " + displayNameFromModelId(modelId);
+    }
+
+    private static String resolveFormLabelFromFormId(FormId formId) {
+        if (formId == null) {
+            return null;
+        }
+
+        FormPresentationDefinition presentation = FormPresentationRegistry.getDefinition(formId);
+        if (presentation != null) {
+            String shortLabel = presentation.getShortLabel();
+            if (shortLabel != null && !shortLabel.isBlank()) {
+                return shortLabel;
+            }
+        }
+
+        FormDefinition definition = FormRegistry.getDefinition(formId);
+        if (definition != null) {
+            String displayName = definition.getDisplayName();
+            if (displayName != null && !displayName.isBlank()) {
+                return displayName;
+            }
+        }
+
+        return null;
     }
 
     private static String displayNameFromModelId(String modelId) {

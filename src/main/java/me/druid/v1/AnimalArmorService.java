@@ -34,6 +34,7 @@ class AnimalArmorService {
     private static final String RABBIT_ANIMAL_KEY = "rabbit";
     private static final String RAM_ANIMAL_KEY = "ram";
     private static final String BLUEGILL_ANIMAL_KEY = "bluegill";
+    private static final String WARDEN_ANIMAL_KEY = "warden";
     private static final String GUARDIAN_ARMOR_OWNER_KEY = "guardian";
     private static final String PROWLER_ARMOR_OWNER_KEY = "prowler";
     private static final String STALKER_ARMOR_OWNER_KEY = "stalker";
@@ -41,6 +42,7 @@ class AnimalArmorService {
     private static final String FLIGHT_ARMOR_OWNER_KEY = "flight";
     private static final String SPRINGER_ARMOR_OWNER_KEY = "springer";
     private static final String FORAGER_ARMOR_OWNER_KEY = "forager";
+    private static final String WARDEN_ARMOR_OWNER_KEY = "warden";
     private static final short HEAD_SLOT = 0;
     private static final short CHEST_SLOT = 1;
     private static final short HANDS_SLOT = 2;
@@ -197,6 +199,14 @@ class AnimalArmorService {
                             "Aquatic_Rune_Bindings",
                             "Aquatic_Striders"
                     }
+            },
+            "warden", new String[][] {
+                    {
+                            "Warden_Visage",
+                            "Warden_Spirit_Mantle",
+                            "Warden_Rune_Bindings",
+                            "Warden_Striders"
+                    }
             }
     );
 
@@ -296,7 +306,9 @@ class AnimalArmorService {
             return false;
         }
         String normalized = normalizeForm(formKey);
-        return TIERED_ANIMAL_FORMS.contains(normalized) || NON_ARMOR_ANIMAL_FORMS.contains(normalized);
+        return TIERED_ANIMAL_FORMS.contains(normalized)
+                || NON_ARMOR_ANIMAL_FORMS.contains(normalized)
+                || WARDEN_ANIMAL_KEY.equals(normalized);
     }
 
     private void restoreSavedArmor(Player player) {
@@ -331,7 +343,7 @@ class AnimalArmorService {
         // Armor still owned by animal identity.
         // Form resolution added for future migration.
         // No behavior change.
-        FormId resolvedForm = resolveFormId(formKey);
+        FormId resolvedForm = resolveArmorFormId(player, formKey);
         FormAbilityProfile profile =
                 resolvedForm != null
                         ? FormAbilityResolver.getProfile(resolvedForm)
@@ -388,6 +400,9 @@ class AnimalArmorService {
     }
 
     private String resolveArmorOwnerKey(String animalKey, FormId resolvedFormId) {
+        if (resolvedFormId == FormId.FORM_WARDEN) {
+            return WARDEN_ARMOR_OWNER_KEY;
+        }
         if (BEAR_ANIMAL_KEY.equals(animalKey) && resolvedFormId == FormId.FORM_GUARDIAN) {
             return GUARDIAN_ARMOR_OWNER_KEY;
         }
@@ -577,6 +592,14 @@ class AnimalArmorService {
 
     private static FormId resolveFormId(String animalKey) {
         return FormRuntimeBridge.resolveFormIdForAnimal(animalKey);
+    }
+
+    private static FormId resolveArmorFormId(Player player, String animalKey) {
+        FormId activeFormId = ShapeshiftHandler.getActiveFormId(player);
+        if (activeFormId != null) {
+            return activeFormId;
+        }
+        return resolveFormId(animalKey);
     }
 
     private int clampTier(int tier) {

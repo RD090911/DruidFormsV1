@@ -1,0 +1,35 @@
+{
+    "Parent":  "Armor_Iron_Hands",
+    "TranslationProperties":  {
+                                  "Name":  "Warden Rune Bindings",
+                                  "Description":  "Gaia's power anchors your form."
+                              },
+    "Icon":  "Icons/Items/rune_bindings.png",
+    "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
+    "Armor":  {
+                  "ArmorSlot":  "Hands",
+                  "BaseDamageResistance":  0,
+                  "DamageResistance":  {
+                                           "Physical":  [
+                                                            {
+                                                                "Amount":  0.02,
+                                                                "CalculationType":  "Multiplicative"
+                                                            }
+                                                        ],
+                                           "Projectile":  [
+                                                              {
+                                                                  "Amount":  0.02,
+                                                                  "CalculationType":  "Multiplicative"
+                                                              }
+                                                          ]
+                                       },
+                  "StatModifiers":  {
+                                        "Health":  [
+                                                       {
+                                                           "Amount":  6,
+                                                           "CalculationType":  "Additive"
+                                                       }
+                                                   ]
+                                    }
+              }
+}

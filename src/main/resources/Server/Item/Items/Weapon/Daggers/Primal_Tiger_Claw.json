@@ -8,6 +8,7 @@
   "Quality": "Epic",
   "ItemSoundSetId": "ISS_Weapon_Blade_Small",
   "ItemLevel": 50,
+  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
   "Categories": [
     "Items.Weapons"
   ],

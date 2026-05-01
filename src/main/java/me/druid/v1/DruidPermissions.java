@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -169,6 +171,10 @@ final class DruidPermissions {
     static Player getOnlinePlayer(UUID uuid) {
         if (uuid == null) return null;
         return onlinePlayersByUuid.get(uuid);
+    }
+
+    static List<Player> getOnlinePlayersSnapshot() {
+        return new ArrayList<>(onlinePlayersByUuid.values());
     }
 
     static void forgetPlayer(UUID uuid) {

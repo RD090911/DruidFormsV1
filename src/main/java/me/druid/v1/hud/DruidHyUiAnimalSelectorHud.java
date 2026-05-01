@@ -33,6 +33,7 @@ public final class DruidHyUiAnimalSelectorHud {
             new RadialChoice("druid-radial-springer", "Springer", "springer", 590, 292),
             new RadialChoice("druid-radial-forager", "Forager", "forager", 520, 452),
             new RadialChoice("druid-radial-guardian", "Guardian", "guardian", 292, 528),
+            new RadialChoice("druid-radial-warden", "Warden", "warden", 178, 504),
             new RadialChoice("druid-radial-stalker", "Stalker", "stalker", 64, 452),
             new RadialChoice("druid-radial-prowler", "Prowler", "prowler", -6, 292),
             new RadialChoice("druid-radial-aquatic", "Aquatic", "aquatic", 64, 132)
@@ -118,6 +119,16 @@ public final class DruidHyUiAnimalSelectorHud {
                 anchorTop += 28;
             } else if ("stalker".equals(choice.classAlias) || "forager".equals(choice.classAlias)) {
                 anchorTop -= 28;
+            }
+            if ("guardian".equals(choice.classAlias) || "warden".equals(choice.classAlias)) {
+                anchorTop -= 12;
+            } else if ("flight".equals(choice.classAlias)) {
+                anchorTop -= 18;
+            }
+            if ("guardian".equals(choice.classAlias)) {
+                anchorLeft += 11;
+            } else if ("warden".equals(choice.classAlias)) {
+                anchorLeft -= 11;
             }
             html.append("<button id='")
                     .append(choice.buttonId)
