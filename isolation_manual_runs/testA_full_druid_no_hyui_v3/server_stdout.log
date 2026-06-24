@@ -1,0 +1,903 @@
+[2026/05/28 00:30:27   INFO] [Hytale] Logger Initialized
+[2026/05/28 00:30:28   WARN] [org.jline] Unable to create a system terminal, creating a dumb terminal (enable debug logging for more information)
+[m[2026/05/28 00:30:28   INFO]           [HytaleServer] Starting HytaleServer[m
+[m[2026/05/28 00:30:28   INFO]           [HytaleServer] Loading config...[m
+[m[2026/05/28 00:30:28   INFO]           [HytaleServer] Authentication mode: INSECURE[m
+[m[2026/05/28 00:30:29   INFO]      [ServerAuthManager] No server tokens configured. Use /auth login to authenticate, or provide tokens via CLI/environment.[m
+[m[2026/05/28 00:30:29   INFO]      [ServerAuthManager] Server session ID: ffc0f0cf-1f30-45fd-9b84-4b5960a9080a[m
+[m[2026/05/28 00:30:29   INFO]           [HytaleServer] Enabling Sentry[m
+[m[2026/05/28 00:30:30   INFO]           [HytaleServer] Booting up HytaleServer - Version: 0.5.2, Revision: 8b2f3de9316073cba92e8a2728d7fe4b291b5e88[m
+[m[2026/05/28 00:30:30   INFO]           [HytaleServer] Setup phase...[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] Loading pending core plugins![m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:ConsoleModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:PermissionsModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:UpdateModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:LiveConfigModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:FlyCameraModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:AssetModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:CommonAssetModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:CosmeticsModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:ServerManager[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:I18nModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:ItemModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:BlockTypeModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:LegacyModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:BlockModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:CollisionModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:BlockSetModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:MigrationModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:BlockHealthModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:PrefabSpawnerModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:TimeModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:AnchorActionModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:InteractionModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:EntityModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:EntityStatsModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:EntityUIModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:DamageModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:SplitVelocity[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:StaminaModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:DebugPlugin[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:ProjectileModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:ServerPlayerListModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:VoiceModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:AccessControlModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:SingleplayerModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Universe[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:TelemetryModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:ConnectedBlocksModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:DiscoveryModule[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] Loading pending classpath plugins![m
+[33m[2026/05/28 00:30:30   WARN]         [PluginManifest] Manifest ServerVersion '2026.03.26-89796e57b' is in the pre-semver YYYY.MM.DD-<sha> format. Treated as wildcard for backward compatibility. Update to a SemverRange.[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - druid:Druid Forms[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:AssetEditor[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:BlockSpawner[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:BlockTick[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:BlockPhysics[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:BuilderTools[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Crafting[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:CommandMacro[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Instances[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:LANDiscovery[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:NPC[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:NPCObjectives[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:ObjectiveReputation[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Objectives[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:ObjectiveShop[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Path[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Reputation[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:NPCReputation[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Shop[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:ShopReputation[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:NPCShop[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:NPCEditor[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Stash[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:TagSet[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Teleport[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Fluid[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Weather[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:WorldGen[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Farming[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Camera[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:WorldLocationCondition[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:NPCCombatActionEvaluator[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Model[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Mantling[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:SafetyRoll[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:SprintForce[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:CrouchSlide[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:FallingBlocks[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Parkour[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Mounts[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:HytaleGenerator[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Teleporter[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Memories[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Deployables[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Portals[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Beds[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Ambience[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Audio[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:CreativeHub[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:RandomTick[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:TriggerVolumes[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] - Hytale:Locate[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] Loading pending plugins from directory: mods[m
+[m[2026/05/28 00:30:30   INFO]          [PluginManager] Loading pending plugins from directory: mods_empty[m
+[m[2026/05/28 00:30:30   INFO]       [TelemetryStorage] Opened telemetry session file: telemetry\2026-05-28_00-30-30_dcb3c683.jsonl[m
+[m[2026/05/28 00:30:30   INFO]       [TelemetryService] Telemetry service initialized with session ID: dcb3c683-8e59-451f-8408-ae5075cfd76f[m
+[m[2026/05/28 00:30:31   INFO]          [AssetModule|P] Asset monitor enabled![m
+[m[2026/05/28 00:30:31   INFO]          [AssetModule|P] Loaded pack: Hytale:Hytale from Assets.zip[m
+[m[2026/05/28 00:30:31   INFO]          [AssetModule|P] Loading packs from directory: mods[m
+[33m[2026/05/28 00:30:31   WARN]          [AssetModule|P] Skipping pack at Hytale_HytaleGenerator: missing or invalid manifest.json[m
+[m[2026/05/28 00:30:31   INFO]          [AssetModule|P] Loading packs from directory: mods_empty[m
+[m[2026/05/28 00:30:31   INFO]        [ConsoleModule|P] Setup console with type: dumb-color[m
+[m[2026/05/28 00:30:31   INFO]      [ServerAuthManager] Server certificate set: CN=localhost[m
+[m[2026/05/28 00:30:31   INFO]          [QUICTransport] Server certificate registered for mutual auth, fingerprint: NXvgmQuw-6cMiWHXsdXrMdquJ6iQoQ9c-ffEt3M61o8[m
+[m[2026/05/28 00:30:32   INFO]          [QUICTransport] Using IPv4 Datagram Channel: NioDatagramChannel(INET)...[m
+[m[2026/05/28 00:30:32   INFO]          [QUICTransport] Using IPv6 Datagram Channel: NioDatagramChannel(INET6)...[m
+[m[2026/05/28 00:30:32   INFO]        [ServerManager|P] Took 1sec 391ms 41us 800ns to setup transport![m
+[m[2026/05/28 00:30:33   INFO]           [I18nModule|P] Loaded 9968 bundled default translations from /bundledDefaults/server.lang[m
+[m[2026/05/28 00:30:33   INFO]       [TelemetryService] Telemetry enabled[m
+[m[2026/05/28 00:30:33   INFO]        [TelemetryModule] Server telemetry is enabled[m
+[m[2026/05/28 00:30:33   INFO]          [VoiceModule|P] [Voice] Registered voice stream handler[m
+[m[2026/05/28 00:30:33   INFO]          [VoiceModule|P] [Voice] VoiceModule initialized (maxDistance=32.0, refDistance=4.0, enabled=true, voiceStreamSupported=true)[m
+[m[2026/05/28 00:30:35   INFO]                   [SOUT] [DruidPlugin] Initializing V1 (Command Mode)...[m
+[m[2026/05/28 00:30:35   INFO]                   [SOUT] [DruidPlugin] Command /shapeshift successfully registered.[m
+[m[2026/05/28 00:30:35   INFO]                   [SOUT] [DruidPlugin] Player event handlers registered.[m
+[m[2026/05/28 00:30:35   INFO]                   [SOUT] [DruidPlugin] V1 Ready![m
+[m[2026/05/28 00:30:35   INFO]      [ServerAuthManager] Auth credential store: Encrypted[m
+[m[2026/05/28 00:30:35   INFO]           [HytaleServer] Setup phase completed! Boot time 6sec 560ms 150us[m
+[m[2026/05/28 00:30:35   INFO]                 [Hytale] Loading common assets from: /[m
+[m[2026/05/28 00:30:35   INFO]    [CommonAssetModule|P] Took 150ms 743us 700ns to load 24914 assets from CommonAssetsIndex.hashes file.[m
+[33m[2026/05/28 00:30:35   WARN]    [CommonAssetModule|P] Duplicated Asset Count: 920[m
+[m[2026/05/28 00:30:35   INFO]                 [Hytale] Loading common assets phase completed! Boot time 6sec 712ms 1us 200ns, Took 151ms 330us 900ns[m
+[m[2026/05/28 00:30:35   INFO]                 [Hytale] Loading common assets from: C:\Users\Ross\Desktop\DruidFormsV1\out\production\resources[m
+[m[2026/05/28 00:30:35   INFO]    [CommonAssetModule|P] Took 11ms 183us 900ns to walk file tree and load 20 assets.[m
+[33m[2026/05/28 00:30:35   WARN]    [CommonAssetModule|P] Duplicated Asset Count: 922[m
+[m[2026/05/28 00:30:35   INFO]                 [Hytale] Loading common assets phase completed! Boot time 6sec 727ms 626us 300ns, Took 15ms 465us[m
+[m[2026/05/28 00:30:35   INFO]           [I18nModule|P] Loaded 9304 entries for 'zh-CN' from /Server/Languages[m
+[m[2026/05/28 00:30:35   INFO]           [I18nModule|P] Loaded 9421 entries for 'uk-UA' from /Server/Languages[m
+[m[2026/05/28 00:30:35   INFO]           [I18nModule|P] Loaded 8720 entries for 'ru-RU' from /Server/Languages[m
+[m[2026/05/28 00:30:35   INFO]           [I18nModule|P] Loaded 9513 entries for 'pt-BR' from /Server/Languages[m
+[m[2026/05/28 00:30:35   INFO]           [I18nModule|P] Loaded 9992 entries for 'en-US' from /Server/Languages[m
+[m[2026/05/28 00:30:35   INFO]           [I18nModule|P] Loaded 51 entries from /Server/Languages/fallback.lang[m
+[m[2026/05/28 00:30:35   INFO]           [I18nModule|P] Loaded 2 entries for 'en-US' from C:\Users\Ross\Desktop\DruidFormsV1\out\production\resources\Server\Languages[m
+[m[2026/05/28 00:30:35   INFO]    [AssetRegistryLoader] Loading 100 asset stores...[m
+[m[2026/05/28 00:30:35   INFO]    [AssetRegistryLoader] Pre-adding assets...[m
+[m[2026/05/28 00:30:35   INFO]      [CollisionModule|P] Block extents for CollisionSystem is Max=0.0, Min=0.0[m
+[m[2026/05/28 00:30:35   INFO]           [ItemModule|P] Computed damage data for 0 of 0 weapon items[m
+[m[2026/05/28 00:30:35   INFO]                 [Hytale] Loading assets from: /Server[m
+[m[2026/05/28 00:30:35   INFO]    [AssetRegistryLoader] Loading assets from /Server[m
+[33m[2026/05/28 00:30:35   WARN] [AssetStore|CustomConnectedBlockTemplateAsset] Unused key(s) in 'DoorLargeConnectedBlockTemplate' file /Server/Item/CustomConnectedBlockTemplates/DoorLargeConnectedBlockTemplate.json: ConnectsToOtherTemplates[m
+[33m[2026/05/28 00:30:35   WARN] [AssetStore|CustomConnectedBlockTemplateAsset] Unused key(s) in 'RailsConnectedBlockTemplate' file /Server/Item/CustomConnectedBlockTemplates/RailsConnectedBlockTemplate.json: MaterialName[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Furniture_Temple_Light_Statue'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Ingredient_Hay'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Wood_Softwood_Planks'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Furniture_Feran_Bed'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Coop_Chicken'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Gate'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Gate_Open_In'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Gate_Open_Out'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Thin'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Thick'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Corner'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Corner_Thin'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Corner_Thick'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Furniture_Crude_Bed'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Grass'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Dirt'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Dirt_Poisoned'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Mud'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Deco_Bone_Pile'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Deco_Bone_Skulls'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Gravel_Sand'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Dirt'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Clay'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Rock_Stone'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Rock_Marble'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Rock_Chalk'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Ingredient_Hay'[m
+[33m[2026/05/28 00:30:35   WARN]       [BlockSetModule|P] Creating block sets: Failed to find block name 'Bench_Trough'[m
+[33m[2026/05/28 00:30:35   WARN]       [MacroCommandBase] Could not parse default argument value for argument: 'world' on Macro Command: 'settimeandgohome'.[m
+No such world 'Default'.[m
+No such world 'Default'.[m
+[m[2026/05/28 00:30:35   INFO]      [HytaleGenerator|P] Loaded Settings asset.[m
+[33m[2026/05/28 00:30:36   WARN] [AssetStore|WorldStructureAsset] Unused key(s) in 'Interpolation' file /Server/HytaleGenerator/WorldStructures/Dev/Interpolation.json: BiomeTransitions[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: Spawns[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: Spawns[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: pattern1[m
+[33m[2026/05/28 00:30:36   WARN]          [AssetStore|BiomeAsset] Unused key(s) in 'Something' file /Server/HytaleGenerator/Biomes/Experimental/Something.json: Terrain.Density.Inputs.0.Inputs.0.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.0.Inputs.0.Inputs.1.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.0.Inputs.1.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.0.Inputs.1.Inputs.1.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Sampled, Terrain.Density.Inputs.0.Inputs.0.Inputs.1.Inputs.3.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.1.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.1.Inputs.1.Inputs.0.Inputs.0.CacheSize[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: Taiga1_Rewood_Trees_Mask[m
+[33m[2026/05/28 00:30:36   WARN]          [AssetStore|BiomeAsset] Unused key(s) in 'Example_Fluid' file /Server/HytaleGenerator/Biomes/Examples/Example_Fluid.json: Terrain.Density.Inputs.0.CacheSize, MaterialProvider.Empty.Queue.0.BaseHeight[m
+[33m[2026/05/28 00:30:36   WARN]          [AssetStore|BiomeAsset] Unused key(s) in 'Example_Prop' file /Server/HytaleGenerator/Biomes/Examples/Example_Prop.json: Terrain.Density.Inputs.0.CacheSize[m
+[33m[2026/05/28 00:30:36   WARN]          [AssetStore|BiomeAsset] Unused key(s) in 'Fake3dNoise' file /Server/HytaleGenerator/Biomes/Examples/Fake3dNoise.json: Terrain.Density.Inputs.1.CacheSize, Terrain.Density.Inputs.2.Inputs.1.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.2.Inputs.1.Inputs.0.Inputs.1.CacheSize, Terrain.Density.Inputs.2.Inputs.1.Inputs.0.Inputs.2.CacheSize, Terrain.Density.Inputs.2.Inputs.1.Inputs.0.Inputs.3.CacheSize, Terrain.Density.Inputs.2.Inputs.1.Inputs.0.Inputs.4.CacheSize, Terrain.Density.Inputs.2.Inputs.1.Inputs.0.Inputs.5.CacheSize[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: werstjrtydkm,[m
+[m[2026/05/28 00:30:36   INFO]                [HytaleGenerator] Exported Scanner asset with name 'BasicForestTreeScanner' with asset id 'null[m
+[33m[2026/05/28 00:30:36   WARN]          [AssetStore|BiomeAsset] Unused key(s) in 'CursebreakerKeyartBiome' file /Server/HytaleGenerator/Biomes/Experimental/CursebreakerKeyartBiome.json: Terrain.Density.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.0.Inputs.0.Inputs.1.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.0.Inputs.1.Inputs.0.Inputs.0.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.1.Inputs.0.Inputs.0.Inputs.0.CacheSize[m
+[33m[2026/05/28 00:30:36   WARN]          [AssetStore|BiomeAsset] Unused key(s) in 'Dunes' file /Server/HytaleGenerator/Biomes/Experimental/Dunes.json: Terrain.Density.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.1.Inputs.0.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.1.Inputs.0.Inputs.1.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.0.Inputs.0.Inputs.1.Inputs.0.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.0.Inputs.0.Inputs.1.Inputs.0.Inputs.1.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.0.Inputs.1.Inputs.0.Inputs.0.Inputs.1.Inputs.0.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.0.Inputs.1.Inputs.0.Inputs.0.Inputs.1.Inputs.0.Inputs.1.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.0.Inputs.1.Inputs.1.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.0.Inputs.1.Inputs.1.Inputs.1.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.1.Inputs.0.Inputs.0.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.1.Inputs.1.Inputs.0.CacheSize, MaterialProvider.Solid.Queue.0.FieldFunction.CacheSize[m
+[m[2026/05/28 00:30:36   INFO]                [HytaleGenerator] Exported Scanner asset with name 'Desert1_Rocky_Trees_Dry_Scanner' with asset id 'null[m
+[m[2026/05/28 00:30:36   INFO]                [HytaleGenerator] Exported Scanner asset with name 'Desert1_Rocky_Trees_Palm_Scanner' with asset id 'null[m
+[33m[2026/05/28 00:30:36   WARN]          [AssetStore|BiomeAsset] Unused key(s) in 'Example_Multi_Mixer_Horizontal' file /Server/HytaleGenerator/Biomes/Examples/Example_Multi_Mixer_Horizontal.json: Terrain.Density.Inputs.0.Inputs.0.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.0.Inputs.0.Inputs.1.CacheSize, Terrain.Density.Inputs.0.Inputs.0.Inputs.0.Inputs.2.CacheSize, Terrain.Density.Inputs.0.Inputs.0.Inputs.0.Inputs.3.CacheSize[m
+[33m[2026/05/28 00:30:36   WARN]          [AssetStore|BiomeAsset] Unused key(s) in 'Plains1_Deeproot' file /Server/HytaleGenerator/Biomes/Plains1/Plains1_Deeproot.json: Props.5.Positions.OffsetX, Props.5.Positions.OffsetY, Props.5.Positions.OffsetZ[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: werstjrtydkm,[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: BasicForestTreeScanner[m
+[m[2026/05/28 00:30:36   INFO]                [HytaleGenerator] Exported Scanner asset with name 'BasicForestTreeScanner' with asset id 'null[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: River-Boulders-Mask[m
+[33m[2026/05/28 00:30:36   WARN]          [AssetStore|BiomeAsset] Unused key(s) in 'SingleInstance_Test' file /Server/HytaleGenerator/Biomes/Examples/SingleInstance_Test.json: Terrain.Density.Inputs.0.Inputs.1.SingleInstance[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: Desert1_Rivers_Cliffs[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: River-Boulders-Mask[m
+[33m[2026/05/28 00:30:36   WARN]          [AssetStore|BiomeAsset] Unused key(s) in 'Example_Multi_Mixer_Curve' file /Server/HytaleGenerator/Biomes/Examples/Example_Multi_Mixer_Curve.json: Terrain.Density.Inputs.0.Inputs.0.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.1.Inputs.0.Inputs.0.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.1.Inputs.0.Inputs.0.Inputs.0.Inputs.1.CacheSize, Terrain.Density.Inputs.0.Inputs.1.Inputs.0.Inputs.0.Inputs.0.Inputs.2.CacheSize, Terrain.Density.Inputs.0.Inputs.1.Inputs.1.CacheSize, Terrain.Density.Inputs.1.Inputs.0.CacheSize[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: River-Boulders-Mask[m
+[33m[2026/05/28 00:30:36   WARN]          [AssetStore|BiomeAsset] Unused key(s) in 'Arches' file /Server/HytaleGenerator/Biomes/Experimental/Arches.json: Terrain.Density.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.1.Inputs.0.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.1.Inputs.0.Inputs.0.Inputs.0.Inputs.0.ReturnType.Density.CacheSize, Terrain.Density.Inputs.0.Inputs.1.Inputs.0.Inputs.1.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.1.Inputs.0.Inputs.1.Inputs.0.Inputs.0.ReturnType.Density.Inputs.0.Inputs.0.Inputs.0.CacheSize, Terrain.Density.Inputs.0.Inputs.1.Inputs.0.Inputs.2.Inputs.0.CacheSize[m
+[33m[2026/05/28 00:30:36   WARN]          [AssetStore|BiomeAsset] Unused key(s) in 'Volcanic1_Jungle' file /Server/HytaleGenerator/Biomes/Volcanic1/Volcanic1_Jungle.json: Props.1.Positions.OffsetX, Props.1.Positions.OffsetY, Props.1.Positions.OffsetZ, Props.2.Positions.OffsetX, Props.2.Positions.OffsetY, Props.2.Positions.OffsetZ, Props.3.Positions.OffsetX, Props.3.Positions.OffsetY, Props.3.Positions.OffsetZ[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: Plains1-Gorges-BaseTerrain[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: River-Boulders-Mask[m
+[33m[2026/05/28 00:30:36   WARN]          [AssetStore|BiomeAsset] Unused key(s) in 'Generative_Buildings' file /Server/HytaleGenerator/Biomes/Generative/Generative_Buildings.json: Terrain.Density.Inputs.1.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Positions.Positions.Positions.OffsetX, Terrain.Density.Inputs.1.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Positions.Positions.Positions.OffsetY, Terrain.Density.Inputs.1.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Inputs.0.Positions.Positions.Positions.OffsetZ[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: Peak[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: River-Boulders-Mask[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: River-Boulders-Mask[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: River-Boulders-Mask[m
+[33m[2026/05/28 00:30:36   WARN]                [HytaleGenerator] Duplicate export name for asset: River-Boulders-Mask[m
+[33m[2026/05/28 00:30:36   WARN]          [AssetStore|BiomeAsset] Unused key(s) in 'Example_Mixer' file /Server/HytaleGenerator/Biomes/Examples/Example_Mixer.json: Terrain.Density.Inputs.0.CacheSize, Terrain.Density.Inputs.1.Inputs.2.Inputs.0.CacheSize[m
+[33m[2026/05/28 00:30:36   WARN]          [AssetStore|BiomeAsset] Unused key(s) in 'Desert1_Oasis' file /Server/HytaleGenerator/Biomes/Desert1/Desert1_Oasis.json: Props.2.Positions.Positions.OffsetX, Props.2.Positions.Positions.OffsetY, Props.2.Positions.Positions.OffsetZ, Props.3.Positions.Positions.OffsetX, Props.3.Positions.Positions.OffsetY, Props.3.Positions.Positions.OffsetZ, Props.4.Positions.Positions.OffsetX, Props.4.Positions.Positions.OffsetY, Props.4.Positions.Positions.OffsetZ, Props.5.Positions.Positions.OffsetX, Props.5.Positions.Positions.OffsetY, Props.5.Positions.Positions.OffsetZ, Props.6.Positions.Positions.OffsetX, Props.6.Positions.Positions.OffsetY, Props.6.Positions.Positions.OffsetZ[m
+[33m[2026/05/28 00:30:36   WARN]      [AssetStore|ParticleSystem] Unused key(s) in 'Potion_Health_Implosion' file /Server/Particles/Status_Effect/Potion_Health/Potion_Health_Implosion.particlesystem: Spawners.0.Scale[m
+[33m[2026/05/28 00:30:36   WARN]      [AssetStore|ParticleSystem] Unused key(s) in 'Potion_Stamina_Burst' file /Server/Particles/Status_Effect/Potion_Stamina/Potion_Stamina_Burst.particlesystem: Spawners.0.Scale[m
+[33m[2026/05/28 00:30:36   WARN]      [AssetStore|ParticleSystem] Unused key(s) in 'Potion_Morph_Burst' file /Server/Particles/Status_Effect/Potion_Morph/Potion_Morph_Burst.particlesystem: Spawners.0.Scale[m
+[33m[2026/05/28 00:30:36   WARN]     [AssetStore|PrefabListAsset] Asset key 'Trees_Fir_red' for file '/Server/PrefabList/Trees_Fir_red.json' has incorrect format! Expected: 'Trees_Fir_Red'[m
+[33m[2026/05/28 00:30:36   WARN]     [AssetStore|PrefabListAsset] Asset key 'Trees_Ash_swamp_dead' for file '/Server/PrefabList/Trees_Ash_swamp_dead.json' has incorrect format! Expected: 'Trees_Ash_Swamp_Dead'[m
+[33m[2026/05/28 00:30:36   WARN]     [AssetStore|PrefabListAsset] Asset key 'Trees_Ash_twisted_Giant' for file '/Server/PrefabList/Trees_Ash_twisted_Giant.json' has incorrect format! Expected: 'Trees_Ash_Twisted_Giant'[m
+[33m[2026/05/28 00:30:36   WARN]     [AssetStore|PrefabListAsset] Asset key 'Trees_Ash_twisted' for file '/Server/PrefabList/Trees_Ash_twisted.json' has incorrect format! Expected: 'Trees_Ash_Twisted'[m
+[33m[2026/05/28 00:30:36   WARN]     [AssetStore|PrefabListAsset] Asset key 'Trees_Ash_swamp' for file '/Server/PrefabList/Trees_Ash_swamp.json' has incorrect format! Expected: 'Trees_Ash_Swamp'[m
+[33m[2026/05/28 00:30:36   WARN]     [AssetStore|PrefabListAsset] Asset key 'Trees_Burnt_dead' for file '/Server/PrefabList/Trees_Burnt_dead.json' has incorrect format! Expected: 'Trees_Burnt_Dead'[m
+[33m[2026/05/28 00:30:36   WARN]     [AssetStore|PrefabListAsset] Asset key 'Trees_Ash_twisted_Large' for file '/Server/PrefabList/Trees_Ash_twisted_Large.json' has incorrect format! Expected: 'Trees_Ash_Twisted_Large'[m
+[m[2026/05/28 00:30:36   INFO]              [CollisionModule|P] Block extents for CollisionSystem is Max=3.0, Min=0.0[m
+[33m[2026/05/28 00:30:36   WARN]  [AssetStore|ScriptedBrushAsset] Unused key(s) in 'FluidMaskExample' file /Server/ScriptedBrushes/Examples/FluidMaskExample.json: Description[m
+[33m[2026/05/28 00:30:36   WARN]  [AssetStore|ScriptedBrushAsset] Unused key(s) in 'Walls-Floors' file /Server/ScriptedBrushes/Archive/Walls-Floors.json: Operations.0.Offset[m
+[33m[2026/05/28 00:30:36   WARN]  [AssetStore|ScriptedBrushAsset] Asset key 'templePillars' for file '/Server/ScriptedBrushes/Archive/templePillars.json' has incorrect format! Expected: 'TemplePillars'[m
+[33m[2026/05/28 00:30:36   WARN]  [AssetStore|ScriptedBrushAsset] Asset key 'templeFloor' for file '/Server/ScriptedBrushes/Archive/templeFloor.json' has incorrect format! Expected: 'TempleFloor'[m
+[33m[2026/05/28 00:30:36   WARN]  [AssetStore|ScriptedBrushAsset] Unused key(s) in 'ReplaceWaterExample' file /Server/ScriptedBrushes/Examples/ReplaceWaterExample.json: Description[m
+[33m[2026/05/28 00:30:36   WARN]  [AssetStore|ScriptedBrushAsset] Asset key 'templeWalls' for file '/Server/ScriptedBrushes/Archive/templeWalls.json' has incorrect format! Expected: 'TempleWalls'[m
+[33m[2026/05/28 00:30:36   WARN]  [AssetStore|ScriptedBrushAsset] Asset key 'templeRandom' for file '/Server/ScriptedBrushes/Archive/templeRandom.json' has incorrect format! Expected: 'TempleRandom'[m
+[33m[2026/05/28 00:30:36   WARN]  [AssetStore|ScriptedBrushAsset] Asset key 'BoulderBrush_old' for file '/Server/ScriptedBrushes/Archive/BoulderBrush_old.json' has incorrect format! Expected: 'BoulderBrush_Old'[m
+[33m[2026/05/28 00:30:36   WARN]  [AssetStore|ScriptedBrushAsset] Asset key 'templeDestruction' for file '/Server/ScriptedBrushes/Archive/templeDestruction.json' has incorrect format! Expected: 'TempleDestruction'[m
+[33m[2026/05/28 00:30:36   WARN]  [AssetStore|ScriptedBrushAsset] Asset key 'keepDestruction' for file '/Server/ScriptedBrushes/Archive/keepDestruction.json' has incorrect format! Expected: 'KeepDestruction'[m
+[33m[2026/05/28 00:30:36   WARN]  [AssetStore|ScriptedBrushAsset] Asset key 'MountainBrush_old' for file '/Server/ScriptedBrushes/Archive/MountainBrush_old.json' has incorrect format! Expected: 'MountainBrush_Old'[m
+[33m[2026/05/28 00:30:36   WARN]  [AssetStore|ScriptedBrushAsset] Asset key 'moltenBall' for file '/Server/ScriptedBrushes/Archive/moltenBall.json' has incorrect format! Expected: 'MoltenBall'[m
+[33m[2026/05/28 00:30:38   WARN]            [AssetStore|ModelVFX] Asset key 'test' for file '/Server/Entity/ModelVFX/test.json' has incorrect format! Expected: 'Test'[m
+[33m[2026/05/28 00:30:38   WARN]         [AssetStore|Environment] Asset key 'Env_Temple_of_Gaia' for file '/Server/Environments/Unique/Env_Temple_of_Gaia.json' has incorrect format! Expected: 'Env_Temple_Of_Gaia'[m
+[33m[2026/05/28 00:30:38   WARN]  [AssetStore|TriggerEffectAsset] Asset key 'sample_bounce_pad' for file '/Server/TriggerVolumes/Effects/sample_bounce_pad.json' has incorrect format! Expected: 'Sample_Bounce_Pad'[m
+[33m[2026/05/28 00:30:38   WARN]  [AssetStore|TriggerEffectAsset] Unused key(s) in 'sample_bounce_pad' file /Server/TriggerVolumes/Effects/sample_bounce_pad.json: Effects.0.Type, Effects.1.Type, Effects.2.Type[m
+[33m[2026/05/28 00:30:38   WARN]        [AssetStore|EntityEffect] Unused key(s) in 'Food_EffectCondition_Buff_Small' file /Server/Entity/Effects/Food/Buff/_Deprecated/Food_EffectCondition_Buff_Small.json: Type, EntityEffectIds, Match, Next, Failed[m
+[33m[2026/05/28 00:30:38   WARN]        [AssetStore|EntityEffect] Unused key(s) in 'Food_EffectCondition_Buff_Medium' file /Server/Entity/Effects/Food/Buff/_Deprecated/Food_EffectCondition_Buff_Medium.json: Type, EntityEffectIds, Match, Next, Failed[m
+[33m[2026/05/28 00:30:39   WARN]         [AssetStore|Interaction] Unused key(s) in 'Ice_Bolt_Miss' file /Server/Item/Interactions/Weapons/Staff/Ice/Ice_Bolt_Miss.json: Effects.WorldParticles[m
+[33m[2026/05/28 00:30:39   WARN]         [AssetStore|Interaction] Unused key(s) in 'Explode_Generic' file /Server/Item/Interactions/Explosions/Explode_Generic.json: Config.Knockback.VelocityConfig.Direction[m
+[33m[2026/05/28 00:30:39   WARN]         [AssetStore|Interaction] Unused key(s) in 'Weapon_Battleaxe_Primary_Downstrike_Force' file /Server/Item/Interactions/Weapons/Battleaxe/Primary/Downstrike/Weapon_Battleaxe_Primary_Downstrike_Force.json: MouseSensitivityAdjustmentTarget, MouseSensitivityAdjustmentDuration[m
+[33m[2026/05/28 00:30:39   WARN]         [AssetStore|Interaction] Unused key(s) in 'Weapon_Daggers_Primary_Pounce_Stab_Force' file /Server/Item/Interactions/Weapons/Daggers/Primary/Pounce/Stab/Weapon_Daggers_Primary_Pounce_Stab_Force.json: VelocityType[m
+[33m[2026/05/28 00:30:39   WARN]         [AssetStore|Interaction] Unused key(s) in 'Ice_Ball_Miss' file /Server/Item/Interactions/Weapons/Staff/Ice/Ice_Ball_Miss.json: Effects.WorldParticles[m
+[33m[2026/05/28 00:30:39   WARN]         [AssetStore|Interaction] Unused key(s) in 'Test_Charge_Damage' file /Server/Item/Interactions/Tests/Test_Charge_Damage.json: DamageEffects.Knockback.RotateY, DamageEffects.Knockback.OffsetX, DamageEffects.Knockback.OffsetZ[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *DamageEntityParent_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Stamina_Bar_Flash_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Stamina_Broken_Check_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Block_Break_Adventure_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Block_Break_Adventure_Failed[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Weapon_Battleaxe_Secondary_Guard_Bash_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Weapon_Battleaxe_Secondary_Guard_Bash_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Weapon_Shortbow_Secondary_Guard_Bash_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Weapon_Shortbow_Secondary_Guard_Bash_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Weapon_Crossbow_Secondary_Guard_Bash_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Weapon_Crossbow_Secondary_Guard_Bash_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Weapon_Crossbow_Shot_Standard_Projectile_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Common_Guard_Shove_Animation_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Weapon_Daggers_Secondary_Guard_Bash_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Weapon_Daggers_Secondary_Guard_Bash_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Bow_Two_Handed_Ability1_Arrow_Volley_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Weapon_Shield_Secondary_Guard_Bash_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Weapon_Shield_Secondary_Guard_Bash_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Stick_Attack_Next_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Stick_Attack_Next_0.8[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Weapon_Mace_Secondary_Guard_Bash_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Weapon_Mace_Secondary_Guard_Bash_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Weapon_Sword_Secondary_Guard_Bash_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Weapon_Sword_Secondary_Guard_Bash_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Bow_Two_Handed_Ability2_Arrow_Shoot_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Bow_Two_Handed_Ability2_Arrow_Shoot_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Daggers_Stab_Flurry_Left_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Daggers_Stab_Flurry_Right_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Simple_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *Shortbow_Volley_Shoot_Inner_Next[m
+[33m[2026/05/28 00:30:39   WARN]         [AssetStore|Interaction] Unused key(s) in '*Weapon_Sword_Signature_Vortexstrike_Spin_Selector_Next': Next[m
+[33m[2026/05/28 00:30:39   WARN]         [AssetStore|Interaction] Unused key(s) in '*Weapon_Daggers_Primary_Pounce_Stab_Selector_Next': Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **DamageEntityParent_Next_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **DamageEntityParent_Next_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **DamageEntityParent_Next_Interactions_2[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **DamageEntityParent_Next_Interactions_3[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **DamageEntityParent_Next_Interactions_4[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **DamageEntityParent_Next_Interactions_5[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **DamageEntityParent_Next_Interactions_6[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Bow_Two_Handed_Ability1_Arrow_Volley_Interactions_0_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Bow_Two_Handed_Ability1_Arrow_Volley_Interactions_0_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Daggers_Secondary_Guard_Bash_Interactions_1_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Shortbow_Secondary_Guard_Bash_Interactions_1_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Sword_Secondary_Guard_Bash_Interactions_1_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Shield_Secondary_Guard_Bash_Interactions_1_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Crossbow_Secondary_Guard_Bash_Interactions_1_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Crossbow_Shot_Standard_Projectile_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Stick_Attack_Next_0_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Stick_Attack_Next_0.8_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Mace_Secondary_Guard_Bash_Interactions_1_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Battleaxe_Secondary_Guard_Bash_Interactions_1_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Mace_Primary_Swing_Right_Charged_Selector_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Mace_Primary_Swing_Left_Charged_StaminaCondition_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Block_Break_Failed_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Daggers_Primary_Pounce_Sweep_Next_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Daggers_Primary_Pounce_Sweep_Next_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Common_Guard_Shove_Selector_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Battleaxe_Primary_Downstrike_StaminaCondition_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Mace_Primary_Swing_Up_Left_Charged_Selector_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Crossbow_Damage_Combo_Projectile_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Consume_Charge_Food_T2_Inner_Next_2.5_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Consume_Charge_Food_T1_Inner_Next_2.0_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Mace_Primary_Swing_Right_Charged_StaminaCondition_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Daggers_Primary_Pounce_StaminaCondition_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Daggers_Primary_Pounce_Stab_Next_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Daggers_Primary_Pounce_Stab_Next_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Stick_Fire_Spawn_Trap_Next_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Stick_Fire_Spawn_Trap_Next_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Stick_Fire_Spawn_Trap_Failed_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Mace_Primary_Swing_Left_Charged_Selector_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Consume_Charge_Durability_Interactions_1_Next_3.0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Consume_Charge_Durability_Interactions_1_Failed[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Mace_Primary_Swing_Up_Left_Charged_StaminaCondition_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Weapon_Sword_Primary_Thrust_StaminaCondition_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction **Consume_Charge_Food_T3_Inner_Next_3.0_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Bow_Two_Handed_Ability1_Arrow_Volley_Interactions_0_Interactions_1_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Common_Guard_Shove_Selector_Next_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Weapon_Daggers_Secondary_Guard_Bash_Interactions_1_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Consume_Charge_Food_T3_Inner_Next_3.0_Next_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Consume_Charge_Food_T3_Inner_Next_3.0_Next_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Consume_Charge_Food_T3_Inner_Next_3.0_Next_Interactions_2[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Weapon_Shortbow_Secondary_Guard_Bash_Interactions_1_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Weapon_Mace_Primary_Swing_Up_Left_Charged_StaminaCondition_Next_Next_Next_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Weapon_Mace_Primary_Swing_Up_Left_Charged_Next_2.0_Interactions_2_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Weapon_Mace_Primary_Swing_Right_Charged_StaminaCondition_Next_Next_Next_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Weapon_Mace_Primary_Swing_Right_Charged_Next_2.0_Interactions_2_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Weapon_Sword_Secondary_Guard_Bash_Interactions_1_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Weapon_Shield_Secondary_Guard_Bash_Interactions_1_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Consume_Charge_Food_T1_Inner_Next_2.0_Next_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Consume_Charge_Food_T1_Inner_Next_2.0_Next_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Consume_Charge_Food_T1_Inner_Next_2.0_Next_Interactions_2[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Weapon_Mace_Primary_Swing_Left_Charged_StaminaCondition_Next_Next_Next_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Weapon_Mace_Primary_Swing_Left_Charged_Next_2.0_Interactions_2_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Consume_Charge_Durability_Interactions_1_Next_3.0_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Consume_Charge_Durability_Interactions_1_Next_3.0_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Consume_Charge_Durability_Interactions_1_Next_3.0_Interactions_2[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Consume_Charge_Durability_Interactions_1_Next_3.0_Interactions_3[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Consume_Charge_Durability_Interactions_1_Failed_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Weapon_Crossbow_Secondary_Guard_Bash_Interactions_1_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Weapon_Mace_Secondary_Guard_Bash_Interactions_1_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Consume_Charge_Food_T2_Inner_Next_2.5_Next_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Consume_Charge_Food_T2_Inner_Next_2.5_Next_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Consume_Charge_Food_T2_Inner_Next_2.5_Next_Interactions_2[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Weapon_Battleaxe_Secondary_Guard_Bash_Interactions_1_Next_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Weapon_Battleaxe_Primary_Downstrike_Next_0.65_Interactions_2_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Weapon_Daggers_Primary_Pounce_Next_0.4_Interactions_1_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ***Weapon_Sword_Primary_Thrust_Next_0.65_Interactions_2_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ****Bow_Two_Handed_Ability1_Arrow_Volley_Interactions_0_Interactions_1_Next_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ****Bow_Two_Handed_Ability1_Arrow_Volley_Interactions_0_Interactions_1_Next_Interactions_2[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ****Weapon_Mace_Primary_Swing_Up_Left_Charged_StaminaCondition_Next_Next_Next_0_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ****Weapon_Mace_Primary_Swing_Up_Left_Charged_Next_2.0_Interactions_2_Next_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ****Weapon_Mace_Primary_Swing_Right_Charged_StaminaCondition_Next_Next_Next_0_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ****Weapon_Mace_Primary_Swing_Right_Charged_Next_2.0_Interactions_2_Next_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ****Weapon_Mace_Primary_Swing_Left_Charged_StaminaCondition_Next_Next_Next_0_Next[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ****Weapon_Mace_Primary_Swing_Left_Charged_Next_2.0_Interactions_2_Next_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ****Weapon_Battleaxe_Primary_Downstrike_Next_0.65_Interactions_2_Next_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ****Weapon_Battleaxe_Primary_Downstrike_Next_0.65_Interactions_2_Next_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ****Weapon_Sword_Primary_Thrust_Next_0.65_Interactions_2_Next_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ****Weapon_Sword_Primary_Thrust_Next_0.65_Interactions_2_Next_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ****Weapon_Daggers_Primary_Pounce_Next_0.4_Interactions_1_Next_Interactions_0[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction ****Weapon_Daggers_Primary_Pounce_Next_0.4_Interactions_1_Next_Interactions_1[m
+[33m[2026/05/28 00:30:39   WARN]                         [Hytale] Missing interaction *****Bow_Two_Handed_Ability1_Arrow_Volley_Interactions_0_Interactions_1_Next_Interactions_2_Next[m
+[33m[2026/05/28 00:30:39   WARN]         [AssetStore|Interaction] Unused key(s) in '**Projectile_Config_Ice_Ball_Interactions_ProjectileMiss_Interactions_0': Effects.WorldParticles[m
+[33m[2026/05/28 00:30:39   WARN]         [AssetStore|Interaction] Unused key(s) in '**Projectile_Config_Scarak_Seeker_Spitball_Interactions_ProjectileMiss_Interactions_0': Effects.WorldParticles[m
+[33m[2026/05/28 00:30:39   WARN]         [AssetStore|Interaction] Unused key(s) in '**Projectile_Config_Ice_Bolt_Interactions_ProjectileMiss_Interactions_0': Effects.WorldParticles[m
+[33m[2026/05/28 00:30:39   WARN]         [AssetStore|Interaction] Unused key(s) in '**Projectile_Config_Scarak_Seeker_Spitball_Interactions_ProjectileHit_Interactions_0': Entity[m
+[33m[2026/05/28 00:30:40   WARN]    [AssetStore|AssignmentsAsset] Unused key(s) in 'Plains1_Deeproot_Grasses' file /Server/HytaleGenerator/Assignments/Plains1/Plains1_Deeproot_Grasses.json: FieldFunction.CacheSize[m
+[33m[2026/05/28 00:30:40   WARN]    [AssetStore|AssignmentsAsset] Unused key(s) in 'Runtime_Defect_1' file /Server/HytaleGenerator/Assignments/Dev/Runtime_Defect_1.json: Prop.BoxBlockType[m
+[33m[2026/05/28 00:30:40   WARN]    [AssetStore|AssignmentsAsset] Unused key(s) in 'Runtime_Defect_0' file /Server/HytaleGenerator/Assignments/Dev/Runtime_Defect_0.json: Prop.BoxBlockType[m
+[m[2026/05/28 00:30:40   INFO]                [HytaleGenerator] Exported Scanner asset with name 'Desert1_Oasis_Grasses_Scanner' with asset id 'null[m
+[33m[2026/05/28 00:30:40   WARN]    [AssetStore|AssignmentsAsset] Unused key(s) in 'Desert1_Oasis_Grasses' file /Server/HytaleGenerator/Assignments/Desert1/Desert1_Oasis_Grasses.json: $Comments[m
+[33m[2026/05/28 00:30:40   WARN]                [HytaleGenerator] Duplicate export name for asset: Plains1_OakPattern_Floor_Grass[m
+[33m[2026/05/28 00:30:40   WARN]    [AssetStore|AssignmentsAsset] Unused key(s) in 'Plains1_Mountains_Grasses' file /Server/HytaleGenerator/Assignments/Plains1/Plains1_Mountains_Grasses.json: FieldFunction.CacheSize[m
+[m[2026/05/28 00:30:40   INFO]                [HytaleGenerator] Exported Scanner asset with name 'Desert1_Boulders_Scanner' with asset id 'null[m
+[33m[2026/05/28 00:30:40   WARN]    [AssetStore|AssignmentsAsset] Unused key(s) in 'Desert1_Oasis_Boulders' file /Server/HytaleGenerator/Assignments/Desert1/Desert1_Oasis_Boulders.json: $Comments[m
+[33m[2026/05/28 00:30:40   WARN]                [HytaleGenerator] Duplicate export name for asset: Volcanic1_Swamp_Bushes_Jungles_Pattern[m
+[33m[2026/05/28 00:30:40   WARN]                [HytaleGenerator] Duplicate export name for asset: Plains1_OakPattern_Floor_Grass[m
+[33m[2026/05/28 00:30:40   WARN]                [HytaleGenerator] Duplicate export name for asset: Desert1_Boulders_Scanner[m
+[m[2026/05/28 00:30:40   INFO]                [HytaleGenerator] Exported Scanner asset with name 'Desert1_Boulders_Scanner' with asset id 'null[m
+[m[2026/05/28 00:30:40   INFO]                [HytaleGenerator] Exported Scanner asset with name 'Desert1_Boab_Scanner' with asset id 'null[m
+[m[2026/05/28 00:30:40   INFO]                [HytaleGenerator] Exported Scanner asset with name 'Plains1_Gorges_Boulder_Scanner' with asset id 'null[m
+[33m[2026/05/28 00:30:40   WARN]    [AssetStore|AssignmentsAsset] Unused key(s) in 'Desert1_Oasis_Flowers' file /Server/HytaleGenerator/Assignments/Desert1/Desert1_Oasis_Flowers.json: $Comments[m
+[33m[2026/05/28 00:30:40   WARN]    [AssetStore|AssignmentsAsset] Unused key(s) in 'Plains1_Oak_Bushes' file /Server/HytaleGenerator/Assignments/Plains1/Plains1_Oak_Bushes.json: FieldFunction.CacheSize[m
+[m[2026/05/28 00:30:40   INFO]                [HytaleGenerator] Exported Scanner asset with name 'Plains1_Gorges_Tree_Scanner' with asset id 'null[m
+[33m[2026/05/28 00:30:40   WARN]                [HytaleGenerator] Duplicate export name for asset: Plains1_Sticks[m
+[33m[2026/05/28 00:30:40   WARN]                [HytaleGenerator] Duplicate export name for asset: Plains1_OakPattern_Floor_Grass[m
+[m[2026/05/28 00:30:40   INFO]                [HytaleGenerator] Exported Scanner asset with name 'Desert1_Palm_Scanner' with asset id 'null[m
+[m[2026/05/28 00:30:40   INFO]                [HytaleGenerator] Exported Scanner asset with name 'Desert1_Oasis_Plants_2_Scanner' with asset id 'null[m
+[33m[2026/05/28 00:30:40   WARN]    [AssetStore|AssignmentsAsset] Unused key(s) in 'Desert1_Oasis_Flowers_2' file /Server/HytaleGenerator/Assignments/Desert1/Desert1_Oasis_Flowers_2.json: $Comments[m
+[m[2026/05/28 00:30:40   INFO]                [HytaleGenerator] Exported Scanner asset with name 'Desert1_Dry_Scanner' with asset id 'null[m
+[33m[2026/05/28 00:30:40   WARN]    [AssetStore|AssignmentsAsset] Unused key(s) in 'Desert1_Oasis_Trees_Dry' file /Server/HytaleGenerator/Assignments/Desert1/Desert1_Oasis_Trees_Dry.json: $Comments[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Furniture_Temple_Light_Statue'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Ingredient_Hay'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Wood_Softwood_Planks'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Furniture_Feran_Bed'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Coop_Chicken'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Gate'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Gate_Open_In'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Gate_Open_Out'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Thin'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Thick'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Corner'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Corner_Thin'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Corner_Thick'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Furniture_Crude_Bed'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Grass'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Dirt'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Dirt_Poisoned'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Mud'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Deco_Bone_Pile'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Deco_Bone_Skulls'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Gravel_Sand'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Dirt'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Clay'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Rock_Stone'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Rock_Marble'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Rock_Chalk'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Ingredient_Hay'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Bench_Trough'[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Bench_Weapon' file /Server/Item/Items/Bench/Bench_Weapon.json: PhysicalMaterialId[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Apple_Trunk_Half' file /Server/Item/Items/Wood/Apple/Wood_Apple_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Oak_Trunk_Half' file /Server/Item/Items/Wood/Oak/Wood_Oak_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'EditorTool_LaserPointer' file /Server/Item/Items/EditorTool/EditorTool_LaserPointer.json: BuilderTool.BrushData[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Oak_Trunk_Stairs' file /Server/Item/Items/Wood/Oak/Wood_Oak_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Soil_Needles' file /Server/Item/Items/Soil/Soil_Needles.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Apple_Trunk_Stairs' file /Server/Item/Items/Wood/Apple/Wood_Apple_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Maple_Trunk_Stairs' file /Server/Item/Items/Wood/Maple/Wood_Maple_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Gumboab_Trunk_Stairs' file /Server/Item/Items/Wood/Gumboab/Wood_Gumboab_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Aspen_Trunk_Stairs' file /Server/Item/Items/Wood/Aspen/Wood_Aspen_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Birch_Trunk_Stairs' file /Server/Item/Items/Wood/Birch/Wood_Birch_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Fire_Trunk_Stairs' file /Server/Item/Items/Wood/Fire/Wood_Fire_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Ice_Trunk_Stairs' file /Server/Item/Items/Wood/Ice/Wood_Ice_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Stormbark_Trunk_Stairs' file /Server/Item/Items/Wood/Stormbark/Wood_Stormbark_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Burnt_Trunk_Stairs' file /Server/Item/Items/Wood/Burnt/Wood_Burnt_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Palo_Trunk_Stairs' file /Server/Item/Items/Wood/Palo/Wood_Palo_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Poisoned_Trunk_Stairs' file /Server/Item/Items/Wood/Poisoned/Wood_Poisoned_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Ash_Trunk_Stairs' file /Server/Item/Items/Wood/Ash/Wood_Ash_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Wisteria_Wild_Trunk_Stairs' file /Server/Item/Items/Wood/Wisteria/Wood_Wisteria_Wild_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Camphor_Trunk_Stairs' file /Server/Item/Items/Wood/Camphor/Wood_Camphor_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Crystal_Trunk_Stairs' file /Server/Item/Items/Wood/Crystal/Wood_Crystal_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Bamboo_Trunk_Stairs_Deco' file /Server/Item/Items/Wood/Bamboo/Wood_Bamboo_Trunk_Stairs_Deco.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Fig_Blue_Trunk_Stairs' file /Server/Item/Items/Wood/Fig_Blue/Wood_Fig_Blue_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Dry_Trunk_Stairs' file /Server/Item/Items/Wood/Dry/Wood_Dry_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Spiral_Trunk_Stairs' file /Server/Item/Items/Wood/Spiral/Wood_Spiral_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Cedar_Trunk_Stairs' file /Server/Item/Items/Wood/Cedar/Wood_Cedar_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Redwood_Trunk_Stairs' file /Server/Item/Items/Wood/Redwood/Wood_Redwood_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Amber_Trunk_Stairs' file /Server/Item/Items/Wood/Amber/Wood_Amber_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Fir_Trunk_Stairs' file /Server/Item/Items/Wood/Fir/Wood_Fir_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Petrified_Trunk_Stairs' file /Server/Item/Items/Wood/Petrified/Wood_Petrified_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Bottletree_Trunk_Stairs' file /Server/Item/Items/Wood/Bottletree/Wood_Bottletree_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Beech_Trunk_Stairs' file /Server/Item/Items/Wood/Beech/Wood_Beech_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Windwillow_Trunk_Stairs' file /Server/Item/Items/Wood/Windwillow/Wood_Windwillow_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Bamboo_Trunk_Stairs' file /Server/Item/Items/Wood/Bamboo/Wood_Bamboo_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Banyan_Trunk_Stairs' file /Server/Item/Items/Wood/Banyan/Wood_Banyan_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Azure_Trunk_Stairs' file /Server/Item/Items/Wood/Azure/Wood_Azure_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Palm_Trunk_Stairs' file /Server/Item/Items/Wood/Palm/Wood_Palm_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Sallow_Trunk_Stairs' file /Server/Item/Items/Wood/Sallow/Wood_Sallow_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Jungle_Trunk_Stairs' file /Server/Item/Items/Wood/Jungle/Wood_Jungle_Trunk_Stairs.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Bottletree_Trunk_Half' file /Server/Item/Items/Wood/Bottletree/Wood_Bottletree_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Birch_Trunk_Half' file /Server/Item/Items/Wood/Birch/Wood_Birch_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Jungle_Trunk_Half' file /Server/Item/Items/Wood/Jungle/Wood_Jungle_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Ash_Trunk_Half' file /Server/Item/Items/Wood/Ash/Wood_Ash_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Fir_Trunk_Half' file /Server/Item/Items/Wood/Fir/Wood_Fir_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Fire_Trunk_Half' file /Server/Item/Items/Wood/Fire/Wood_Fire_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Banyan_Trunk_Half' file /Server/Item/Items/Wood/Banyan/Wood_Banyan_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Azure_Trunk_Half' file /Server/Item/Items/Wood/Azure/Wood_Azure_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Burnt_Trunk_Half' file /Server/Item/Items/Wood/Burnt/Wood_Burnt_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Palo_Trunk_Half' file /Server/Item/Items/Wood/Palo/Wood_Palo_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Wisteria_Wild_Trunk_Half' file /Server/Item/Items/Wood/Wisteria/Wood_Wisteria_Wild_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Fig_Blue_Trunk_Half' file /Server/Item/Items/Wood/Fig_Blue/Wood_Fig_Blue_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Maple_Trunk_Half' file /Server/Item/Items/Wood/Maple/Wood_Maple_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Bamboo_Trunk_Half_Deco' file /Server/Item/Items/Wood/Bamboo/Wood_Bamboo_Trunk_Half_Deco.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Amber_Trunk_Half' file /Server/Item/Items/Wood/Amber/Wood_Amber_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Cedar_Trunk_Half' file /Server/Item/Items/Wood/Cedar/Wood_Cedar_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Redwood_Trunk_Half' file /Server/Item/Items/Wood/Redwood/Wood_Redwood_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Dry_Trunk_Half' file /Server/Item/Items/Wood/Dry/Wood_Dry_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Sallow_Trunk_Half' file /Server/Item/Items/Wood/Sallow/Wood_Sallow_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Spiral_Trunk_Half' file /Server/Item/Items/Wood/Spiral/Wood_Spiral_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Bamboo_Trunk_Half' file /Server/Item/Items/Wood/Bamboo/Wood_Bamboo_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Beech_Trunk_Half' file /Server/Item/Items/Wood/Beech/Wood_Beech_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Gumboab_Trunk_Half' file /Server/Item/Items/Wood/Gumboab/Wood_Gumboab_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Aspen_Trunk_Half' file /Server/Item/Items/Wood/Aspen/Wood_Aspen_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Petrified_Trunk_Half' file /Server/Item/Items/Wood/Petrified/Wood_Petrified_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Crystal_Trunk_Half' file /Server/Item/Items/Wood/Crystal/Wood_Crystal_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Stormbark_Trunk_Half' file /Server/Item/Items/Wood/Stormbark/Wood_Stormbark_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Camphor_Trunk_Half' file /Server/Item/Items/Wood/Camphor/Wood_Camphor_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Windwillow_Trunk_Half' file /Server/Item/Items/Wood/Windwillow/Wood_Windwillow_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Poisoned_Trunk_Half' file /Server/Item/Items/Wood/Poisoned/Wood_Poisoned_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Ice_Trunk_Half' file /Server/Item/Items/Wood/Ice/Wood_Ice_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Unused key(s) in 'Wood_Palm_Trunk_Half' file /Server/Item/Items/Wood/Palm/Wood_Palm_Trunk_Half.json: Recipe.BenchRequirement.0.Set[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Template_Weapon_Crossbow_InteractionVars_Guard_Bash_Interactions_1': Effects, StatModifiers[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Thorium_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Tool_Sickle_Copper_InteractionVars_Swing_Left_Effect_Interactions_0': WorldSoundEventId[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Iron_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Bone_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Wood_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Template_Weapon_Shield_InteractionVars_Guard_Bash_Interactions_1': Effects, StatModifiers[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Cobalt_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Tool_Sickle_Steel_Rusty_InteractionVars_Swing_Left_Effect_Interactions_0': WorldSoundEventId[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Tool_Sickle_Crude_InteractionVars_Swing_Right_Effect_Interactions_0': WorldSoundEventId[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Tool_Sickle_Steel_Rusty_InteractionVars_Swing_Right_Effect_Interactions_0': WorldSoundEventId[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Mithril_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Bo_Bamboo_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Wood_Rotten_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Frost_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Template_Weapon_Shortbow_InteractionVars_Guard_Bash_Interactions_1': Effects, StatModifiers[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Crystal_Red_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Wizard_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Tool_Sickle_Copper_InteractionVars_Swing_Right_Effect_Interactions_0': WorldSoundEventId[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Crystal_Flame_InteractionVars_Fireball_Impact_2_Interactions_0': EntityStatsOnHit[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Shield_Copper_InteractionVars_Guard_Bash_Interactions_0': Effects, StatModifiers[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Crystal_Flame_InteractionVars_Fireball_Impact_3_Interactions_0': EntityStatsOnHit[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Tool_Sickle_Iron_InteractionVars_Swing_Right_Effect_Interactions_0': WorldSoundEventId[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Tool_Sickle_Iron_InteractionVars_Swing_Left_Effect_Interactions_0': WorldSoundEventId[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Cane_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Copper_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Onion_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Halloween_Broomstick_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Doomed_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Adamantite_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Wood_Kweebec_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Crystal_Purple_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Tool_Sickle_Crude_InteractionVars_Swing_Left_Effect_Interactions_0': WorldSoundEventId[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Crystal_Fire_Trork_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Bronze_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Onyxium_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Weapon_Staff_Bo_Wood_InteractionVars_Staff_Cast_Summon_Charged_Interactions_0': Costs[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Soil_Quartzite_Gravel_Half_Interactions_Secondary_Interactions_0': Categories, Set[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '***Plant_Crop_Mushroom_Glowing_Orange_Interactions_Secondary_Interactions_0_Next': Effects[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '***Plant_Crop_Mushroom_Glowing_Green_Interactions_Secondary_Interactions_0_Next': Effects[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '***Plant_Crop_Mushroom_Glowing_Red_Interactions_Secondary_Interactions_0_Next': Effects[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '***Plant_Crop_Mushroom_Glowing_Violet_Interactions_Secondary_Interactions_0_Next': Effects[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '***Plant_Crop_Mushroom_Glowing_Purple_Interactions_Secondary_Interactions_0_Next': Effects[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '***Plant_Crop_Mushroom_Glowing_Blue_Interactions_Secondary_Interactions_0_Next': Effects[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Failed to find inherited parent asset Deco_Bucket (BlockType) for *Deco_Bucket_State_Filled_Mosshorn_Milk[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Failed to find inherited parent asset Deco_Tankard (BlockType) for *Deco_Tankard_State_Filled_Water[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Failed to find inherited parent asset Deco_Bucket (BlockType) for *Deco_Bucket_State_Filled_Water[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Failed to find inherited parent asset Deco_Bucket (BlockType) for *Deco_Bucket_State_Filled_Milk[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Failed to find inherited parent asset Container_Bucket (BlockType) for *Container_Bucket_State_Filled_Water[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Failed to find inherited parent asset Template_Tool_Watering_Can (BlockType) for *Template_Tool_Watering_Can_State_Filled_Water[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Failed to find inherited parent asset Container_Bucket (BlockType) for *Container_Bucket_State_Filled_Mosshorn_Milk[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Failed to find inherited parent asset Deco_Mug (BlockType) for *Deco_Mug_State_Filled_Water[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Failed to find inherited parent asset Container_Bucket (BlockType) for *Container_Bucket_State_Filled_Milk[m
+[33m[2026/05/28 00:30:40   WARN]                [AssetStore|Item] Failed to find inherited parent asset Tool_Watering_Can (BlockType) for *Tool_Watering_Can_State_Filled_Water[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Furniture_Temple_Light_Statue'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Ingredient_Hay'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Wood_Softwood_Planks'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Furniture_Feran_Bed'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Coop_Chicken'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Gate'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Gate_Open_In'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Gate_Open_Out'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Thin'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Thick'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Corner'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Corner_Thin'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find hitbox name 'Fence_Corner_Thick'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Furniture_Crude_Bed'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Grass'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Dirt'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Dirt_Poisoned'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Mud'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Deco_Bone_Pile'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Deco_Bone_Skulls'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Gravel_Sand'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Dirt'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Soil_Clay'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Rock_Stone'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Rock_Marble'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Rock_Chalk'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Ingredient_Hay'[m
+[33m[2026/05/28 00:30:40   WARN]               [BlockSetModule|P] Creating block sets: Failed to find block name 'Bench_Trough'[m
+[m[2026/05/28 00:30:40   INFO]                   [ItemModule|P] Computed damage data for 0 of 0 weapon items[m
+[33m[2026/05/28 00:30:40   WARN]           [AssetStore|BlockType] Unused key(s) in 'Debug_Falling_Explosive': ExplosionConfig.Knockback.VelocityConfig.Direction[m
+[33m[2026/05/28 00:30:40   WARN]           [AssetStore|BlockType] Unused key(s) in 'Coop_Chicken': State.Id[m
+[33m[2026/05/28 00:30:40   WARN]           [AssetStore|BlockType] Unused key(s) in 'Soil_Dirt_Tilled': State.Id[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Portal_Device_Interactions_Use_Interactions_0': Page.Config.GameplayConfig[m
+[33m[2026/05/28 00:30:40   WARN]         [AssetStore|Interaction] Unused key(s) in '**Teleporter_Interactions_Use_Interactions_0': Page.ActiveState, Page.WarpNameWordList[m
+[33m[2026/05/28 00:30:40   WARN]           [AssetStore|BlockType] Unused key(s) in '*Prototype_Geyser_State_Definitions_Off': SoundEventId[m
+[33m[2026/05/28 00:30:40   WARN]           [AssetStore|BlockType] Unused key(s) in '*Prototype_Geyser_State_Definitions_On': SoundEventId[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '***Teleporter_State_Definitions_Active_Interactions_Use_Interactions_0': Page.ActiveState, Page.WarpNameWordList[m
+[m[2026/05/28 00:30:41   INFO]                   [ItemModule|P] Computed damage data for 216 of 255 weapon items[m
+[33m[2026/05/28 00:30:41   WARN]      [AssetStore|GameplayConfig] Unused key(s) in 'Default' file /Server/GameplayConfigs/Default.json: Ping[m
+[33m[2026/05/28 00:30:41   WARN]      [AssetStore|GameplayConfig] Unused key(s) in 'Default_Instance' file /Server/GameplayConfigs/Default_Instance.json: Death.LoseItems[m
+[33m[2026/05/28 00:30:41   WARN]               [AssetStore|Fluid] Unused key(s) in 'Tar_Source' file /Server/Item/Block/Fluids/Tar_Source.json: PhysicalMaterialId[m
+[33m[2026/05/28 00:30:41   WARN]               [AssetStore|Fluid] Unused key(s) in 'Slime_Red_Source' file /Server/Item/Block/Fluids/Slime_Red_Source.json: PhysicalMaterialId[m
+[33m[2026/05/28 00:30:41   WARN]               [AssetStore|Fluid] Unused key(s) in 'Poison_Source' file /Server/Item/Block/Fluids/Poison_Source.json: PhysicalMaterialId[m
+[33m[2026/05/28 00:30:41   WARN]               [AssetStore|Fluid] Unused key(s) in 'Slime_Source' file /Server/Item/Block/Fluids/Slime_Source.json: PhysicalMaterialId[m
+[m[2026/05/28 00:30:41   INFO]            [AssetRegistryLoader] Took 5sec 892ms 27us 300ns to load all assets[m
+[m[2026/05/28 00:30:41   INFO]                         [Hytale] Loading assets from: C:\Users\Ross\Desktop\DruidFormsV1\out\production\resources\Server[m
+[m[2026/05/28 00:30:41   INFO]            [AssetRegistryLoader] Loading assets from C:\Users\Ross\Desktop\DruidFormsV1\out\production\resources\Server[m
+[33m[2026/05/28 00:30:41   WARN]                [AssetStore|Item] Failed to validate asset!
+Id: Druid_Shrine
+Path: C:\Users\Ross\Desktop\DruidFormsV1\out\production\resources\Server\Item\Items\Bench\Druid_Shrine.json
+Key: Recipe
+Results:
+	WARNING: Bench Requirement in recipe for 'Fieldcraft' should not have a delay (TimeSeconds) set!
+[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Primal_Shark_Tooth_InteractionVars_Swing_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Primal_Shark_Tooth_InteractionVars_Swing_Right_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Verdant_Shark_Tooth_InteractionVars_Vortexstrike_Stab_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Primal_Shark_Tooth_InteractionVars_Vortexstrike_Stab_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Primal_Bear_Skin_InteractionVars_Swing_Right_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Verdant_Tiger_Claw_InteractionVars_Stab_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Elder_Tiger_Claw_InteractionVars_Stab_Right_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Bear_Skin_InteractionVars_Swing_Right_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Elder_Shark_Tooth_InteractionVars_Thrust_Damage_Interactions_0': EntityStatsOnHit.1.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Elder_Bear_Skin_InteractionVars_Swing_Up_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Elder_Bear_Skin_InteractionVars_Swing_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Verdant_Shark_Tooth_InteractionVars_Swing_Down_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Verdant_Bear_Skin_InteractionVars_Swing_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Primal_Tiger_Claw_InteractionVars_Swing_Right_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Tiger_Claw_InteractionVars_Swing_Right_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Verdant_Tiger_Claw_InteractionVars_Pounce_Sweep_Damage_Interactions_0': EntityStatsOnHit.1.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Primal_Tiger_Claw_InteractionVars_Pounce_Sweep_Damage_Interactions_0': EntityStatsOnHit.1.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Elder_Tiger_Claw_InteractionVars_Swing_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Bear_Skin_InteractionVars_Swing_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Elder_Bear_Skin_InteractionVars_Groundslam_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Elder_Shark_Tooth_InteractionVars_Swing_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Shark_Tooth_InteractionVars_Swing_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Shark_Tooth_InteractionVars_Vortexstrike_Spin_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Elder_Tiger_Claw_InteractionVars_Swing_Right_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Verdant_Tiger_Claw_InteractionVars_Swing_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Elder_Tiger_Claw_InteractionVars_Pounce_Sweep_Damage_Interactions_0': EntityStatsOnHit.1.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Elder_Shark_Tooth_InteractionVars_Swing_Right_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Shark_Tooth_InteractionVars_Swing_Down_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Verdant_Shark_Tooth_InteractionVars_Swing_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Elder_Bear_Skin_InteractionVars_Swing_Right_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Primal_Tiger_Claw_InteractionVars_Stab_Right_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Tiger_Claw_InteractionVars_Pounce_Sweep_Damage_Interactions_0': EntityStatsOnHit.1.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Primal_Tiger_Claw_InteractionVars_Stab_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Tiger_Claw_InteractionVars_Stab_Right_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Verdant_Tiger_Claw_InteractionVars_Stab_Right_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Verdant_Shark_Tooth_InteractionVars_Swing_Right_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Bear_Skin_InteractionVars_Groundslam_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Verdant_Shark_Tooth_InteractionVars_Vortexstrike_Spin_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Primal_Shark_Tooth_InteractionVars_Vortexstrike_Spin_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Verdant_Tiger_Claw_InteractionVars_Swing_Right_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Primal_Bear_Skin_InteractionVars_Swing_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Primal_Shark_Tooth_InteractionVars_Swing_Down_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Bear_Skin_InteractionVars_Swing_Up_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Elder_Shark_Tooth_InteractionVars_Vortexstrike_Spin_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Shark_Tooth_InteractionVars_Swing_Right_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Elder_Tiger_Claw_InteractionVars_Stab_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Tiger_Claw_InteractionVars_Stab_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Verdant_Bear_Skin_InteractionVars_Swing_Up_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Elder_Shark_Tooth_InteractionVars_Vortexstrike_Stab_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Shark_Tooth_InteractionVars_Vortexstrike_Stab_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Primal_Tiger_Claw_InteractionVars_Swing_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Tiger_Claw_InteractionVars_Swing_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Primal_Bear_Skin_InteractionVars_Swing_Up_Left_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Shark_Tooth_InteractionVars_Thrust_Damage_Interactions_0': EntityStatsOnHit.1.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Elder_Shark_Tooth_InteractionVars_Swing_Down_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Verdant_Shark_Tooth_InteractionVars_Thrust_Damage_Interactions_0': EntityStatsOnHit.1.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Primal_Bear_Skin_InteractionVars_Groundslam_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Primal_Shark_Tooth_InteractionVars_Thrust_Damage_Interactions_0': EntityStatsOnHit.1.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Verdant_Bear_Skin_InteractionVars_Swing_Right_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]         [AssetStore|Interaction] Unused key(s) in '**Verdant_Bear_Skin_InteractionVars_Groundslam_Damage_Interactions_0': EntityStatsOnHit.0.Target[m
+[33m[2026/05/28 00:30:41   WARN]           [AssetStore|BlockType] Unused key(s) in 'Druid_Shrine': State.Id[m
+[m[2026/05/28 00:30:41   INFO]                   [ItemModule|P] Computed damage data for 12 of 12 weapon items[m
+[m[2026/05/28 00:30:42   INFO]            [AssetRegistryLoader] Took 265ms 9us 200ns to load all assets[m
+[m[2026/05/28 00:30:42   INFO]                         [Hytale] Loading NPC assets phase...[m
+[m[2026/05/28 00:30:42   INFO]                          [NPC|P] Starting to load NPC builders![m
+[33m[2026/05/28 00:30:42   WARN]                          [NPC|P] Replacing asset 'Test_Patrol_Path' of file '/Server/NPC/Roles/_Core/Tests_Development/Test_Patrol_Path.json' with other file '/Server/NPC/Roles/_Core/Tests/Paths/Test_Patrol_Path.json'[m
+[m[2026/05/28 00:30:44   INFO]                          [NPC|P] Validating loaded NPC configurations...[m
+[33m[2026/05/28 00:30:44   WARN]                          [NPC|P] Animation Eat does not exist for model Trillodon![m
+[33m[2026/05/28 00:30:44   WARN]                          [NPC|P] Animation Alerted does not exist for model Kweebec_Rootling![m
+[33m[2026/05/28 00:30:44   WARN]                          [NPC|P] Animation Moo does not exist for model Bison_Calf![m
+[33m[2026/05/28 00:30:44   WARN]                          [NPC|P] Animation Eat does not exist for model Lizard_Sand![m
+[33m[2026/05/28 00:30:44   WARN]                          [NPC|P] Animation Swipe does not exist for model Goblin_Ogre![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Throw does not exist for model Goblin_Ogre![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Alerted does not exist for model Scarak_Broodmother![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Alerted does not exist for model Scarak_Broodmother![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Alerted does not exist for model Scarak_Broodmother![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Sleep does not exist for model Wraith_Lantern![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Alerted does not exist for model Wraith_Lantern![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Laydown does not exist for model Wraith_Lantern![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Wake does not exist for model Wraith_Lantern![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Eat does not exist for model Spark_Living![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Swipe does not exist for model Goblin![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Sleep does not exist for model Slug_Magma![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Alerted does not exist for model Slug_Magma![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Laydown does not exist for model Slug_Magma![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Wake does not exist for model Slug_Magma![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Idle does not exist for model Tuluk_Fisherman![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Eat does not exist for model Hatworm![m
+[m[2026/05/28 00:30:44   INFO] [NPC|P] Validation complete.[m
+[m[2026/05/28 00:30:44   INFO] [NPC|P] Loaded 973 NPC configurations, Test: 261, Component: 144, Abstract: 53, Variant: 456, Generic: 61[m
+[m[2026/05/28 00:30:44   INFO] [NPC|P] Starting to load NPC builders![m
+[m[2026/05/28 00:30:44   INFO] [NPC|P] Validating loaded NPC configurations...[m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Eat does not exist for model Trillodon![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Alerted does not exist for model Kweebec_Rootling![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Moo does not exist for model Bison_Calf![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Eat does not exist for model Lizard_Sand![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Swipe does not exist for model Goblin_Ogre![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Throw does not exist for model Goblin_Ogre![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Alerted does not exist for model Scarak_Broodmother![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Alerted does not exist for model Scarak_Broodmother![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Alerted does not exist for model Scarak_Broodmother![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Sleep does not exist for model Wraith_Lantern![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Alerted does not exist for model Wraith_Lantern![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Laydown does not exist for model Wraith_Lantern![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Wake does not exist for model Wraith_Lantern![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Eat does not exist for model Spark_Living![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Swipe does not exist for model Goblin![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Sleep does not exist for model Slug_Magma![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Alerted does not exist for model Slug_Magma![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Laydown does not exist for model Slug_Magma![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Wake does not exist for model Slug_Magma![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Idle does not exist for model Tuluk_Fisherman![m
+[33m[2026/05/28 00:30:44   WARN] [NPC|P] Animation Eat does not exist for model Hatworm![m
+[m[2026/05/28 00:30:44   INFO] [NPC|P] Validation complete.[m
+[m[2026/05/28 00:30:45   INFO] [NPC|P] Loaded 973 NPC configurations[m
+[m[2026/05/28 00:30:45   INFO] [Hytale] Loading NPC assets phase completed! Boot time 16sec 94ms 300us 400ns, Took 2sec 988ms 913us 800ns[m
+[m[2026/05/28 00:30:45   INFO] [Hytale] Validating Spawn assets phase...[m
+[m[2026/05/28 00:30:45   INFO] [Hytale] Spawn assets validation phase completed! Boot time 16sec 96ms 461us, Took 1ms 977us 300ns[m
+[m[2026/05/28 00:30:45   INFO] [HytaleServer] Starting plugin manager...[m
+[m[2026/05/28 00:30:45   INFO] [PluginManager] Enabled plugin Hytale:AccessControlModule[m
+[m[2026/05/28 00:30:45   INFO] [PluginManager] Enabled plugin Hytale:AnchorActionModule[m
+[m[2026/05/28 00:30:45   INFO] [PluginManager] Enabled plugin Hytale:AssetModule[m
+[m[2026/05/28 00:30:45   INFO] [PluginManager] Enabled plugin Hytale:BlockSetModule[m
+[m[2026/05/28 00:30:45   INFO] [PluginManager] Enabled plugin Hytale:CollisionModule[m
+[m[2026/05/28 00:30:45   INFO] [PluginManager] Enabled plugin Hytale:CommandMacro[m
+[m[2026/05/28 00:30:45   INFO] [PluginManager] Enabled plugin Hytale:ConsoleModule[m
+[m[2026/05/28 00:30:45   INFO] [PluginManager] Enabled plugin Hytale:CosmeticsModule[m
+[m[2026/05/28 00:30:45   INFO] [PluginManager] Enabled plugin Hytale:CrouchSlide[m
+[m[2026/05/28 00:30:45   INFO] [PluginManager] Enabled plugin Hytale:DebugPlugin[m
+[m[2026/05/28 00:30:45   INFO] [PluginManager] Enabled plugin Hytale:DiscoveryModule[m
+[m[2026/05/28 00:30:45   INFO] [HytaleGenerator] Using 7 out of 8 available threads.[m
+[m[2026/05/28 00:30:45   INFO]   [PluginManager] Enabled plugin Hytale:HytaleGenerator[m
+[m[2026/05/28 00:30:45   INFO]   [PluginManager] Enabled plugin Hytale:ItemModule[m
+[m[2026/05/28 00:30:45   INFO]   [PluginManager] Enabled plugin Hytale:LANDiscovery[m
+[m[2026/05/28 00:30:45   INFO]   [PluginManager] Enabled plugin Hytale:LegacyModule[m
+[m[2026/05/28 00:30:45   INFO] [LiveConfigModule] LiveConfig starting (patchline=release, os=windows, arch=amd64)[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:LiveConfigModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Mantling[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:MigrationModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:PermissionsModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:SafetyRoll[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:ServerManager[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:SplitVelocity[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:SprintForce[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:TagSet[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:TimeModule[m
+[m[2026/05/28 00:30:45   INFO]  [ServerManager|P] Listening on /[0:0:0:0:0:0:0:0]:5520 and took 4ms 555us 100ns[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Universe[m
+[33m[2026/05/28 00:30:45   WARN]     [UpdateModule] Update checker disabled: invalid folder layout. Expected to run from Server/ with Assets.zip and start.sh/bat in parent directory.[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:UpdateModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:WorldLocationCondition[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:BlockHealthModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:BlockModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:BlockTick[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:BlockTypeModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:CommonAssetModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:EntityModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:FlyCameraModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:I18nModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Model[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:RandomTick[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:ServerPlayerListModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:TelemetryModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Ambience[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:AssetEditor[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Audio[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:FallingBlocks[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Fluid[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:InteractionModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Parkour[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:PrefabSpawnerModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:ProjectileModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Reputation[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Stash[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Teleport[m
+[m[2026/05/28 00:30:45   INFO]    [VoiceModule|P] [Voice] Started position cache update task (100ms interval)[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:VoiceModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Weather[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:WorldGen[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:BlockPhysics[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:BuilderTools[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:ConnectedBlocksModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Crafting[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Deployables[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:EntityStatsModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Locate[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Objectives[m
+[m[2026/05/28 00:30:45   INFO]  [ServerManager|P] Listening on /0.0.0.0:5520 and took 11ms 328us 300ns[m
+[m[2026/05/28 00:30:45   INFO]  [BarterShopState] No saved barter shop state found, starting fresh[m
+[m[2026/05/28 00:30:45   INFO]           [Shop|P] Barter shop state initialized[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Shop[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:SingleplayerModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Teleporter[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:BlockSpawner[m
+[m[2026/05/28 00:30:45   INFO]  [ServerManager|P] Listening on /[0:0:0:0:0:0:0:1]:5520 and took 4ms 213us 900ns[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:EntityUIModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Farming[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Instances[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:ObjectiveReputation[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:ObjectiveShop[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Path[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:ShopReputation[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:StaminaModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:CreativeHub[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:DamageModule[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Camera[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:NPC[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Flock[m
+[m[2026/05/28 00:30:45   INFO]    [World|default] Loading world 'default' with generator type: 'HytaleWorldGenProvider{name='Default', version=0.0.0, path='null'}' and chunk storage: 'DefaultChunkStorageProvider{DEFAULT=IndexedStorageChunkStorageProvider{}}'...[m
+[m[2026/05/28 00:30:45   INFO]    [World|default] Added world 'default' - Seed: 1779928178762, GameTime: 0001-01-01T05:30:00Z[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Memories[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Mounts[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:NPCCombatActionEvaluator[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:NPCEditor[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:NPCReputation[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:NPCShop[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Portals[m
+[33m[2026/05/28 00:30:45   WARN]       [Spawning|P] NPCSpawn Spawns_Zone2_Fish_Shores references multiple times NPC Jellyfish_Blue. Ignoring all but first.[m
+[33m[2026/05/28 00:30:45   WARN]       [Spawning|P] NPCSpawn Wander_Zone2_Tier2 references multiple times NPC Skeleton_Sand_Guard_Wander. Ignoring all but first.[m
+[m[2026/05/28 00:30:45   INFO]       [Spawning|P] Successfully set up 96 world spawn configurations[m
+[m[2026/05/28 00:30:45   INFO]       [Spawning|P] Successfully set up 84 beacon spawn configurations[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Spawning[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:TriggerVolumes[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:Beds[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin Hytale:NPCObjectives[m
+[m[2026/05/28 00:30:45   INFO]    [PluginManager] Enabled plugin druid:Druid Forms[m
+[m[2026/05/28 00:30:45   INFO]     [HytaleServer] Plugin manager started! Startup time so far: 16sec 173ms 741us 900ns[m
+[m[2026/05/28 00:30:45   INFO]     [HytaleServer] Getting Hytale Universe ready...[m
+[m[2026/05/28 00:30:45   INFO]   [WorldGenerator] Loading world-gen with the following asset-packs (highest priority first):[m
+[m[2026/05/28 00:30:45   INFO]   [WorldGenerator] - [  0] Hytale:Hytale:0.0.0 - [C:\Users\Ross\AppData\Roaming\Hytale\install\release\package\game\latest\Assets.zip][m
+[m[2026/05/28 00:30:45   INFO]   [WorldGenerator] Set prefab-loader config: path=/Server/World/Default, store=ASSETS[m
+[m[2026/05/28 00:30:47   INFO]   [WorldGenerator] Initialized ChunkGenerator-0 executor[m
+[m[2026/05/28 00:30:47   INFO]   [WorldGenerator] Found location for unique zone 'Zone1_Spawn' -> Position: {151, 130}, Score: 55.50%, Time: 12ms[m
+[m[2026/05/28 00:30:47   INFO]   [WorldGenerator] Found location for unique zone 'Zone1_Temple' -> Position: {369, 10}, Score: 73.67%, Time: 0ms[m
+[m[2026/05/28 00:30:48   INFO]  [World|default|M] Initializing world map generator: com.hypixel.hytale.server.worldgen.map.GeneratorChunkWorldMap@541bf944[m
+[m[2026/05/28 00:30:48   INFO]  [World|default|M] Generating Points of Interest...[m
+[m[2026/05/28 00:30:48   INFO]  [World|default|M] Finished Generating Points of Interest![m
+[m[2026/05/28 00:30:48   INFO] [TriggerVolumesPlugin] Loaded 0 trigger volumes and 0 groups for world 'default'[m
+[m[2026/05/28 00:30:48   INFO]           [Teleport|P] Loaded 0 warps (No warps.json found)[m
+[m[2026/05/28 00:30:48   INFO]         [HytaleServer] Universe ready![m
+[m[2026/05/28 00:30:48   INFO]      [TelemetryModule] Sending server start telemetry...[m
+[m[2026/05/28 00:30:48   INFO]        [AssetModule|P] Total Loaded Assets: Interaction: 7543, BlockType: 5755, RootInteraction: 5608, Item: 3799, CraftingRecipe: 1964, ParticleSpawner: 1658, SoundEvent: 1178, ItemDropList: 958, ParticleSystem: 571, MusicContainer: 543, ModelAsset: 439, BlockBoundingBoxes: 245, SpawnMarker: 244, Condition: 234, AmbienceFX: 207, ResourceType: 181, ItemPlayerAnimations: 179, TagPattern: 176, EntityEffect: 170, Environment: 123, AssignmentsAsset: 118, ProjectileConfig: 111, AudioCategory: 100, WorldNPCSpawn: 96, CombatActionOption: 89, Weather: 88, Projectile: 87, BeaconNPCSpawn: 84, PrefabListAsset: 77, NPCGroup: 71, BiomeAsset: 70, Trail: 59, FlockAsset: 58, BlockSet: 57, BlockSoundSet: 55, CameraShake: 49, CameraEffect: 49, BalanceAsset: 49, BlockSpawnerTable: 46, BlockGroup: 43, ScriptedBrushAsset: 39, ItemSoundSet: 36, ModelVFX: 33, BlockParticleSet: 30, ReverbEffect: 29, AttitudeGroup: 26, ItemToolSpec: 17, Fluid: 16, DamageCause: 15, WorldStructureAsset: 15, BlockTypeListAsset: 13, EntityStatType: 13, ItemQuality: 12, ViewBobbing: 12, ObjectiveAsset: 12, PhysicalMaterial: 12, ResponseCurve: 12, MacroCommandBuilder: 11, CustomConnectedBlockTemplateAsset: 11, BlockMigration: 11, DensityAsset: 10, PortalType: 5, GameplayConfig: 5, FluidFX: 5, BlockBreakingDecal: 4, GrowthModifierAsset: 4, ItemCategory: 4, ObjectiveLocationMarkerAsset: 4, MovementConfig: 3, SpawnSuppression: 3, UnarmedInteractions: 3, ItemReticleConfig: 3, EqualizerEffect: 3, ObjectiveLineAsset: 2, RepulsionConfig: 2, EntityUIComponent: 2, GameModeType: 2, BarterShopAsset: 2, HitboxCollisionConfig: 2, AudioState: 2, SoundSet: 2, WordList: 1, PositionProviderAsset: 1, TriggerEffectAsset: 1, FarmingCoopAsset: 1, PropDistributionAsset: 1, ItemAttitudeGroup: 1, PropAsset: 1, BuilderToolItemReferenceAsset: 1, FieldcraftCategory: 1, ReachLocationMarkerAsset: 1, SettingsAsset: 1, PrefabEditorCreationSettings: 1, EmoteAsset: 0, WorldGenModifier: 0, ShopAsset: 0, BlockMaskAsset: 0, DeployableSpawner: 0, ReputationRank: 0, ReputationGroup: 0[m
+[m[2026/05/28 00:30:48   INFO]         [HytaleServer] [0;32m===============================================================================================[m
+[m[2026/05/28 00:30:48   INFO]         [HytaleServer] [0;32m         Hytale Server Booted! [Multiplayer] took 19sec 590ms 139us 700ns[m
+[m[2026/05/28 00:30:48   INFO]         [HytaleServer] [0;32m===============================================================================================[m
+[33m[2026/05/28 00:30:48   WARN]         [HytaleServer] [0;31mNo server tokens configured. Use /auth login to authenticate.[m
+[m[2026/05/28 00:35:43   INFO]        [QUICTransport] Received connection from QuicConnectionAddress{connId=52b2144dd32225edcc3baf37d918b26f} (/[0:0:0:0:0:0:0:1]:65332) to QuicConnectionAddress{connId=cf2b921d3b2602dfdd31abc69b3deea4f41e2f26} (/[0:0:0:0:0:0:0:1]:5520) (SNI: localhost)[m
+[m[2026/05/28 00:35:49   INFO]               [Hytale] Received stream 0 from QuicConnectionAddress{connId=cf2b921d3b2602dfdd31abc69b3deea4f41e2f26} (/[0:0:0:0:0:0:0:1]:65332, streamId=0) to QuicConnectionAddress{connId=cf2b921d3b2602dfdd31abc69b3deea4f41e2f26} (/[0:0:0:0:0:0:0:1]:5520, streamId=0)[m
+[36m[2026/05/28 00:35:49 FINEST]          [LoginTiming] [{Initial(QuicConnectionAddress{connId=cf2b921d3b2602dfdd31abc69b3deea4f41e2f26} (/[0:0:0:0:0:0:0:1]:65332, streamId=0))}] Entering stage 'initial'[m
+[35m[2026/05/28 00:35:49   FINE]          [LoginTiming] [{Initial(QuicConnectionAddress{connId=cf2b921d3b2602dfdd31abc69b3deea4f41e2f26} (/[0:0:0:0:0:0:0:1]:65332, streamId=0))}] Registered took 430us 800ns[m
+[35m[2026/05/28 00:35:49   FINE]          [LoginTiming] [{Initial(QuicConnectionAddress{connId=cf2b921d3b2602dfdd31abc69b3deea4f41e2f26} (/[0:0:0:0:0:0:0:1]:65332, streamId=0))}] Connect took 264ms 989us 100ns[m
+[36m[2026/05/28 00:35:49 FINEST]          [LoginTiming] [{Initial(QuicConnectionAddress{connId=cf2b921d3b2602dfdd31abc69b3deea4f41e2f26} (/[0:0:0:0:0:0:0:1]:65332, streamId=0))}] Entering stage 'initial:insecure-options' took 2ms 237us 400ns[m
+[m[2026/05/28 00:35:49   INFO]               [Hytale] Starting development flow for RD1 (0ae147d0-ff29-43d1-b7df-4d3207ef02ce) from QuicConnectionAddress{connId=cf2b921d3b2602dfdd31abc69b3deea4f41e2f26} (/[0:0:0:0:0:0:0:1]:65332, streamId=0)[m
+[m[2026/05/28 00:35:49   INFO] [PasswordPacketHandler] Connection complete for RD1 (0ae147d0-ff29-43d1-b7df-4d3207ef02ce) (SNI: localhost), transitioning to setup[m
+[36m[2026/05/28 00:35:49 FINEST]           [LoginTiming] [{Setup(QuicConnectionAddress{connId=cf2b921d3b2602dfdd31abc69b3deea4f41e2f26} (/[0:0:0:0:0:0:0:1]:65332, streamId=0)), RD1, 0ae147d0-ff29-43d1-b7df-4d3207ef02ce}] Entering stage 'setup:world-settings' took 5ms 739us 100ns[m
+[35m[2026/05/28 00:35:49   FINE]           [LoginTiming] [{Setup(QuicConnectionAddress{connId=cf2b921d3b2602dfdd31abc69b3deea4f41e2f26} (/[0:0:0:0:0:0:0:1]:65332, streamId=0)), RD1, 0ae147d0-ff29-43d1-b7df-4d3207ef02ce}] Load Player Config took 1ms 410us 500ns[m
+[36m[2026/05/28 00:35:49 FINEST]           [LoginTiming] [{Setup(QuicConnectionAddress{connId=cf2b921d3b2602dfdd31abc69b3deea4f41e2f26} (/[0:0:0:0:0:0:0:1]:65332, streamId=0)), RD1, 0ae147d0-ff29-43d1-b7df-4d3207ef02ce}] Entering stage 'setup:assets-request' took 138ms 666us 200ns[m
+[m[2026/05/28 00:35:50   INFO]                [Hytale] {Setup(null (null, streamId=0)), RD1, 0ae147d0-ff29-43d1-b7df-4d3207ef02ce} was closed.[m
+[m[2026/05/28 00:35:50   INFO]         [QUICTransport] Connection closed: QuicheQuicConnectionStats[recv=72, sent=387, lost=0, retrans=0, sentBytes=434607, recvBytes=21972, lostBytes=0, streamRetransBytes=0, pathsCount=1][m
+[m[2026/05/28 00:38:44   INFO]         [QUICTransport] Received connection from QuicConnectionAddress{connId=15b490fdcffff67ab1bb3f0e5ff055cf} (/[0:0:0:0:0:0:0:1]:52352) to QuicConnectionAddress{connId=bffa5220cef95246752b888594833edb2ade2627} (/[0:0:0:0:0:0:0:1]:5520) (SNI: localhost)[m
+[m[2026/05/28 00:38:50   INFO]                [Hytale] Received stream 0 from QuicConnectionAddress{connId=bffa5220cef95246752b888594833edb2ade2627} (/[0:0:0:0:0:0:0:1]:52352, streamId=0) to QuicConnectionAddress{connId=bffa5220cef95246752b888594833edb2ade2627} (/[0:0:0:0:0:0:0:1]:5520, streamId=0)[m
+[36m[2026/05/28 00:38:50 FINEST]           [LoginTiming] [{Initial(QuicConnectionAddress{connId=bffa5220cef95246752b888594833edb2ade2627} (/[0:0:0:0:0:0:0:1]:52352, streamId=0))}] Entering stage 'initial'[m
+[35m[2026/05/28 00:38:50   FINE]           [LoginTiming] [{Initial(QuicConnectionAddress{connId=bffa5220cef95246752b888594833edb2ade2627} (/[0:0:0:0:0:0:0:1]:52352, streamId=0))}] Registered took 170us 700ns[m
+[35m[2026/05/28 00:38:50   FINE]           [LoginTiming] [{Initial(QuicConnectionAddress{connId=bffa5220cef95246752b888594833edb2ade2627} (/[0:0:0:0:0:0:0:1]:52352, streamId=0))}] Connect took 459us 700ns[m
+[36m[2026/05/28 00:38:50 FINEST]           [LoginTiming] [{Initial(QuicConnectionAddress{connId=bffa5220cef95246752b888594833edb2ade2627} (/[0:0:0:0:0:0:0:1]:52352, streamId=0))}] Entering stage 'initial:insecure-options' took 377us 400ns[m
+[m[2026/05/28 00:38:50   INFO]                [Hytale] Starting development flow for RD1 (0ae147d0-ff29-43d1-b7df-4d3207ef02ce) from QuicConnectionAddress{connId=bffa5220cef95246752b888594833edb2ade2627} (/[0:0:0:0:0:0:0:1]:52352, streamId=0)[m
+[m[2026/05/28 00:38:50   INFO] [PasswordPacketHandler] Connection complete for RD1 (0ae147d0-ff29-43d1-b7df-4d3207ef02ce) (SNI: localhost), transitioning to setup[m
+[36m[2026/05/28 00:38:50 FINEST]           [LoginTiming] [{Setup(QuicConnectionAddress{connId=bffa5220cef95246752b888594833edb2ade2627} (/[0:0:0:0:0:0:0:1]:52352, streamId=0)), RD1, 0ae147d0-ff29-43d1-b7df-4d3207ef02ce}] Entering stage 'setup:world-settings' took 2ms 193us 800ns[m
+[35m[2026/05/28 00:38:50   FINE]           [LoginTiming] [{Setup(QuicConnectionAddress{connId=bffa5220cef95246752b888594833edb2ade2627} (/[0:0:0:0:0:0:0:1]:52352, streamId=0)), RD1, 0ae147d0-ff29-43d1-b7df-4d3207ef02ce}] Load Player Config took 213us 500ns[m
+[36m[2026/05/28 00:38:50 FINEST]           [LoginTiming] [{Setup(QuicConnectionAddress{connId=bffa5220cef95246752b888594833edb2ade2627} (/[0:0:0:0:0:0:0:1]:52352, streamId=0)), RD1, 0ae147d0-ff29-43d1-b7df-4d3207ef02ce}] Entering stage 'setup:assets-request' took 45ms 801us 100ns[m
+[m[2026/05/28 00:38:50   INFO]                [Hytale] {Setup(null (null, streamId=0)), RD1, 0ae147d0-ff29-43d1-b7df-4d3207ef02ce} was closed.[m
+[m[2026/05/28 00:38:50   INFO]         [QUICTransport] Connection closed: QuicheQuicConnectionStats[recv=63, sent=1077, lost=0, retrans=0, sentBytes=1261803, recvBytes=20325, lostBytes=0, streamRetransBytes=0, pathsCount=1][m
+[m[2026/05/28 00:38:59   INFO]         [QUICTransport] Received connection from QuicConnectionAddress{connId=f5e59b65959e2c38535134f64b8681dc} (/[0:0:0:0:0:0:0:1]:59478) to QuicConnectionAddress{connId=952159e02156c7b64cd610d9b6a8b777b6651b60} (/[0:0:0:0:0:0:0:1]:5520) (SNI: localhost)[m
+[m[2026/05/28 00:39:06   INFO]                [Hytale] Received stream 0 from QuicConnectionAddress{connId=952159e02156c7b64cd610d9b6a8b777b6651b60} (/[0:0:0:0:0:0:0:1]:59478, streamId=0) to QuicConnectionAddress{connId=952159e02156c7b64cd610d9b6a8b777b6651b60} (/[0:0:0:0:0:0:0:1]:5520, streamId=0)[m
+[36m[2026/05/28 00:39:06 FINEST]           [LoginTiming] [{Initial(QuicConnectionAddress{connId=952159e02156c7b64cd610d9b6a8b777b6651b60} (/[0:0:0:0:0:0:0:1]:59478, streamId=0))}] Entering stage 'initial'[m
+[35m[2026/05/28 00:39:06   FINE]           [LoginTiming] [{Initial(QuicConnectionAddress{connId=952159e02156c7b64cd610d9b6a8b777b6651b60} (/[0:0:0:0:0:0:0:1]:59478, streamId=0))}] Registered took 138us 100ns[m
+[35m[2026/05/28 00:39:06   FINE]           [LoginTiming] [{Initial(QuicConnectionAddress{connId=952159e02156c7b64cd610d9b6a8b777b6651b60} (/[0:0:0:0:0:0:0:1]:59478, streamId=0))}] Connect took 416us 900ns[m
+[36m[2026/05/28 00:39:06 FINEST]           [LoginTiming] [{Initial(QuicConnectionAddress{connId=952159e02156c7b64cd610d9b6a8b777b6651b60} (/[0:0:0:0:0:0:0:1]:59478, streamId=0))}] Entering stage 'initial:insecure-options' took 293us 200ns[m
+[m[2026/05/28 00:39:06   INFO]                [Hytale] Starting development flow for RD1 (0ae147d0-ff29-43d1-b7df-4d3207ef02ce) from QuicConnectionAddress{connId=952159e02156c7b64cd610d9b6a8b777b6651b60} (/[0:0:0:0:0:0:0:1]:59478, streamId=0)[m
+[m[2026/05/28 00:39:06   INFO] [PasswordPacketHandler] Connection complete for RD1 (0ae147d0-ff29-43d1-b7df-4d3207ef02ce) (SNI: localhost), transitioning to setup[m
+[36m[2026/05/28 00:39:06 FINEST]           [LoginTiming] [{Setup(QuicConnectionAddress{connId=952159e02156c7b64cd610d9b6a8b777b6651b60} (/[0:0:0:0:0:0:0:1]:59478, streamId=0)), RD1, 0ae147d0-ff29-43d1-b7df-4d3207ef02ce}] Entering stage 'setup:world-settings' took 2ms 951us 100ns[m
+[35m[2026/05/28 00:39:06   FINE]           [LoginTiming] [{Setup(QuicConnectionAddress{connId=952159e02156c7b64cd610d9b6a8b777b6651b60} (/[0:0:0:0:0:0:0:1]:59478, streamId=0)), RD1, 0ae147d0-ff29-43d1-b7df-4d3207ef02ce}] Load Player Config took 164us 100ns[m
+[36m[2026/05/28 00:39:06 FINEST]           [LoginTiming] [{Setup(QuicConnectionAddress{connId=952159e02156c7b64cd610d9b6a8b777b6651b60} (/[0:0:0:0:0:0:0:1]:59478, streamId=0)), RD1, 0ae147d0-ff29-43d1-b7df-4d3207ef02ce}] Entering stage 'setup:assets-request' took 42ms 894us 400ns[m
+[m[2026/05/28 00:39:07   INFO]                [Hytale] {Setup(null (null, streamId=0)), RD1, 0ae147d0-ff29-43d1-b7df-4d3207ef02ce} was closed.[m
+[m[2026/05/28 00:39:07   INFO]         [QUICTransport] Connection closed: QuicheQuicConnectionStats[recv=85, sent=1079, lost=0, retrans=1, sentBytes=1262141, recvBytes=21316, lostBytes=0, streamRetransBytes=169, pathsCount=1][m

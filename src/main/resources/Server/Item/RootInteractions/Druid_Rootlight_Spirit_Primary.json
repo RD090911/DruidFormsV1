@@ -1,0 +1,14 @@
+{
+  "RequireNewClick": true,
+  "ClickQueuingTimeout": 0.15,
+  "Interactions": [
+    {
+      "Type": "Simple",
+      "RunTime": 0.1,
+      "Effects": {
+        "ItemPlayerAnimationsId": "Item",
+        "ItemAnimationId": "Throw"
+      }
+    }
+  ]
+}

@@ -2,7 +2,7 @@
   "TranslationProperties": {
     "Name": "Verdant Forager Horn"
   },
-  "Icon": "Icons/ItemsGenerated/Bone_Spike.png",
+  "Icon": "Icons/Items/forager_horn.png",
   "Quality": "Rare",
   "ItemLevel": 35,
   "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",

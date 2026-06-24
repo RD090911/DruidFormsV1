@@ -1,0 +1,9 @@
+{
+  "Type": "Simple",
+  "RunTime": 1.0,
+  "Effects": {
+    "ItemPlayerAnimationsId": "Druid_Guardian_Challenging_Roar_Animations",
+    "ItemAnimationId": "Roar",
+    "WorldSoundEventId": "SFX_Bear_Grizzly_Alerted"
+  }
+}

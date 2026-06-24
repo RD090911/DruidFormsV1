@@ -1,0 +1,20 @@
+{
+  "Group": "User",
+  "Pack": "Biomes",
+  "DefaultBiome": "Basic",
+  "DefaultWorldStructure": "Basic",
+  "AssetTemplateTags": [
+    "Template"
+  ],
+  "ViewportMin": {
+    "X": -128,
+    "Y": 0,
+    "Z": -128
+  },
+  "ViewportMax": {
+    "X": 128,
+    "Y": 0,
+    "Z": 128
+  },
+  "EnablePersistence": false
+}

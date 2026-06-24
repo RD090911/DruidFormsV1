@@ -1,0 +1,33 @@
+{
+  "TranslationProperties": {
+    "Name": "Stealth"
+  },
+  "Icon": "Icons/Items/stealth.png",
+  "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
+  "Reticle": "DefaultMelee",
+  "Quality": "Uncommon",
+  "ItemSoundSetId": "ISS_Weapon_Blade_Small",
+  "ItemLevel": 20,
+  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
+  "MaxStack": 1,
+  "Categories": [
+    "Items.Weapons"
+  ],
+  "Utility": {
+    "Compatible": false
+  },
+  "Interactions": {
+    "Primary": "Druid_Prowler_Stealth_Primary",
+    "Secondary": "Druid_Open_Radial_Menu"
+  },
+  "Tags": {
+    "Type": [
+      "Weapon"
+    ],
+    "Family": [
+      "Dagger"
+    ]
+  },
+  "MaxDurability": 400,
+  "DurabilityLossOnHit": 0
+}

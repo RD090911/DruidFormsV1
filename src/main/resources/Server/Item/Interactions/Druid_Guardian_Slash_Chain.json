@@ -1,0 +1,46 @@
+{
+  "Type": "Chaining",
+  "ChainingAllowance": 2.0,
+  "Next": [
+    {
+      "Type": "Replace",
+      "Var": "Primary_Swing_Left",
+      "DefaultOk": true,
+      "DefaultValue": {
+        "Interactions": [
+          "Weapon_Daggers_Primary_Swing_Left"
+        ]
+      }
+    },
+    {
+      "Type": "Replace",
+      "Var": "Primary_Swing_Right",
+      "DefaultOk": true,
+      "DefaultValue": {
+        "Interactions": [
+          "Weapon_Daggers_Primary_Swing_Right"
+        ]
+      }
+    },
+    {
+      "Type": "Replace",
+      "Var": "Primary_Stab_Left",
+      "DefaultOk": true,
+      "DefaultValue": {
+        "Interactions": [
+          "Weapon_Daggers_Primary_Stab_Left"
+        ]
+      }
+    },
+    {
+      "Type": "Replace",
+      "Var": "Primary_Stab_Right",
+      "DefaultOk": true,
+      "DefaultValue": {
+        "Interactions": [
+          "Weapon_Daggers_Primary_Stab_Right"
+        ]
+      }
+    }
+  ]
+}

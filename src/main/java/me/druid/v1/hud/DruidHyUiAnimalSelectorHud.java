@@ -2,12 +2,17 @@ package me.druid.v1.hud;
 
 import au.ellie.hyui.builders.HyUIPage;
 import au.ellie.hyui.builders.PageBuilder;
+import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
+import com.hypixel.hytale.protocol.packets.interface_.Page;
+import com.hypixel.hytale.server.core.HytaleServer;
 import com.hypixel.hytale.server.core.command.system.CommandManager;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import me.druid.v1.DruidPlayerCompat;
 import me.druid.v1.ShapeshiftHandler;
 import me.druid.v1.forms.FormId;
 import me.druid.v1.forms.FormRuntimeBridge;
@@ -22,9 +27,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public final class DruidHyUiAnimalSelectorHud {
+    private static final long SKIN_MENU_DEFER_MILLIS = 50L;
     private static final ConcurrentHashMap<UUID, HyUIPage> PAGE_BY_PLAYER = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, PlayerRef> PLAYER_REF_BY_PLAYER = new ConcurrentHashMap<>();
+    private static final String DISMISS_BUTTON_ID = "druid-radial-dismiss";
     private static final String CENTER_BUTTON_ID = "druid-radial-center";
     private static final String CLOSE_BUTTON_ID = "druid-radial-close";
     private static final List<RadialChoice> RADIAL_CHOICES = List.of(
@@ -59,13 +68,19 @@ public final class DruidHyUiAnimalSelectorHud {
             return;
         }
         UUID playerUuid = playerRef.getUuid();
-        close(playerUuid);
+        closeNow(playerUuid, PLAYER_REF_BY_PLAYER.get(playerUuid));
+        PLAYER_REF_BY_PLAYER.put(playerUuid, playerRef);
 
         try {
             PageBuilder pageBuilder = PageBuilder.pageForPlayer(playerRef)
+                    .withLifetime(CustomPageLifetime.CanDismiss)
                     .fromHtml(buildSelectorHtml())
-                    .onDismiss((dismissed, byUser) -> PAGE_BY_PLAYER.remove(playerUuid, dismissed));
+                    .onDismiss((dismissed, byUser) -> {
+                        PAGE_BY_PLAYER.remove(playerUuid, dismissed);
+                        PLAYER_REF_BY_PLAYER.remove(playerUuid, playerRef);
+                    });
 
+            bindDismissHandler(pageBuilder, playerUuid);
             bindChoiceHandlers(pageBuilder, player, playerUuid);
             bindCenterHandler(pageBuilder, player, playerUuid);
             bindCloseHandler(pageBuilder, playerUuid);
@@ -79,13 +94,77 @@ public final class DruidHyUiAnimalSelectorHud {
 
     public static void close(UUID playerUuid) {
         if (playerUuid == null) return;
+        closeOnWorldThread(playerUuid, PLAYER_REF_BY_PLAYER.get(playerUuid));
+    }
+
+    private static void closeOnWorldThread(UUID playerUuid, PlayerRef playerRef) {
+        if (playerUuid == null) return;
+        PlayerRef effectivePlayerRef = playerRef != null ? playerRef : PLAYER_REF_BY_PLAYER.get(playerUuid);
+        Player player = resolvePlayer(effectivePlayerRef);
+        if (player != null) {
+            try {
+                if (player.getWorld() != null) {
+                    player.getWorld().execute(() -> closeNow(playerUuid, effectivePlayerRef));
+                    return;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        closeNow(playerUuid, effectivePlayerRef);
+    }
+
+    private static void closeNow(UUID playerUuid, PlayerRef playerRef) {
+        if (playerUuid == null) return;
         HyUIPage page = PAGE_BY_PLAYER.remove(playerUuid);
-        if (page == null) return;
+        PLAYER_REF_BY_PLAYER.remove(playerUuid);
 
         try {
+            if (page == null) {
+                closePage(playerRef);
+                return;
+            }
             page.close();
         } catch (Exception e) {
             System.out.println("[DruidHyUI] Radial close failed: " + e.getMessage());
+        }
+    }
+
+    private static void closePage(PlayerRef playerRef) {
+        if (playerRef == null) {
+            return;
+        }
+        try {
+            Player player = resolvePlayer(playerRef);
+            if (player == null || player.getPageManager() == null) {
+                return;
+            }
+            Ref<EntityStore> ref = playerRef.getReference();
+            Store<EntityStore> store = ref == null ? null : ref.getStore();
+            if (ref == null || store == null) {
+                return;
+            }
+            player.getPageManager().setPage(ref, store, Page.None);
+        } catch (Exception e) {
+            System.out.println("[DruidHyUI] Radial close failed: " + e.getMessage());
+        }
+    }
+
+    private static Player resolvePlayer(PlayerRef playerRef) {
+        if (playerRef == null) {
+            return null;
+        }
+        try {
+            Ref<EntityStore> ref = playerRef.getReference();
+            if (ref == null) {
+                return null;
+            }
+            Store<EntityStore> store = ref.getStore();
+            if (store == null) {
+                return null;
+            }
+            return store.getComponent(ref, Player.getComponentType());
+        } catch (Exception ignored) {
+            return null;
         }
     }
 
@@ -102,7 +181,18 @@ public final class DruidHyUiAnimalSelectorHud {
         final int centerInset = (wheelSize - centerSize) / 2;
 
         html.append("<div style='anchor-left: 0; anchor-top: 0; anchor-right: 0; anchor-bottom: 0;'>");
-        html.append("<div style='anchor-left: 0; anchor-top: 0; anchor-right: 0; anchor-bottom: 0; background-color: #00000000;'></div>");
+        html.append("<button id='")
+                .append(DISMISS_BUTTON_ID)
+                .append("' class='custom-textbutton' ")
+                .append("data-hyui-default-bg='background-color: #00000000;' ")
+                .append("data-hyui-hovered-bg='background-color: #00000000;' ")
+                .append("data-hyui-pressed-bg='background-color: #00000000;' ")
+                .append("data-hyui-disabled-bg='background-color: #00000000;' ")
+                .append("data-hyui-default-label-style='color: #00000000; font-size: 1;' ")
+                .append("data-hyui-hovered-label-style='color: #00000000; font-size: 1;' ")
+                .append("data-hyui-pressed-label-style='color: #00000000; font-size: 1;' ")
+                .append("data-hyui-disabled-label-style='color: #00000000; font-size: 1;' ")
+                .append("style='anchor-left: 0; anchor-top: 0; anchor-right: 0; anchor-bottom: 0; border-width: 0; border-color: #00000000; background-color: #00000000;'></button>");
         html.append("<div style='anchor-left: 50%; anchor-top: 50%; anchor-width: ")
                 .append(wheelSize)
                 .append("; anchor-height: ")
@@ -191,6 +281,11 @@ public final class DruidHyUiAnimalSelectorHud {
         return html.toString();
     }
 
+    private static void bindDismissHandler(PageBuilder pageBuilder, UUID playerUuid) {
+        if (pageBuilder == null || playerUuid == null) return;
+        pageBuilder.addEventListener(DISMISS_BUTTON_ID, CustomUIEventBindingType.RightClicking, (ignored, ctx) -> closeFromContext(ctx, playerUuid));
+    }
+
     private static void bindChoiceHandlers(PageBuilder pageBuilder, Player player, UUID playerUuid) {
         if (pageBuilder == null || player == null || playerUuid == null) return;
         for (RadialChoice choice : RADIAL_CHOICES) {
@@ -198,20 +293,33 @@ public final class DruidHyUiAnimalSelectorHud {
                 closeFromContext(ctx, playerUuid);
                 runShapeshiftCommand(player, choice.classAlias);
             });
+            pageBuilder.addEventListener(choice.buttonId, CustomUIEventBindingType.RightClicking, (ignored, ctx) -> closeFromContext(ctx, playerUuid));
         }
     }
 
     private static void bindCenterHandler(PageBuilder pageBuilder, Player player, UUID playerUuid) {
         if (pageBuilder == null || player == null || playerUuid == null) return;
         pageBuilder.addEventListener(CENTER_BUTTON_ID, CustomUIEventBindingType.Activating, (ignored, ctx) -> {
-            runShapeshiftCommand(player, "menu");
+            closeFromContext(ctx, playerUuid);
+            String playerName = safeDisplayName(player);
+            System.out.println("[DruidSkinRuntimeTrace] stage=radial-skin-menu-open player="
+                    + (playerName == null || playerName.isBlank() ? "unknown" : playerName));
+            HytaleServer.SCHEDULED_EXECUTOR.schedule(() -> {
+                System.out.println("[DruidSkinRuntimeTrace] stage=radial-skin-menu-defer-run player="
+                        + (playerName == null || playerName.isBlank() ? "unknown" : playerName));
+                runShapeshiftCommand(player, "menu");
+            }, SKIN_MENU_DEFER_MILLIS, TimeUnit.MILLISECONDS);
+            System.out.println("[DruidSkinRuntimeTrace] stage=radial-skin-menu-defer-scheduled player="
+                    + (playerName == null || playerName.isBlank() ? "unknown" : playerName));
         });
+        pageBuilder.addEventListener(CENTER_BUTTON_ID, CustomUIEventBindingType.RightClicking, (ignored, ctx) -> closeFromContext(ctx, playerUuid));
     }
 
     private static void bindCloseHandler(PageBuilder pageBuilder, UUID playerUuid) {
         if (pageBuilder == null || playerUuid == null) return;
         pageBuilder.addEventListener(CLOSE_BUTTON_ID, CustomUIEventBindingType.Activating, (ignored, ctx) -> closeFromContext(ctx, playerUuid));
         pageBuilder.addEventListener(CLOSE_BUTTON_ID, CustomUIEventBindingType.MouseButtonReleased, (ignored, ctx) -> closeFromContext(ctx, playerUuid));
+        pageBuilder.addEventListener(CLOSE_BUTTON_ID, CustomUIEventBindingType.RightClicking, (ignored, ctx) -> closeFromContext(ctx, playerUuid));
     }
 
     private static void closeFromContext(au.ellie.hyui.events.UIContext context, UUID playerUuid) {
@@ -230,13 +338,27 @@ public final class DruidHyUiAnimalSelectorHud {
     }
 
     private static void runShapeshiftCommand(Player player, String classAlias) {
-        if (player == null || classAlias == null || classAlias.isBlank()) return;
-        String command = "shapeshift " + classAlias;
-        if (player.getWorld() != null) {
-            player.getWorld().execute(() -> CommandManager.get().handleCommand(player, command));
+        if (player == null || classAlias == null || classAlias.isBlank()) {
             return;
         }
-        CommandManager.get().handleCommand(player, command);
+        PlayerRef playerRef = resolvePlayerRef(player);
+        if (playerRef == null) {
+            return;
+        }
+        String command = "shapeshift " + classAlias;
+        try {
+            if (player.getWorld() != null) {
+                player.getWorld().execute(() -> {
+                    try {
+                        CommandManager.get().handleCommand(playerRef, command);
+                    } catch (Exception ignored) {
+                    }
+                });
+                return;
+            }
+            CommandManager.get().handleCommand(playerRef, command);
+        } catch (Exception ignored) {
+        }
     }
 
     private static void seedSelectedFormFromActive(Player player, UUID playerUuid) {
@@ -306,12 +428,7 @@ public final class DruidHyUiAnimalSelectorHud {
     }
 
     private static String safeDisplayName(Player player) {
-        if (player == null) return null;
-        try {
-            return player.getDisplayName();
-        } catch (Exception ignored) {
-            return null;
-        }
+        return DruidPlayerCompat.getPlayerName(player);
     }
 
     private static PlayerRef resolvePlayerRef(Player player) {

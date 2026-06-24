@@ -1,0 +1,9 @@
+{
+  "Parent": "Spirit_Root",
+  "MinScale": 0.5,
+  "MaxScale": 0.5,
+  "Light": {
+    "Color": "#8b5",
+    "Radius": 20
+  }
+}

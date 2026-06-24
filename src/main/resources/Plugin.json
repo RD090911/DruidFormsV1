@@ -1,21 +1,21 @@
 {
-  "id": "druidforms",
-  "name": "Druid Forms",
-  "version": "2.4.2",
-  "mainClass": "me.druid.v1.DruidPlugin",
-  "description": "A plugin that allows druids to shapeshift into various forms.",
-  "commands": [
-    {
-      "name": "shapeshift",
-      "description": "Transform into an animal",
-      "usage": "/shapeshift <form>",
-      "permission": "druidforms.use"
-    },
-    {
-      "name": "druid",
-      "description": "Manage druid access",
-      "usage": "/druid <allow|deny|status> <player>",
-      "permission": "druidforms.admin"
-    }
-  ]
+    "id": "druidforms",
+    "name": "Druid Forms",
+    "version": "2.5.7",
+    "mainClass": "me.druid.v1.DruidPlugin",
+    "description": "A plugin that allows druids to shapeshift into various forms.",
+    "commands": [
+        {
+            "name": "shapeshift",
+            "description": "Transform into an animal",
+            "usage": "/shapeshift <form>",
+            "permission": "druidforms.use"
+        },
+        {
+            "name": "druid",
+            "description": "Manage druid access",
+            "usage": "/druid <allow|deny|status> <player>",
+            "permission": "druidforms.admin"
+        }
+    ]
 }

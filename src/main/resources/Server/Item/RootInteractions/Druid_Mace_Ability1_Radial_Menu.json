@@ -7,8 +7,9 @@
   "Interactions": [
     "Weapon_Mace_Signature_Groundslam",
     {
-      "Type": "Command",
-      "Command": "shapeshift ui"
+      "Type": "Simple"
     }
   ]
 }
+
+

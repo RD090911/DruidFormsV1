@@ -59,7 +59,7 @@ javadoc {
 // the official launcher for now.
 dependencies {
     implementation(files("$hytaleHome/install/$patchline/package/game/latest/Server/HytaleServer.jar"))
-    implementation(files("libs/HyUI-0.9.5-all.jar"))
+    implementation(files("libs/HyUI-0.9.7-all.jar"))
 }
 
 // Create the working directory to run the server if it does not already exist.
@@ -68,19 +68,32 @@ if (!serverRunDir.exists()) {
     serverRunDir.mkdirs()
 }
 
-// Updates the manifest.json file with the latest properties defined in the
-// build.properties file. Currently we update the version and if packs are
-// included with the plugin.
+// Keeps both plugin metadata formats aligned with gradle.properties.
 tasks.register('updatePluginManifest') {
     def manifestFile = file('src/main/resources/manifest.json')
+    def pluginFile = file('src/main/resources/Plugin.json')
     doLast {
         if (!manifestFile.exists()) {
             throw new GradleException("Could not find manifest.json at ${manifestFile.path}!")
         }
+        if (!pluginFile.exists()) {
+            throw new GradleException("Could not find Plugin.json at ${pluginFile.path}!")
+        }
+
         def manifestJson = new groovy.json.JsonSlurper().parseText(manifestFile.text)
-        manifestJson.Version = version
-        manifestJson.IncludesAssetPack = includes_pack.toBoolean()
-        manifestFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(manifestJson))
+        def manifestChanged = manifestJson.Version != version.toString()
+                || manifestJson.IncludesAssetPack != includes_pack.toBoolean()
+        if (manifestChanged) {
+            manifestJson.Version = version.toString()
+            manifestJson.IncludesAssetPack = includes_pack.toBoolean()
+            manifestFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(manifestJson))
+        }
+
+        def pluginJson = new groovy.json.JsonSlurper().parseText(pluginFile.text)
+        if (pluginJson.version != version.toString()) {
+            pluginJson.version = version.toString()
+            pluginFile.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(pluginJson))
+        }
     }
 }
 
@@ -88,13 +101,38 @@ tasks.register('updatePluginManifest') {
 tasks.named('processResources') {
     dependsOn 'updatePluginManifest'
     exclude 'Incoming_Files/**'
+    includeEmptyDirs = false
+}
+
+tasks.named('sourcesJar') {
+    exclude 'me/druid/v1/DruidRadialInputAudit.java'
+    exclude 'me/druid/v1/DruidRadialInteractAudit.java'
+    exclude 'me/druid/v1/DruidRadialUseBlockAudit.java'
+    exclude 'Incoming_Files/**'
+    exclude 'isolation_*/**'
+    exclude 'third_party_archive/**'
+    exclude 'run/**'
+    exclude 'universe/**'
+    exclude 'logs/**'
+    exclude 'build/**'
+    exclude 'out/**'
+    exclude '.gradle/**'
+    exclude '.idea/**'
+    exclude '**/*.exe'
+    exclude '**/*.winmd'
+    exclude '**/*.jar'
+    includeEmptyDirs = false
 }
 
 // Windows filesystems are typically case-insensitive, but Linux (Steam Deck) is case-sensitive.
 // Put both casings in the final jar so runtime lookups work either way.
 tasks.named('jar') {
+    includeEmptyDirs = false
+    exclude 'me/druid/v1/DruidRadialInputAudit*.class'
+    exclude 'me/druid/v1/DruidRadialInteractAudit*.class'
+    exclude 'me/druid/v1/DruidRadialUseBlockAudit*.class'
     // Bundle HyUI into the release jar so standalone runtime has required classes.
-    from(zipTree("libs/HyUI-0.9.5-all.jar")) {
+    from(zipTree("libs/HyUI-0.9.7-all.jar")) {
         exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
         exclude 'manifest.json', 'plugin.json', 'Plugin.json'
     }

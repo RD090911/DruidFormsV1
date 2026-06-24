@@ -11,6 +11,7 @@ import au.ellie.hyui.builders.ImageBuilder;
 import au.ellie.hyui.builders.LabelBuilder;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import me.druid.v1.DruidPlayerCompat;
 import me.druid.v1.ShapeshiftHandler;
 import me.druid.v1.forms.FormDefinition;
 import me.druid.v1.forms.FormId;
@@ -28,6 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class DruidHyUiPersistentFormHud {
+    private static final boolean DEBUG = true;
     private static final ConcurrentHashMap<UUID, HyUIHud> HUD_BY_PLAYER = new ConcurrentHashMap<>();
     private static final String BEAR_FORM = "Bear";
     private static final String TIGER_FORM = "Tiger";
@@ -90,6 +92,9 @@ public final class DruidHyUiPersistentFormHud {
                 System.out.println("[DruidHyUI] Persistent form HUD shown for " + playerUuid + " -> " + activeForm);
             } else {
                 builder.updateExisting(existingHud);
+                if (DEBUG) {
+                    System.out.println("[DruidFormHud] refresh playerUuid=" + playerUuid + " activeForm=" + activeForm);
+                }
             }
         } catch (Exception e) {
             System.out.println("[DruidHyUI] Persistent form HUD update failed: " + e.getMessage());
@@ -765,7 +770,7 @@ public final class DruidHyUiPersistentFormHud {
 
         String modelId;
         try {
-            modelId = ShapeshiftHandler.activeForms.get(player.getDisplayName());
+            modelId = ShapeshiftHandler.activeForms.get(DruidPlayerCompat.getPlayerName(player));
         } catch (Exception ignored) {
             modelId = null;
         }

@@ -15,8 +15,8 @@ import com.hypixel.hytale.server.core.modules.entitystats.asset.DefaultEntitySta
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.ParticleUtil;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.hypixel.hytale.math.vector.Vector3d;
-import com.hypixel.hytale.math.vector.Vector3f;
+import org.joml.Vector3d;
+import org.joml.Vector3f;
 import me.druid.v1.forms.FormId;
 
 import java.util.List;
@@ -40,6 +40,7 @@ final class WardenLifeSeedAbilityHandler {
     private static final double LIFE_SEED_SCAN_RADIUS_SQUARED = LIFE_SEED_SCAN_RADIUS * LIFE_SEED_SCAN_RADIUS;
     private static final String HEALING_TOTEM_EFFECT_ID = "Healing_Totem_Heal";
     private static final String LIFE_SEED_GROUND_VISUAL_SYSTEM_ID = "Totem_Heal_Simple_Test";
+    private static final float LIFE_SEED_GROUND_VISUAL_SCALE = 0.35f;
     private static final float FALLBACK_HEAL_AMOUNT = 1.0f;
     private static final float VERDANT_HEAL_AMOUNT = 1.25f;
     private static final float PRIMAL_HEAL_AMOUNT = 1.5f;
@@ -159,7 +160,7 @@ final class WardenLifeSeedAbilityHandler {
             return null;
         }
 
-        TransformComponent transform = player.getTransformComponent();
+        TransformComponent transform = DruidPlayerCompat.getTransformComponent(player);
         if (transform == null) {
             return null;
         }
@@ -170,14 +171,14 @@ final class WardenLifeSeedAbilityHandler {
         }
 
         Vector3d spawnPosition = new Vector3d(playerPosition);
-        Vector3f seedPosition = new Vector3f((float) spawnPosition.getX(), (float) spawnPosition.getY(), (float) spawnPosition.getZ());
+        Vector3f seedPosition = new Vector3f((float) spawnPosition.x, (float) spawnPosition.y, (float) spawnPosition.z);
 
         System.out.println(String.format(
                 Locale.ROOT,
                 "Warden Life Seed placeholder placed at [%.2f,%.2f,%.2f]",
-                spawnPosition.getX(),
-                spawnPosition.getY(),
-                spawnPosition.getZ()
+                spawnPosition.x,
+                spawnPosition.y,
+                spawnPosition.z
         ));
         return seedPosition;
     }
@@ -203,7 +204,7 @@ final class WardenLifeSeedAbilityHandler {
             return Optional.empty();
         }
 
-        return Optional.of(new Vector3d(active.getX(), active.getY(), active.getZ()));
+        return Optional.of(new Vector3d(active.x, active.y, active.z));
     }
 
     private static boolean cleanupExpiredTotem(UUID playerId, long nowMillis) {
@@ -239,6 +240,7 @@ final class WardenLifeSeedAbilityHandler {
         SEED_POSITION_BY_OWNER.put(ownerId, new Vector3f(seedPosition));
         EXPIRES_AT_MILLIS_BY_OWNER.put(ownerId, expiresAtMillis);
         spawnLifeSeedGroundVisual(owner, SEED_POSITION_BY_OWNER.get(ownerId));
+        DruidBuffDebuffHud.showLifeSeed(owner);
 
         System.out.println(String.format(
                 Locale.ROOT,
@@ -248,9 +250,9 @@ final class WardenLifeSeedAbilityHandler {
         System.out.println(String.format(
                 Locale.ROOT,
                 "Warden Life Seed active position = [%.2f,%.2f,%.2f]",
-                seedPosition.getX(),
-                seedPosition.getY(),
-                seedPosition.getZ()
+                seedPosition.x,
+                seedPosition.y,
+                seedPosition.z
         ));
 
         ScheduledFuture<?> scheduled = HytaleServer.SCHEDULED_EXECUTOR.scheduleAtFixedRate(() -> {
@@ -302,10 +304,19 @@ final class WardenLifeSeedAbilityHandler {
             return;
         }
 
-        Vector3d visualPosition = new Vector3d(seedPosition.getX(), seedPosition.getY(), seedPosition.getZ());
+        Vector3d visualPosition = new Vector3d(seedPosition.x, seedPosition.y, seedPosition.z);
         try {
-            ParticleUtil.spawnParticleEffect(LIFE_SEED_GROUND_VISUAL_SYSTEM_ID, visualPosition, store);
-            System.out.println("LifeSeed ground visual spawned system=Totem_Heal_Simple_Test position=" + visualPosition);
+            ParticleUtil.spawnParticleEffect(
+                    LIFE_SEED_GROUND_VISUAL_SYSTEM_ID,
+                    visualPosition,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    LIFE_SEED_GROUND_VISUAL_SCALE,
+                    0.0f,
+                    store);
+            System.out.println("LifeSeed ground visual spawned system=Totem_Heal_Simple_Test scale="
+                    + LIFE_SEED_GROUND_VISUAL_SCALE + " position=" + visualPosition);
         } catch (Exception exception) {
             System.out.println("LifeSeed ground visual skipped reason=spawn-failed:" + exception.getClass().getSimpleName());
         }
@@ -339,7 +350,7 @@ final class WardenLifeSeedAbilityHandler {
             return;
         }
 
-        Vector3d seedPosition = new Vector3d(seedPositionRaw.getX(), seedPositionRaw.getY(), seedPositionRaw.getZ());
+        Vector3d seedPosition = new Vector3d(seedPositionRaw.x, seedPositionRaw.y, seedPositionRaw.z);
         List<Player> players = DruidPermissions.getOnlinePlayersSnapshot();
         EntityEffect healingEffect = EntityEffect.getAssetMap().getAsset(HEALING_TOTEM_EFFECT_ID);
         float fallbackHealAmount = resolveLifeSeedHealAmount(owner);
@@ -353,7 +364,7 @@ final class WardenLifeSeedAbilityHandler {
                 continue;
             }
 
-            TransformComponent candidateTransform = candidate.getTransformComponent();
+            TransformComponent candidateTransform = DruidPlayerCompat.getTransformComponent(candidate);
             if (candidateTransform == null) {
                 continue;
             }
@@ -363,9 +374,9 @@ final class WardenLifeSeedAbilityHandler {
                 continue;
             }
 
-            double dx = candidatePosition.getX() - seedPosition.getX();
-            double dy = candidatePosition.getY() - seedPosition.getY();
-            double dz = candidatePosition.getZ() - seedPosition.getZ();
+            double dx = candidatePosition.x - seedPosition.x;
+            double dy = candidatePosition.y - seedPosition.y;
+            double dz = candidatePosition.z - seedPosition.z;
             double distanceSquared = dx * dx + dy * dy + dz * dz;
             if (distanceSquared > LIFE_SEED_SCAN_RADIUS_SQUARED) {
                 continue;
@@ -414,7 +425,7 @@ final class WardenLifeSeedAbilityHandler {
                 continue;
             }
 
-            TransformComponent candidateTransform = candidate.getTransformComponent();
+            TransformComponent candidateTransform = DruidPlayerCompat.getTransformComponent(candidate);
             if (candidateTransform == null) {
                 continue;
             }
@@ -424,9 +435,9 @@ final class WardenLifeSeedAbilityHandler {
                 continue;
             }
 
-            double dx = candidatePosition.getX() - seedPosition.getX();
-            double dy = candidatePosition.getY() - seedPosition.getY();
-            double dz = candidatePosition.getZ() - seedPosition.getZ();
+            double dx = candidatePosition.x - seedPosition.x;
+            double dy = candidatePosition.y - seedPosition.y;
+            double dz = candidatePosition.z - seedPosition.z;
             double distanceSquared = dx * dx + dy * dy + dz * dz;
             if (distanceSquared > LIFE_SEED_SCAN_RADIUS_SQUARED) {
                 continue;
@@ -557,6 +568,9 @@ final class WardenLifeSeedAbilityHandler {
         }
         SEED_POSITION_BY_OWNER.remove(ownerId);
         EXPIRES_AT_MILLIS_BY_OWNER.remove(ownerId);
+        if (ownerId != null) {
+            DruidBuffDebuffHud.remove(ownerId);
+        }
 
         Player owner = DruidPermissions.getOnlinePlayer(ownerId);
         String ownerLabel = owner != null ? safeDisplayName(owner) : ownerId.toString();
@@ -568,7 +582,7 @@ final class WardenLifeSeedAbilityHandler {
             return "unknown";
         }
         try {
-            String displayName = player.getDisplayName();
+            String displayName = DruidPlayerCompat.getPlayerName(player);
             if (displayName != null && !displayName.isBlank()) {
                 return displayName;
             }
@@ -592,7 +606,7 @@ final class WardenLifeSeedAbilityHandler {
         if (player == null || text == null) return;
         FormattedMessage component = new FormattedMessage();
         component.rawText = text;
-        player.sendMessage(new Message(component));
+        DruidPlayerCompat.sendMessage(player, new Message(component));
     }
 
     private static void showCooldownHud(Player player) {
@@ -600,7 +614,13 @@ final class WardenLifeSeedAbilityHandler {
             return;
         }
 
-        WardenLifeSeedCooldownHud.showOrUpdate(player);
+        // Cooldown state remains Java-owned; the old standalone lower-left HUD is intentionally not shown.
+        long remainingMillis = getLifeSeedCooldownRemainingMillis(player);
+        if (remainingMillis <= 0L) {
+            DruidAbilityCooldownHotbarHud.remove(player);
+            return;
+        }
+        DruidAbilityCooldownHotbarHud.showOrUpdate(player, 0, "Life_Seed", remainingMillis, LIFE_SEED_COOLDOWN_MILLIS);
     }
 
 }

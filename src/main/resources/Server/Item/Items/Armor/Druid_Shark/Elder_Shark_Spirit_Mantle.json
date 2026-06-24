@@ -1,47 +1,47 @@
 {
-  "Parent": "Armor_Iron_Chest",
-  "TranslationProperties": {
-    "Name": "Elder Stalker Spirit Mantle",
+    "Parent":  "Armor_Iron_Chest",
+    "TranslationProperties":  {
+                                  "Name":  "Elder Stalker Spirit Mantle",
                                   "Description":  "The spirits shield your wild shape."
-  },
-  "Icon":  "Icons/Items/spirit_mantle.png",
-    "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
-  "Armor": {
-    "ArmorSlot": "Chest",
-    "BaseDamageResistance": 0,
-    "CosmeticsToHide": [
-      "Overtop",
-      "Cape"
-    ],
-    "DamageResistance": {
-      "Physical": [
-        {
-          "Amount": 0.09,
-          "CalculationType": "Multiplicative"
-        }
-      ],
-      "Projectile": [
-        {
-          "Amount": 0.09,
-          "CalculationType": "Multiplicative"
-        }
-      ]
-    },
-    "StatModifiers": {
-      "Health": [
-        {
-          "Amount": 19,
-          "CalculationType": "Additive"
-        }
-      ]
-    },
-    "DamageClassEnhancement": {
-      "Light": [
-        {
-          "Amount": 0.0125,
-          "CalculationType": "Multiplicative"
-        }
-      ]
-    }
-  }
+                              },
+    "Icon":  "Icons/Items/spirit_mantle.png",
+    "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
+    "Armor":  {
+                  "ArmorSlot":  "Chest",
+                  "BaseDamageResistance":  0,
+                  "CosmeticsToHide":  [
+                                          "Overtop",
+                                          "Cape"
+                                      ],
+                  "DamageResistance":  {
+                                           "Physical":  [
+                                                            {
+                                                                "Amount":  0.09,
+                                                                "CalculationType":  "Percent"
+                                                            }
+                                                        ],
+                                           "Projectile":  [
+                                                              {
+                                                                  "Amount":  0.09,
+                                                                  "CalculationType":  "Percent"
+                                                              }
+                                                          ]
+                                       },
+                  "StatModifiers":  {
+                                        "Health":  [
+                                                       {
+                                                           "Amount":  19,
+                                                           "CalculationType":  "Additive"
+                                                       }
+                                                   ]
+                                    },
+                  "DamageClassEnhancement":  {
+                                                 "Light":  [
+                                                               {
+                                                                   "Amount":  0.0125,
+                                                                   "CalculationType":  "Multiplicative"
+                                                               }
+                                                           ]
+                                             }
+              }
 }

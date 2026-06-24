@@ -1,0 +1,7 @@
+{
+  "Type": "Charging",
+  "DisplayProgress": false,
+  "Next": {
+    "0": "Druid_Guardian_Slash_Chain"
+  }
+}

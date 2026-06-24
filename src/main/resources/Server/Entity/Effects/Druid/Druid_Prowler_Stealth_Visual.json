@@ -1,0 +1,7 @@
+{
+  "Infinite": true,
+  "OverlapBehavior": "Extend",
+  "ApplicationEffects": {
+    "ModelVFXId": "Intangible"
+  }
+}

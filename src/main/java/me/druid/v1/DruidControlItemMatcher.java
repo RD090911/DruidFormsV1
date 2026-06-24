@@ -7,6 +7,10 @@ final class DruidControlItemMatcher {
     private DruidControlItemMatcher() {
     }
 
+    static boolean matches(String itemId) {
+        return matches(new ShapeshiftHandler(), itemId);
+    }
+
     static boolean matches(ShapeshiftHandler shapeshiftHandler, String itemId) {
         if (shapeshiftHandler == null || itemId == null || itemId.isBlank()) return false;
         try {

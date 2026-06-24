@@ -6,8 +6,9 @@
   },
   "Interactions": [
     {
-      "Type": "Command",
-      "Command": "shapeshift ui"
+      "Type": "Simple"
     }
   ]
 }
+
+

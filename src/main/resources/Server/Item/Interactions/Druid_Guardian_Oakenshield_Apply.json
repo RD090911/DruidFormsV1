@@ -1,0 +1,20 @@
+{
+  "Type": "Simple",
+  "RunTime": 0.15,
+  "Effects": {
+    "Particles": [
+      {
+        "SystemId": "Shield_Block",
+        "TargetEntityPart": "Entity",
+        "TargetNodeName": "Hip",
+        "PositionOffset": {
+          "Y": 1.0
+        }
+      }
+    ]
+  },
+  "Next": {
+    "Type": "ApplyEffect",
+    "EffectId": "Druid_Guardian_Oakenshield_Effect"
+  }
+}

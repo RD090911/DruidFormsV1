@@ -2,7 +2,7 @@
   "TranslationProperties": {
     "Name": "Elder Forager Horn"
   },
-  "Icon": "Icons/ItemsGenerated/Bone_Spike.png",
+  "Icon": "Icons/Items/forager_horn.png",
   "Quality": "Legendary",
   "ItemLevel": 65,
   "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",

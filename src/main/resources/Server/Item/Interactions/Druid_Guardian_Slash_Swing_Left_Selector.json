@@ -1,0 +1,43 @@
+{
+  "Type": "Selector",
+  "RunTime": 0.069,
+  "Selector": {
+    "Id": "Horizontal",
+    "Direction": "ToLeft",
+    "TestLineOfSight": true,
+    "ExtendTop": 0.75,
+    "ExtendBottom": 0.75,
+    "StartDistance": 0.1,
+    "EndDistance": 2.9,
+    "Length": 75,
+    "RollOffset": 25,
+    "YawStartOffset": -55
+  },
+  "Effects": {
+    "WorldSoundEventId": "SFX_Daggers_T2_Swing",
+    "LocalSoundEventId": "SFX_Daggers_T2_Swing_RL_Local"
+  },
+  "Next": {
+    "Type": "Simple",
+    "RunTime": 0.069
+  },
+  "HitBlock": {
+    "Interactions": [
+      "Block_Break_Adventure"
+    ]
+  },
+  "HitEntity": {
+    "Interactions": [
+      {
+        "Type": "Replace",
+        "Var": "Swing_Left_Damage",
+        "DefaultOk": true,
+        "DefaultValue": {
+          "Interactions": [
+            "Weapon_Daggers_Primary_Swing_Left_Damage"
+          ]
+        }
+      }
+    ]
+  }
+}

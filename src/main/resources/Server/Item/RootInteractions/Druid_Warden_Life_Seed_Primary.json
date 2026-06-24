@@ -12,10 +12,6 @@
         "ItemPlayerAnimationsId": "Item",
         "ItemAnimationId": "Throw"
       }
-    },
-    {
-      "Type": "Command",
-      "Command": "wardenlifeseed"
     }
   ]
 }

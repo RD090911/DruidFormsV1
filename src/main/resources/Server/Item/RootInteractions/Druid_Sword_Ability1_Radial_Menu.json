@@ -7,8 +7,9 @@
   "Interactions": [
     "Weapon_Sword_Signature_Vortexstrike",
     {
-      "Type": "Command",
-      "Command": "shapeshift ui"
+      "Type": "Simple"
     }
   ]
 }
+
+

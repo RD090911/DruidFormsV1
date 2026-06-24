@@ -1,0 +1,23 @@
+{
+  "RequireNewClick": true,
+  "ClickQueuingTimeout": 0.15,
+  "Cooldown": {
+    "Cooldown": 0.8
+  },
+  "Interactions": [
+    {
+      "Type": "Replace",
+      "Var": "Melee_Start",
+      "DefaultValue": {
+        "Interactions": [
+          "NPC_Attack_Melee_Simple"
+        ]
+      }
+    }
+  ],
+  "Tags": {
+    "Attack": [
+      "Melee"
+    ]
+  }
+}

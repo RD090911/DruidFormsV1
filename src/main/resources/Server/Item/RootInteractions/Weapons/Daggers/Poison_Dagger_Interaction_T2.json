@@ -2,7 +2,7 @@
   "RequireNewClick": true,
   "ClickQueuingTimeout": 0.15,
   "Cooldown": {
-    "Cooldown": 0.2
+    "Cooldown": 0.7
   },
   "Interactions": [
     "Weapon_Daggers_Primary",

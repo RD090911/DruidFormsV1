@@ -4,6 +4,7 @@ import com.hypixel.hytale.server.core.command.system.AbstractCommand;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.CommandSender;
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -20,8 +21,11 @@ public class WardenLifeSeedCommand extends AbstractCommand {
     @Override
     public CompletableFuture<Void> execute(CommandContext context) {
         CommandSender sender = context.sender();
-        if (sender instanceof Player player) {
-            WardenLifeSeedAbilityHandler.trigger(player);
+        if (sender instanceof PlayerRef playerRef) {
+            Player player = DruidPermissions.getOnlinePlayer(playerRef.getUuid());
+            if (player != null) {
+                WardenLifeSeedAbilityHandler.trigger(player);
+            }
         }
         return CompletableFuture.completedFuture(null);
     }

@@ -1,0 +1,65 @@
+{
+  "Type": "Simple",
+  "RunTime": 0.5,
+  "Effects": {
+    "ItemPlayerAnimationsId": "Bear_Grizzly_Default",
+    "ItemAnimationId": "Stomp",
+    "WorldSoundEventId": "SFX_Bear_Grizzly_Attack"
+  },
+  "Next": {
+    "Type": "Selector",
+    "RunTime": 0.05,
+    "Effects": {
+      "WorldSoundEventId": "SFX_Mace_T2_Signature_Impact",
+      "LocalSoundEventId": "SFX_Mace_T2_Signature_Impact_Local"
+    },
+    "Selector": {
+      "Id": "AOECircle",
+      "Offset": {
+        "Z": -1.25
+      },
+      "Range": 3.0
+    },
+    "HitBlock": {
+      "Interactions": [
+        "Block_Break_Adventure"
+      ]
+    },
+    "HitEntity": {
+      "Interactions": [
+        {
+          "Type": "Replace",
+          "Var": "Groundslam_Damage",
+          "DefaultOk": true,
+          "DefaultValue": {
+            "Interactions": [
+              "Druid_Guardian_Ground_Slam_Damage"
+            ]
+          }
+        },
+        {
+          "Type": "ApplyEffect",
+          "Entity": "Target",
+          "EffectId": "Druid_Guardian_Ground_Slam_Slow"
+        }
+      ]
+    },
+    "Next": {
+      "Type": "Simple",
+      "RunTime": 0.7,
+      "Effects": {
+        "Particles": [
+          {
+            "SystemId": "Mace_Signature_Ground_Hit",
+            "TargetEntityPart": "Entity",
+            "TargetNodeName": "Hip",
+            "PositionOffset": {
+              "Y": 0.1
+            }
+          }
+        ],
+        "CameraEffect": "Mace_Explode"
+      }
+    }
+  }
+}

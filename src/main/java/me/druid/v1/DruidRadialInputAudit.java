@@ -129,11 +129,7 @@ final class DruidRadialInputAudit {
     }
 
     private static String safeDisplayName(Player player) {
-        try {
-            return player.getDisplayName();
-        } catch (Exception ignored) {
-            return null;
-        }
+        return DruidPlayerCompat.getPlayerName(player);
     }
 
     private static final class MouseButtonProbe {

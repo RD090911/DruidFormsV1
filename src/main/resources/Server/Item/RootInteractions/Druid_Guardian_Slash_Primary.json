@@ -1,0 +1,10 @@
+{
+  "RequireNewClick": true,
+  "ClickQueuingTimeout": 0.15,
+  "Cooldown": {
+    "Cooldown": 1.25
+  },
+  "Interactions": [
+    "Druid_Guardian_Slash_Attack"
+  ]
+}

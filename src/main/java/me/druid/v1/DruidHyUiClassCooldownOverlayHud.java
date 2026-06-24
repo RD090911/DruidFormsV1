@@ -6,9 +6,6 @@ import au.ellie.hyui.builders.HyUIAnchor;
 import au.ellie.hyui.builders.HyUIHud;
 import au.ellie.hyui.builders.HyUIPatchStyle;
 import au.ellie.hyui.builders.LabelBuilder;
-import au.ellie.hyui.builders.ProgressBarBuilder;
-import au.ellie.hyui.types.ProgressBarAlignment;
-import au.ellie.hyui.types.ProgressBarDirection;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -20,6 +17,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 final class DruidHyUiClassCooldownOverlayHud {
+    private static final boolean DEBUG = true;
     private static final Map<UUID, HyUIHud> HUD_BY_PLAYER = new ConcurrentHashMap<>();
     private static final Map<UUID, Long> OVERLAY_START_TIME_BY_PLAYER = new ConcurrentHashMap<>();
 
@@ -36,8 +34,13 @@ final class DruidHyUiClassCooldownOverlayHud {
     private static final int ICON_LAYER_SIZE = 68;
     private static final int ICON_SIZE = 56;
     private static final int ICON_TOP_OFFSET = 0;
+    private static final int ICON_LAYER_LEFT_CORRECTION = (SLOT_WIDTH - ICON_LAYER_SIZE) / 2;
+    private static final int OVERLAY_X_NUDGE = 3;
+    private static final int OVERLAY_Y_NUDGE = 6;
 
     private static final int SLOT_SEPARATOR_WIDTH = 24;
+    // Visibility-only Update 5 stabilization: keep geometry/timing unchanged, increase contrast.
+    private static final String COOLDOWN_OVERLAY_BAR_COLOR = "#4CFF7ACC";
 
     private static final SlotOverlaySpec ANTELOPE_SLOT = new SlotOverlaySpec("Antelope", -1);
     private static final SlotOverlaySpec HAWK_SLOT = new SlotOverlaySpec("Hawk", -2);
@@ -55,6 +58,9 @@ final class DruidHyUiClassCooldownOverlayHud {
     public static boolean startOrRestart(Player player) {
         if (player == null || !DruidPermissions.shouldShowHud(player)) {
             return false;
+        }
+        if (DEBUG) {
+            System.out.println("[DruidCooldownHud] start player=" + DruidPlayerCompat.getPlayerNameOrUnknown(player));
         }
         runOnWorldThread(player, () -> showOrUpdateOnWorldThread(player, true));
         return true;
@@ -110,6 +116,9 @@ final class DruidHyUiClassCooldownOverlayHud {
 
         if (restartTiming) {
             OVERLAY_START_TIME_BY_PLAYER.put(playerUuid, System.currentTimeMillis());
+            if (DEBUG) {
+                System.out.println("[DruidCooldownHud] restart playerUuid=" + playerUuid);
+            }
         }
 
         long remainingMillis = getOverlayRemainingMillis(playerUuid);
@@ -128,9 +137,15 @@ final class DruidHyUiClassCooldownOverlayHud {
             if (existing == null) {
                 HyUIHud shown = createHudBuilder(player, playerRef, remainingMillis).show();
                 HUD_BY_PLAYER.put(playerUuid, shown);
+                if (DEBUG) {
+                    System.out.println("[DruidCooldownHud] show playerUuid=" + playerUuid + " remainingMs=" + remainingMillis);
+                }
                 return;
             }
             updateHudSnapshot(player, playerRef, existing, remainingMillis);
+            if (DEBUG) {
+                System.out.println("[DruidCooldownHud] update playerUuid=" + playerUuid + " remainingMs=" + remainingMillis);
+            }
         } catch (Exception e) {
             System.out.println("[DruidHyUI] Class cooldown overlay update failed: " + e.getMessage());
         }
@@ -167,6 +182,9 @@ final class DruidHyUiClassCooldownOverlayHud {
         }
         try {
             hud.remove();
+            if (DEBUG) {
+                System.out.println("[DruidCooldownHud] remove playerUuid=" + playerUuid);
+            }
         } catch (Exception e) {
             System.out.println("[DruidHyUI] Class cooldown overlay remove failed: " + e.getMessage());
         }
@@ -217,6 +235,11 @@ final class DruidHyUiClassCooldownOverlayHud {
     }
 
     private static GroupBuilder createSlotOverlay(SlotOverlaySpec spec, float progress) {
+        int overlayLeft = spec.iconLeftOffset + ICON_LAYER_LEFT_CORRECTION + OVERLAY_X_NUDGE;
+        int overlayHeight = ICON_SIZE;
+        int fillHeight = Math.max(4, Math.round(overlayHeight * progress));
+        int fillTop = ICON_TOP_OFFSET + OVERLAY_Y_NUDGE + overlayHeight - fillHeight;
+
         return GroupBuilder.group()
                 .withRawId("druidClassCooldown" + spec.name + "Slot")
                 .withAnchor(new HyUIAnchor().setWidth(SLOT_WIDTH).setHeight(SLOT_HEIGHT))
@@ -227,18 +250,15 @@ final class DruidHyUiClassCooldownOverlayHud {
                                 .withAnchor(new HyUIAnchor().setWidth(ICON_LAYER_SIZE).setHeight(ICON_LAYER_SIZE))
                                 .withLayoutMode("Center")
                                 .addChild(
-                                        ProgressBarBuilder.progressBar()
-                                                .withRawId("druidClassCooldown" + spec.name + "Progress")
+                                        GroupBuilder.group()
+                                                .withRawId("druidClassCooldown" + spec.name + "Fill")
                                                 .withAnchor(new HyUIAnchor()
-                                                        .setLeft(spec.iconLeftOffset)
-                                                        .setTop(ICON_TOP_OFFSET)
+                                                        .setLeft(overlayLeft)
+                                                        .setTop(fillTop)
                                                         .setWidth(ICON_SIZE)
-                                                        .setHeight(ICON_SIZE))
-                                                .withAlignment(ProgressBarAlignment.Vertical)
-                                                .withDirection(ProgressBarDirection.End)
-                                                .withValue(progress)
-                                                .withBackground(new HyUIPatchStyle().setColor("#00000000"))
-                                                .withBar(new HyUIPatchStyle().setColor("#7F1C3E2C"))
+                                                        .setHeight(fillHeight)
+                                                )
+                                                .withBackground(new HyUIPatchStyle().setColor(COOLDOWN_OVERLAY_BAR_COLOR))
                                 )
                 );
     }
@@ -254,8 +274,14 @@ final class DruidHyUiClassCooldownOverlayHud {
         if (player == null || playerRef == null || hud == null) {
             return;
         }
+        UUID playerUuid = playerRef.getUuid();
+        if (playerUuid == null) {
+            return;
+        }
         try {
-            createHudBuilder(player, playerRef, remainingMillis).updateExisting(hud);
+            hud.remove();
+            HyUIHud shown = createHudBuilder(player, playerRef, remainingMillis).show();
+            HUD_BY_PLAYER.put(playerUuid, shown);
         } catch (Exception e) {
             System.out.println("[DruidHyUI] Class cooldown overlay snapshot update failed: " + e.getMessage());
         }

@@ -8,6 +8,7 @@ import au.ellie.hyui.builders.HyUIStyle;
 import au.ellie.hyui.builders.LabelBuilder;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import me.druid.v1.DruidPlayerCompat;
 import me.druid.v1.ShapeshiftHandler;
 import me.druid.v1.forms.FormDefinition;
 import me.druid.v1.forms.FormId;
@@ -84,7 +85,7 @@ public final class DruidHyUiCurrentFormHud {
 
         String modelId;
         try {
-            modelId = ShapeshiftHandler.activeForms.get(player.getDisplayName());
+            modelId = ShapeshiftHandler.activeForms.get(DruidPlayerCompat.getPlayerName(player));
         } catch (Exception ignored) {
             modelId = null;
         }

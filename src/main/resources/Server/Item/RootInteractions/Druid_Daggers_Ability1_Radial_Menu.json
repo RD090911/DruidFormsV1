@@ -7,8 +7,9 @@
   "Interactions": [
     "Weapon_Daggers_Signature_Razorstrike",
     {
-      "Type": "Command",
-      "Command": "shapeshift ui"
+      "Type": "Simple"
     }
   ]
 }
+
+

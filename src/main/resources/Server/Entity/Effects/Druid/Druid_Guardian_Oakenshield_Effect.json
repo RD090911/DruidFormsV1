@@ -1,0 +1,23 @@
+{
+  "Duration": 5.0,
+  "OverlapBehavior": "Overwrite",
+  "StatusEffectIcon": "UI/StatusEffects/Icon_Oakenshield.png",
+  "DamageResistance": {
+    "Physical": [
+      {
+        "CalculationType": "Percent",
+        "Amount": 0.60
+      }
+    ],
+    "Projectile": [
+      {
+        "CalculationType": "Percent",
+        "Amount": 0.60
+      }
+    ]
+  },
+  "ApplicationEffects": {
+    "EntityTopTint": "#5f8f45",
+    "EntityBottomTint": "#3d5f2d"
+  }
+}

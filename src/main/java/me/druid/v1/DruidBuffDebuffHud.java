@@ -10,6 +10,7 @@ import au.ellie.hyui.builders.HyUIStyle;
 import au.ellie.hyui.builders.ImageBuilder;
 import au.ellie.hyui.builders.LabelBuilder;
 import au.ellie.hyui.builders.ProgressBarBuilder;
+import com.hypixel.hytale.server.core.HytaleServer;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
@@ -22,9 +23,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
-final class WardenLifeSeedCooldownHud {
+final class DruidBuffDebuffHud {
     private static final Map<UUID, HyUIHud> HUD_BY_PLAYER = new ConcurrentHashMap<>();
+    private static final Map<UUID, TimedBuffState> BUFF_STATE_BY_PLAYER = new ConcurrentHashMap<>();
+    private static final Map<UUID, ScheduledFuture<?>> REFRESH_TASK_BY_PLAYER = new ConcurrentHashMap<>();
     private static final String ROOT_ID = "wardenLifeSeedCooldownRoot";
     private static final String LABEL_ID = "wardenLifeSeedCooldownLabel";
     private static final String ICON_ID = "wardenLifeSeedCooldownIcon";
@@ -39,10 +44,42 @@ final class WardenLifeSeedCooldownHud {
     private static final int ICON_SIZE = 56;
     private static final int ICON_BOX_SIZE = 64;
     private static final int ICON_BOX_TOP = 34;
-    private static final float LIFE_SEED_COOLDOWN_TOTAL_MILLIS = 20_000f;
     private static final String LIFE_SEED_ICON_TEXTURE_PATH = "forms/life_seed.png";
+    private static final String OAKENSHIELD_ICON_TEXTURE_PATH = "forms/oakenshield.png";
+    private static final String OAKENSHIELD_LABEL = "Oakenshield";
 
-    private WardenLifeSeedCooldownHud() {
+    private DruidBuffDebuffHud() {
+    }
+
+    public static void showLifeSeed(Player player) {
+        showTimedBuff(player, "Life Seed", LIFE_SEED_ICON_TEXTURE_PATH, 10_000L);
+    }
+
+    public static void showOakenshield(Player player) {
+        showTimedBuff(player, OAKENSHIELD_LABEL, OAKENSHIELD_ICON_TEXTURE_PATH, GuardianOakenshieldCooldownService.OAKENSHIELD_ACTIVE_MILLIS);
+    }
+
+    private static void showTimedBuff(Player player, String label, String iconTexturePath, long durationMillis) {
+        if (player == null || durationMillis <= 0L) {
+            return;
+        }
+        runOnWorldThread(player, () -> {
+            UUID playerUuid = player.getUuid();
+            if (playerUuid == null) {
+                return;
+            }
+            BUFF_STATE_BY_PLAYER.put(playerUuid, new TimedBuffState(
+                    label,
+                    iconTexturePath,
+                    System.currentTimeMillis() + durationMillis,
+                    durationMillis
+            ));
+            showOrUpdateOnWorldThread(player);
+            PlayerRef playerRef = resolvePlayerRef(player);
+            if (playerRef != null) {
+                ensureRefreshTask(player, playerRef, playerUuid);
+            }
+        });
     }
 
     public static void showOrUpdate(Player player) {
@@ -88,6 +125,18 @@ final class WardenLifeSeedCooldownHud {
 
         // Keep UI operations on world thread only; if unavailable, just clear stale bookkeeping.
         HUD_BY_PLAYER.remove(playerUuid);
+        BUFF_STATE_BY_PLAYER.remove(playerUuid);
+    }
+
+    static void removeAllCached() {
+        HUD_BY_PLAYER.clear();
+        BUFF_STATE_BY_PLAYER.clear();
+        for (ScheduledFuture<?> task : REFRESH_TASK_BY_PLAYER.values()) {
+            if (task != null) {
+                task.cancel(false);
+            }
+        }
+        REFRESH_TASK_BY_PLAYER.clear();
     }
 
     private static void showOrUpdateOnWorldThread(Player player) {
@@ -96,34 +145,24 @@ final class WardenLifeSeedCooldownHud {
             return;
         }
 
-        long remainingMillis = WardenLifeSeedAbilityHandler.getLifeSeedCooldownRemainingMillis(player);
+        TimedBuffState state = currentState(playerUuid);
+        long remainingMillis = state == null ? 0L : state.remainingMillis();
         if (remainingMillis <= 0L) {
             removeOnWorldThread(playerUuid);
             return;
         }
 
         HyUIHud existingHud = HUD_BY_PLAYER.get(playerUuid);
-        if (existingHud != null) {
-            PlayerRef playerRef = resolvePlayerRef(player);
-            if (playerRef != null) {
-                updateHudSnapshot(player, playerRef, existingHud, remainingMillis);
-            } else {
-                updateLabel(existingHud, remainingMillis);
-            }
-            return;
-        }
-
         PlayerRef playerRef = resolvePlayerRef(player);
         if (playerRef == null) {
             return;
         }
 
         try {
-            HyUIHud hud = createHudBuilder(player, playerRef, remainingMillis).show();
-            HUD_BY_PLAYER.put(playerUuid, hud);
-            System.out.println("[DruidHyUI] Life Seed cooldown HUD shown for " + playerUuid);
+            replaceHud(existingHud, player, playerRef, state, remainingMillis);
+            ensureRefreshTask(player, playerRef, playerUuid);
         } catch (Exception e) {
-            System.out.println("[DruidHyUI] Life Seed cooldown HUD show failed: " + e.getMessage());
+            System.out.println("[DruidHyUI] timed buff HUD show failed: " + e.getMessage());
         }
     }
 
@@ -139,22 +178,23 @@ final class WardenLifeSeedCooldownHud {
             return;
         }
 
-        long remainingMillis = WardenLifeSeedAbilityHandler.getLifeSeedCooldownRemainingMillis(player);
+        TimedBuffState state = currentState(playerUuid);
+        long remainingMillis = state == null ? 0L : state.remainingMillis();
         if (remainingMillis <= 0L) {
             removeOnWorldThread(playerUuid);
             return;
         }
 
         PlayerRef playerRef = resolvePlayerRef(player);
-        if (playerRef != null) {
-            updateHudSnapshot(player, playerRef, hud, remainingMillis);
-        } else {
-            updateLabel(hud, remainingMillis);
+        if (playerRef == null) {
+            return;
         }
+        replaceHud(hud, player, playerRef, state, remainingMillis);
+        ensureRefreshTask(player, playerRef, playerUuid);
     }
 
-    private static void refreshOnWorldThread(Player player, PlayerRef playerRef, HyUIHud hud) {
-        if (player == null || playerRef == null || hud == null) {
+    private static void refreshOnWorldThread(Player player, PlayerRef playerRef) {
+        if (player == null || playerRef == null) {
             return;
         }
 
@@ -163,23 +203,20 @@ final class WardenLifeSeedCooldownHud {
             return;
         }
 
-        HyUIHud activeHud = HUD_BY_PLAYER.get(playerUuid);
-        if (activeHud == null) {
-            return;
-        }
-
-        long remainingMillis = WardenLifeSeedAbilityHandler.getLifeSeedCooldownRemainingMillis(player);
+        TimedBuffState state = currentState(playerUuid);
+        long remainingMillis = state == null ? 0L : state.remainingMillis();
         if (remainingMillis <= 0L) {
             removeOnWorldThread(playerUuid);
             return;
         }
 
-        String label = formatCooldownLabel(remainingMillis);
-        System.out.println("[DruidHyUI] LifeSeed cooldown HUD refresh remainingMillis=" + remainingMillis + " label=" + label);
-        updateHudSnapshot(player, playerRef, activeHud, remainingMillis);
+        HyUIHud activeHud = HUD_BY_PLAYER.get(playerUuid);
+        replaceHud(activeHud, player, playerRef, state, remainingMillis);
     }
 
     private static void removeOnWorldThread(UUID playerUuid) {
+        BUFF_STATE_BY_PLAYER.remove(playerUuid);
+        cancelRefreshTask(playerUuid);
         HyUIHud hud = HUD_BY_PLAYER.remove(playerUuid);
         if (hud == null) {
             return;
@@ -187,13 +224,12 @@ final class WardenLifeSeedCooldownHud {
 
         try {
             hud.remove();
-            System.out.println("[DruidHyUI] Life Seed cooldown HUD removed for " + playerUuid);
         } catch (Exception e) {
-            System.out.println("[DruidHyUI] Life Seed cooldown HUD remove failed: " + e.getMessage());
+            System.out.println("[DruidHyUI] timed buff HUD remove failed: " + e.getMessage());
         }
     }
 
-    private static HudBuilder createHudBuilder(Player player, PlayerRef playerRef, long remainingMillis) {
+    private static HudBuilder createHudBuilder(Player player, PlayerRef playerRef, TimedBuffState state, long remainingMillis) {
         HyUIAnchor rootAnchor = new HyUIAnchor()
                 .setLeft(ROOT_LEFT)
                 .setBottom(ROOT_BOTTOM)
@@ -238,7 +274,7 @@ final class WardenLifeSeedCooldownHud {
                                         .setHeight(ICON_BOX_SIZE - 4))
                                 .withAlignment(ProgressBarAlignment.Vertical)
                                 .withDirection(ProgressBarDirection.End)
-                                .withValue(cooldownProgress(remainingMillis))
+                                .withValue(cooldownProgress(remainingMillis, state.totalMillis()))
                                 .withBackground(new HyUIPatchStyle().setColor("#00000000"))
                                 .withBar(new HyUIPatchStyle().setColor("#7F1C3E2C"))
                 )
@@ -246,36 +282,59 @@ final class WardenLifeSeedCooldownHud {
                         ImageBuilder.image()
                                 .withRawId(ICON_ID)
                                 .withAnchor(new HyUIAnchor().setLeft((ROOT_WIDTH - ICON_SIZE) / 2).setTop(ICON_TOP).setWidth(ICON_SIZE).setHeight(ICON_SIZE))
-                                .withImage(LIFE_SEED_ICON_TEXTURE_PATH)
+                                .withImage(state.iconTexturePath())
                 );
 
         return HudBuilder.hudForPlayer(playerRef)
                 .fromFile("Pages/EllieAU_HyUI_Placeholder.ui")
                 .addElement(root)
-                .withRefreshRate(REFRESH_MILLIS)
-                .onRefresh(hud -> runOnWorldThread(player, () -> refreshOnWorldThread(player, playerRef, hud)));
+                .withRefreshRate(REFRESH_MILLIS);
     }
 
-    private static void updateLabel(HyUIHud hud, long remainingMillis) {
-        if (hud == null) {
+    private static void replaceHud(HyUIHud existingHud, Player player, PlayerRef playerRef, TimedBuffState state, long remainingMillis) {
+        if (player == null || playerRef == null || state == null) {
             return;
         }
-        try {
-            hud.editById(LABEL_ID, LabelBuilder.class, label -> label.withText(formatCooldownLabel(remainingMillis)));
-            hud.updatePage(false);
-        } catch (Exception e) {
-            System.out.println("[DruidHyUI] Life Seed cooldown HUD label update failed: " + e.getMessage());
+        if (existingHud != null) {
+            try {
+                existingHud.remove();
+            } catch (Exception e) {
+                System.out.println("[DruidHyUI] timed buff HUD replace remove failed: " + e.getMessage());
+            }
+        }
+        HyUIHud shown = createHudBuilder(player, playerRef, state, remainingMillis).show();
+        HUD_BY_PLAYER.put(playerRef.getUuid(), shown);
+    }
+
+    private static void ensureRefreshTask(Player player, PlayerRef playerRef, UUID playerUuid) {
+        if (player == null || playerRef == null || playerUuid == null) {
+            return;
+        }
+
+        ScheduledFuture<?> existingTask = REFRESH_TASK_BY_PLAYER.get(playerUuid);
+        if (existingTask != null && !existingTask.isCancelled() && !existingTask.isDone()) {
+            return;
+        }
+
+        ScheduledFuture<?> task = HytaleServer.SCHEDULED_EXECUTOR.scheduleAtFixedRate(() ->
+                        runOnWorldThread(player, () -> refreshOnWorldThread(player, playerRef)),
+                1L,
+                1L,
+                TimeUnit.SECONDS);
+
+        ScheduledFuture<?> previous = REFRESH_TASK_BY_PLAYER.put(playerUuid, task);
+        if (previous != null && previous != task) {
+            previous.cancel(false);
         }
     }
 
-    private static void updateHudSnapshot(Player player, PlayerRef playerRef, HyUIHud hud, long remainingMillis) {
-        if (player == null || playerRef == null || hud == null) {
+    private static void cancelRefreshTask(UUID playerUuid) {
+        if (playerUuid == null) {
             return;
         }
-        try {
-            createHudBuilder(player, playerRef, remainingMillis).updateExisting(hud);
-        } catch (Exception e) {
-            updateLabel(hud, remainingMillis);
+        ScheduledFuture<?> task = REFRESH_TASK_BY_PLAYER.remove(playerUuid);
+        if (task != null) {
+            task.cancel(false);
         }
     }
 
@@ -297,8 +356,8 @@ final class WardenLifeSeedCooldownHud {
         return String.format(Locale.ROOT, "%ds", remainingSeconds);
     }
 
-    private static float cooldownProgress(long remainingMillis) {
-        float progress = Math.max(0L, remainingMillis) / LIFE_SEED_COOLDOWN_TOTAL_MILLIS;
+    private static float cooldownProgress(long remainingMillis, long totalMillis) {
+        float progress = totalMillis <= 0L ? 0f : Math.max(0L, remainingMillis) / (float) totalMillis;
         if (progress < 0f) {
             return 0f;
         }
@@ -306,6 +365,21 @@ final class WardenLifeSeedCooldownHud {
             return 1f;
         }
         return progress;
+    }
+
+    private static TimedBuffState currentState(UUID playerUuid) {
+        if (playerUuid == null) {
+            return null;
+        }
+        TimedBuffState state = BUFF_STATE_BY_PLAYER.get(playerUuid);
+        if (state == null) {
+            return null;
+        }
+        if (state.remainingMillis() <= 0L) {
+            BUFF_STATE_BY_PLAYER.remove(playerUuid, state);
+            return null;
+        }
+        return state;
     }
 
     private static PlayerRef resolvePlayerRef(Player player) {
@@ -338,5 +412,11 @@ final class WardenLifeSeedCooldownHud {
             }
         }
         return null;
+    }
+
+    private record TimedBuffState(String label, String iconTexturePath, long expiresAtMillis, long totalMillis) {
+        private long remainingMillis() {
+            return Math.max(0L, expiresAtMillis - System.currentTimeMillis());
+        }
     }
 }

@@ -144,11 +144,7 @@ final class DruidRadialUseBlockAudit {
     }
 
     private static String safeDisplayName(Player player) {
-        try {
-            return player.getDisplayName();
-        } catch (Exception ignored) {
-            return null;
-        }
+        return DruidPlayerCompat.getPlayerName(player);
     }
 
     private static String safeString(Object value) {

@@ -1,0 +1,15 @@
+{
+  "RequireNewClick": true,
+  "ClickQueuingTimeout": 0.15,
+  "Cooldown": {
+    "Cooldown": 8.5
+  },
+  "Interactions": [
+    "Druid_Guardian_Ground_Slam_Start"
+  ],
+  "Tags": {
+    "Attack": [
+      "Melee"
+    ]
+  }
+}

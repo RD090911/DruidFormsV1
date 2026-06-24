@@ -440,7 +440,7 @@ class AnimalArmorService {
             if (inventory == null) return null;
             return inventory.getArmor();
         } catch (Exception e) {
-            System.out.println("[Druid] Failed to access player armor container for " + player.getDisplayName() + ": " + e.getMessage());
+            System.out.println("[Druid] Failed to access player armor container for " + DruidPlayerCompat.getPlayerName(player) + ": " + e.getMessage());
             return null;
         }
     }
@@ -574,7 +574,7 @@ class AnimalArmorService {
         } catch (Exception ignored) {
         }
         try {
-            String displayName = player.getDisplayName();
+            String displayName = DruidPlayerCompat.getPlayerName(player);
             if (displayName != null && !displayName.isBlank()) {
                 keys.add(displayName);
             }

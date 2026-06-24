@@ -92,12 +92,16 @@ public class ShapeshiftCommand extends AbstractCommand {
     public CompletableFuture<Void> execute(CommandContext context) {
         CommandSender sender = context.sender();
 
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof PlayerRef playerRef)) {
             sendResponse(sender, "Only players can shapeshift!");
             return CompletableFuture.completedFuture(null);
         }
 
-        Player player = (Player) sender;
+        Player player = DruidPermissions.getOnlinePlayer(playerRef.getUuid());
+        if (player == null) {
+            sendResponse(sender, "Player context unavailable.");
+            return CompletableFuture.completedFuture(null);
+        }
         String[] args = extractArgs(context);
         if (args.length == 0) {
             sendHelp(player);
@@ -394,13 +398,12 @@ public class ShapeshiftCommand extends AbstractCommand {
             return;
         }
 
-        int activeSlot = resolveActiveHotbarSlot(player);
-        boolean isSlot1Selected = activeSlot == 0 || activeSlot == 1;
         String heldItemId = resolveHeldItemId(player);
+        boolean isTransformed = ShapeshiftHandler.getActiveFormId(player) != null;
         boolean isDruidControlItem = DruidControlItemMatcher.matches(handler, heldItemId);
 
-        if (!isSlot1Selected || !isDruidControlItem) {
-            sendResponse(player, "Hold a druid control item in hotbar slot 1 and use secondary interaction.");
+        if (!isTransformed && !isDruidControlItem) {
+            sendResponse(player, "Hold a druid control item and use secondary interaction.");
             return;
         }
 
@@ -442,6 +445,12 @@ public class ShapeshiftCommand extends AbstractCommand {
         sendResponse(sender, "/druid status <player>");
     }
 
+    private void sendHelp(Player player) {
+        PlayerRef playerRef = DruidPlayerCompat.getPlayerRef(player);
+        if (playerRef == null) return;
+        sendHelp(playerRef);
+    }
+
     private void refreshHudVisibility(Player player) {
         if (DruidPermissions.shouldShowHud(player)) {
             DruidHyUiCurrentFormHud.attachOrRefresh(player);
@@ -456,6 +465,12 @@ public class ShapeshiftCommand extends AbstractCommand {
         FormattedMessage component = new FormattedMessage();
         component.rawText = text;
         sender.sendMessage(new Message(component));
+    }
+
+    private void sendResponse(Player player, String text) {
+        PlayerRef playerRef = DruidPlayerCompat.getPlayerRef(player);
+        if (playerRef == null) return;
+        sendResponse(playerRef, text);
     }
 
     private ResolvedCommandIdentity resolveCommandIdentity(Player player, String commandAnimalKey) {
@@ -663,7 +678,7 @@ public class ShapeshiftCommand extends AbstractCommand {
             return "unknown";
         }
         try {
-            String displayName = player.getDisplayName();
+            String displayName = DruidPlayerCompat.getPlayerName(player);
             if (displayName != null && !displayName.isBlank()) {
                 return displayName;
             }
@@ -693,9 +708,75 @@ public class ShapeshiftCommand extends AbstractCommand {
             Object inventory = player.getClass().getMethod("getInventory").invoke(player);
             if (inventory == null) return null;
             Object held = inventory.getClass().getMethod("getItemInHand").invoke(inventory);
-            if (held == null) return null;
-            Method getItemId = held.getClass().getMethod("getItemId");
-            Object itemId = getItemId.invoke(held);
+            String heldItemId = getItemIdFromStack(held);
+            if (heldItemId != null && !heldItemId.isBlank()) return heldItemId;
+
+            Object hotbar = inventory.getClass().getMethod("getHotbar").invoke(inventory);
+            if (hotbar == null) return null;
+
+            Method getActiveSlot = inventory.getClass().getMethod("getActiveHotbarSlot");
+            Object activeSlotValue = getActiveSlot.invoke(inventory);
+            int activeSlot = activeSlotValue instanceof Number ? ((Number) activeSlotValue).intValue() : -1;
+
+            Method getStack = findGetStackMethod(hotbar);
+            if (getStack == null) return null;
+
+            String fromActiveSlot = getItemIdFromStack(invokeGetStack(hotbar, getStack, activeSlot));
+            if (fromActiveSlot != null && !fromActiveSlot.isBlank()) return fromActiveSlot;
+
+            String fromSlotZero = getItemIdFromStack(invokeGetStack(hotbar, getStack, 0));
+            if (fromSlotZero != null && !fromSlotZero.isBlank()) return fromSlotZero;
+
+            String fromSlotOne = getItemIdFromStack(invokeGetStack(hotbar, getStack, 1));
+            if (fromSlotOne != null && !fromSlotOne.isBlank()) return fromSlotOne;
+            return null;
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private Method findGetStackMethod(Object hotbar) {
+        if (hotbar == null) return null;
+        Class<?> clazz = hotbar.getClass();
+        try {
+            return clazz.getMethod("getItemStackForSlot", int.class);
+        } catch (Exception ignored) {
+        }
+        try {
+            return clazz.getMethod("getItemStackForSlot", short.class);
+        } catch (Exception ignored) {
+        }
+        for (Method method : clazz.getMethods()) {
+            if (method.getParameterCount() != 1) continue;
+            if (method.getName().toLowerCase(Locale.ROOT).contains("getitemstack")) return method;
+        }
+        return null;
+    }
+
+    private Object invokeGetStack(Object container, Method getter, int slot) {
+        if (container == null || getter == null || slot < 0) return null;
+        try {
+            Class<?> paramType = getter.getParameterTypes()[0];
+            if (paramType == int.class || paramType == Integer.class) {
+                return getter.invoke(container, slot);
+            }
+            if (paramType == short.class || paramType == Short.class) {
+                return getter.invoke(container, (short) slot);
+            }
+            if (paramType == byte.class || paramType == Byte.class) {
+                return getter.invoke(container, (byte) slot);
+            }
+            return getter.invoke(container, slot);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private String getItemIdFromStack(Object itemStack) {
+        if (itemStack == null) return null;
+        try {
+            Method getItemId = itemStack.getClass().getMethod("getItemId");
+            Object itemId = getItemId.invoke(itemStack);
             return itemId instanceof String ? (String) itemId : null;
         } catch (Exception ignored) {
             return null;

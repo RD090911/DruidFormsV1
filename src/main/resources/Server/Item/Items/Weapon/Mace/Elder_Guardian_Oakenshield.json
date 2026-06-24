@@ -1,0 +1,33 @@
+{
+  "TranslationProperties": {
+    "Name": "Oakenshield"
+  },
+  "Icon": "Icons/Items/oakenshield.png",
+  "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
+  "Reticle": "MaceMelee",
+  "Quality": "Legendary",
+  "ItemSoundSetId": "ISS_Weapon_Blunt_Large",
+  "ItemLevel": 65,
+  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
+  "MaxStack": 1,
+  "Categories": [
+    "Items.Weapons"
+  ],
+  "Utility": {
+    "Compatible": false
+  },
+  "Interactions": {
+    "Primary": "Druid_Guardian_Oakenshield_Primary",
+    "Secondary": "Druid_Open_Radial_Menu"
+  },
+  "Tags": {
+    "Type": [
+      "Weapon"
+    ],
+    "Family": [
+      "Mace"
+    ]
+  },
+  "MaxDurability": 400,
+  "DurabilityLossOnHit": 0
+}

@@ -1,0 +1,72 @@
+{
+  "RequireNewClick": true,
+  "ClickQueuingTimeout": 0.15,
+  "Cooldown": {
+    "Cooldown": 1.0
+  },
+  "Interactions": [
+    {
+      "Type": "Parallel",
+      "Interactions": [
+        {
+          "Interactions": [
+            {
+              "Type": "Simple",
+              "RunTime": 0.7,
+              "Effects": {
+                "ItemPlayerAnimationsId": "Druid_Tiger_Pounce",
+                "ItemAnimationId": "JumpFar"
+              },
+              "Next": {
+                "Type": "Simple",
+                "RunTime": 0.3,
+                "Effects": {
+                  "ItemPlayerAnimationsId": "Tiger_Sabertooth_Default",
+                  "ItemAnimationId": "SwipeLeft"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "Interactions": [
+            {
+              "Type": "Simple",
+              "RunTime": 0.4,
+              "Next": {
+                "Type": "Selector",
+                "RunTime": 0.25,
+                "Selector": {
+                  "Id": "Horizontal",
+                  "Direction": "ToLeft",
+                  "TestLineOfSight": true,
+                  "ExtendTop": 2.25,
+                  "ExtendBottom": 2.25,
+                  "StartDistance": 0.25,
+                  "EndDistance": 6.0,
+                  "Length": 180,
+                  "RollOffset": 30,
+                  "YawStartOffset": -90
+                },
+                "HitEntity": {
+                  "Interactions": [
+                    {
+                      "Type": "Replace",
+                      "DefaultOk": true,
+                      "DefaultValue": {
+                        "Interactions": [
+                          "Druid_Prowler_Pounce_Damage"
+                        ]
+                      },
+                      "Var": "Pounce_Damage"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

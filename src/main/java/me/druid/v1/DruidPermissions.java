@@ -4,6 +4,7 @@ import com.hypixel.hytale.protocol.FormattedMessage;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandSender;
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -104,6 +105,12 @@ final class DruidPermissions {
         sender.sendMessage(new Message(component));
     }
 
+    static void sendDenied(Player player) {
+        PlayerRef playerRef = DruidPlayerCompat.getPlayerRef(player);
+        if (playerRef == null) return;
+        sendDenied(playerRef);
+    }
+
     static void sendGrantedOnFirstSuccessfulTransform(Player player) {
         if (player == null) return;
         UUID playerId = player.getUuid();
@@ -112,11 +119,24 @@ final class DruidPermissions {
 
         FormattedMessage component = new FormattedMessage();
         component.rawText = ACCESS_GRANTED_MESSAGE;
-        player.sendMessage(new Message(component));
+        DruidPlayerCompat.sendMessage(player, new Message(component));
     }
 
     static boolean canUseAdmin(Player player) {
         return isAdmin(player);
+    }
+
+    static boolean canUseAdmin(CommandSender sender) {
+        if (sender == null) return false;
+        try {
+            return sender.hasPermission(ADMIN, false);
+        } catch (Exception ignored) {
+        }
+        try {
+            return sender.hasPermission(ADMIN);
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     static UUID resolvePlayerInput(String input) {
@@ -156,7 +176,8 @@ final class DruidPermissions {
         if (player == null) return;
         try {
             UUID playerId = player.getUuid();
-            String lowerName = player.getDisplayName() == null ? null : player.getDisplayName().toLowerCase(Locale.ROOT);
+            String rawName = DruidPlayerCompat.getPlayerName(player);
+            String lowerName = rawName == null ? null : rawName.toLowerCase(Locale.ROOT);
             if (playerId == null || lowerName == null || lowerName.isEmpty()) return;
             ensureLoaded();
             onlinePlayersByUuid.put(playerId, player);
@@ -183,25 +204,11 @@ final class DruidPermissions {
     }
 
     private static boolean isAdmin(Player player) {
-        if (player == null) return false;
-        try {
-            return player.hasPermission(ADMIN, false);
-        } catch (Exception ignored) {
-        }
-        return false;
+        return DruidPlayerCompat.hasPermission(player, ADMIN, false);
     }
 
     private static boolean hasPermission(Player player, String node) {
-        if (player == null || node == null || node.isEmpty()) return true;
-        try {
-            return player.hasPermission(node, true);
-        } catch (Exception ignored) {
-        }
-        try {
-            return player.hasPermission(node);
-        } catch (Exception ignored) {
-        }
-        return true;
+        return DruidPlayerCompat.hasPermission(player, node, true);
     }
 
     private static AccessOverride getOverride(Player player) {

@@ -2,7 +2,7 @@
   "TranslationProperties": {
     "Name": "Forager Horn"
   },
-  "Icon": "Icons/ItemsGenerated/Bone_Spike.png",
+  "Icon": "Icons/Items/forager_horn.png",
   "Quality": "Uncommon",
   "ItemLevel": 20,
   "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",

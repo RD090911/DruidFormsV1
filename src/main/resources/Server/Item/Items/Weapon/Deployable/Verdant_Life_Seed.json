@@ -20,7 +20,7 @@
       -39.6
     ]
   },
-  "Icon": "Icons/ItemsGenerated/Ingredient_Life_Essence.png",
+  "Icon": "Icons/Items/life_seed.png",
   "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
   "Recipe": {
     "Input": [

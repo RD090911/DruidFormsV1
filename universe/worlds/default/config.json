@@ -45,6 +45,7 @@
   "IsObjectiveMarkersEnabled": true,
   "DeleteOnUniverseStart": false,
   "DeleteOnRemove": false,
+  "DisabledFluidTickers": [],
   "ResourceStorage": {
     "Type": "Hytale"
   },

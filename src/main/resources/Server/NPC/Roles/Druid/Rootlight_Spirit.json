@@ -1,0 +1,106 @@
+{
+  "StartState": "Idle",
+  "DefaultSubState": "Default",
+  "Type": "Generic",
+  "Appearance": "Rootlight_Spirit",
+  "Invulnerable": true,
+  "BreathesInWater": true,
+  "ApplySeparation": false,
+  "MaxHealth": 1,
+  "InitialMotionController": "Walk",
+  "MotionControllerList": [
+    {
+      "Type": "Walk",
+      "MaxWalkSpeed": 25,
+      "RunThreshold": 0.3,
+      "Gravity": 10,
+      "MaxFallSpeed": 8,
+      "Acceleration": 10,
+      "MinHover": 0.9,
+      "MinHoverDrop": 0.1,
+      "MinHoverClimb": 0.1,
+      "MaxHover": 1.3,
+      "HoverFreq": 0.2,
+      "MaxClimbHeight": 10
+    },
+    {
+      "Type": "Fly",
+      "MaxHorizontalSpeed": 14.5,
+      "MaxSinkSpeed": 14.5,
+      "MaxClimbSpeed": 14.5,
+      "MinAirSpeed": 0,
+      "Acceleration": 8,
+      "Deceleration": 8,
+      "MinHeightOverGround": 1,
+      "MaxHeightOverGround": 20,
+      "MaxRollAngle": 25,
+      "MaxTurnSpeed": 180,
+      "AutoLevel": true,
+      "DesiredAltitudeWeight": 0
+    }
+  ],
+  "Instructions": [
+    {
+      "Instructions": [
+        {
+          "Sensor": {
+            "Type": "State",
+            "State": "Idle"
+          },
+          "Instructions": [
+            {
+              "Sensor": {
+                "Type": "State",
+                "State": ".Default"
+              },
+              "Instructions": [
+                {
+                  "Sensor": {
+                    "Type": "Target",
+                    "TargetSlot": "LockedTarget",
+                    "Range": 20
+                  },
+                  "Instructions": [
+                    {
+                      "Sensor": {
+                        "Type": "Target",
+                        "TargetSlot": "LockedTarget",
+                        "Range": 8
+                      },
+                      "HeadMotion": {
+                        "Type": "Watch"
+                      },
+                      "BodyMotion": {
+                        "Type": "MaintainDistance",
+                        "DesiredDistanceRange": [ 1.8, 2.8 ],
+                        "MoveThreshold": 0.2,
+                        "RelativeForwardsSpeed": 1.0,
+                        "RelativeBackwardsSpeed": 1.0
+                      }
+                    },
+                    {
+                      "Sensor": {
+                        "Type": "Target",
+                        "TargetSlot": "LockedTarget"
+                      },
+                      "HeadMotion": {
+                        "Type": "Watch"
+                      },
+                      "BodyMotion": {
+                        "Type": "Seek",
+                        "SlowDownDistance": 5,
+                        "StopDistance": 2,
+                        "RelativeSpeed": 1.4
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "NameTranslationKey": "server.npcRoles.Spirit_Root.name"
+}

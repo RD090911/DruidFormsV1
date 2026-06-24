@@ -1,6 +1,6 @@
 {
   "TranslationProperties": {
-    "Name": "Primal Guardian Hide"
+    "Name": "Primal Slash"
   },
   "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
   "Reticle": "MaceMelee",
@@ -32,9 +32,8 @@
     ]
   },
   "Interactions": {
-    "Primary": "Root_Weapon_Mace_Primary",
-    "Secondary": "Druid_Open_Radial_Menu",
-    "Ability1": "Root_Weapon_Mace_Signature_Groundslam"
+    "Primary": "Druid_Guardian_Slash_Primary",
+    "Secondary": "Druid_Open_Radial_Menu"
   },
   "Weapon": {
     "EntityStatsToClear": [
@@ -73,159 +72,144 @@
   "MaxDurability": 400,
   "DurabilityLossOnHit": 0,
   "InteractionVars": {
+    "Pounce_StaminaCondition": {
+      "Interactions": [
+        "Weapon_Daggers_Primary_Chain"
+      ]
+    },
+    "Primary_Swing_Left": {
+      "Interactions": [
+        {
+          "Parent": "Weapon_Daggers_Primary_Swing_Left",
+          "Effects": {
+            "ItemPlayerAnimationsId": "Bear_Grizzly_Default",
+            "ItemAnimationId": "SwipeLeft"
+          }
+        }
+      ]
+    },
+    "Primary_Swing_Right": {
+      "Interactions": [
+        {
+          "Parent": "Weapon_Daggers_Primary_Swing_Right",
+          "Effects": {
+            "ItemPlayerAnimationsId": "Bear_Grizzly_Default",
+            "ItemAnimationId": "SwipeRight"
+          }
+        }
+      ]
+    },
+    "Primary_Stab_Left": {
+      "Interactions": [
+        {
+          "Parent": "Weapon_Daggers_Primary_Stab_Left",
+          "Effects": {
+            "ItemPlayerAnimationsId": "Bear_Grizzly_Default",
+            "ItemAnimationId": "SwipeLeft"
+          }
+        }
+      ]
+    },
+    "Primary_Stab_Right": {
+      "Interactions": [
+        {
+          "Parent": "Weapon_Daggers_Primary_Stab_Right",
+          "Effects": {
+            "ItemPlayerAnimationsId": "Bear_Grizzly_Default",
+            "ItemAnimationId": "SwipeRight"
+          }
+        }
+      ]
+    },
+    "Swing_Left_Selector": {
+      "Interactions": [
+        "Druid_Guardian_Slash_Swing_Left_Selector"
+      ]
+    },
+    "Swing_Right_Selector": {
+      "Interactions": [
+        "Druid_Guardian_Slash_Swing_Right_Selector"
+      ]
+    },
+    "Stab_Left_Selector": {
+      "Interactions": [
+        "Druid_Guardian_Slash_Stab_Left_Selector"
+      ]
+    },
+    "Stab_Right_Selector": {
+      "Interactions": [
+        "Druid_Guardian_Slash_Stab_Right_Selector"
+      ]
+    },
     "Swing_Left_Damage": {
       "Interactions": [
         {
-          "Parent": "Weapon_Mace_Primary_Swing_Left_Damage",
+          "Parent": "Weapon_Daggers_Primary_Swing_Left_Damage",
           "DamageCalculator": {
             "BaseDamage": {
-              "Physical": 16
+              "Physical": 14
             }
           },
-          "EntityStatsOnHit": [
-            {
-              "EntityStatId": "Health",
-              "Amount": 9,
-              "Target": "Self"
-            }
-          ],
+          "EntityStatsOnHit": [],
           "DamageEffects": {
-            "WorldSoundEventId": "SFX_Mace_T2_Impact",
-            "LocalSoundEventId": "SFX_Mace_T2_Impact",
-            "Knockback": {
-              "Type": "Force",
-              "Force": 18,
-              "Direction": {
-                "X": 0,
-                "Y": 0.5,
-                "Z": -3
-              },
-              "VelocityType": "Add",
-              "VelocityConfig": {
-                "AirResistance": 0.99,
-                "GroundResistance": 0.94,
-                "Threshold": 3.0,
-                "Style": "Linear"
-              }
-            }
-          }
+            "WorldSoundEventId": "SFX_Daggers_T2_Slash_Impact",
+            "LocalSoundEventId": "SFX_Daggers_T2_Slash_Impact"
+          },
+          "AngledDamage": []
         }
       ]
     },
     "Swing_Right_Damage": {
       "Interactions": [
         {
-          "Parent": "Weapon_Mace_Primary_Swing_Right_Damage",
+          "Parent": "Weapon_Daggers_Primary_Swing_Right_Damage",
           "DamageCalculator": {
             "BaseDamage": {
-              "Physical": 16
+              "Physical": 14
             }
           },
-          "EntityStatsOnHit": [
-            {
-              "EntityStatId": "Health",
-              "Amount": 9,
-              "Target": "Self"
-            }
-          ],
+          "EntityStatsOnHit": [],
           "DamageEffects": {
-            "WorldSoundEventId": "SFX_Mace_T2_Impact",
-            "LocalSoundEventId": "SFX_Mace_T2_Impact",
-            "Knockback": {
-              "Type": "Force",
-              "Force": 18,
-              "Direction": {
-                "X": 0,
-                "Y": 0.5,
-                "Z": -3
-              },
-              "VelocityType": "Add",
-              "VelocityConfig": {
-                "AirResistance": 0.99,
-                "GroundResistance": 0.94,
-                "Threshold": 3.0,
-                "Style": "Linear"
-              }
-            }
-          }
+            "WorldSoundEventId": "SFX_Daggers_T2_Slash_Impact",
+            "LocalSoundEventId": "SFX_Daggers_T2_Slash_Impact"
+          },
+          "AngledDamage": []
         }
       ]
     },
-    "Swing_Up_Left_Damage": {
+    "Stab_Left_Damage": {
       "Interactions": [
         {
-          "Parent": "Weapon_Mace_Primary_Swing_Up_Left_Damage",
+          "Parent": "Weapon_Daggers_Primary_Stab_Left_Damage",
           "DamageCalculator": {
             "BaseDamage": {
-              "Physical": 16
+              "Physical": 14
             }
           },
-          "EntityStatsOnHit": [
-            {
-              "EntityStatId": "Health",
-              "Amount": 9,
-              "Target": "Self"
-            }
-          ],
+          "EntityStatsOnHit": [],
           "DamageEffects": {
-            "WorldSoundEventId": "SFX_Mace_T2_Impact",
-            "LocalSoundEventId": "SFX_Mace_T2_Impact",
-            "Knockback": {
-              "Type": "Force",
-              "Force": 18,
-              "Direction": {
-                "X": 0,
-                "Y": 0.5,
-                "Z": -3
-              },
-              "VelocityType": "Add",
-              "VelocityConfig": {
-                "AirResistance": 0.99,
-                "GroundResistance": 0.94,
-                "Threshold": 3.0,
-                "Style": "Linear"
-              }
-            }
-          }
+            "WorldSoundEventId": "SFX_Daggers_T2_Slash_Impact",
+            "LocalSoundEventId": "SFX_Daggers_T2_Slash_Impact"
+          },
+          "AngledDamage": []
         }
       ]
     },
-    "Groundslam_Damage": {
+    "Stab_Right_Damage": {
       "Interactions": [
         {
-          "Parent": "Weapon_Mace_Signature_Groundslam_Damage",
+          "Parent": "Weapon_Daggers_Primary_Stab_Right_Damage",
           "DamageCalculator": {
             "BaseDamage": {
-              "Physical": 36
+              "Physical": 14
             }
           },
-          "EntityStatsOnHit": [
-            {
-              "EntityStatId": "Health",
-              "Amount": 9,
-              "Target": "Self"
-            }
-          ],
+          "EntityStatsOnHit": [],
           "DamageEffects": {
-            "WorldSoundEventId": "SFX_Mace_T2_Impact",
-            "LocalSoundEventId": "SFX_Mace_T2_Impact",
-            "Knockback": {
-              "Type": "Force",
-              "Force": 25,
-              "Direction": {
-                "X": 0,
-                "Y": 1,
-                "Z": -3
-              },
-              "VelocityType": "Set",
-              "VelocityConfig": {
-                "AirResistance": 0.99,
-                "GroundResistance": 0.94,
-                "Threshold": 3.0,
-                "Style": "Linear"
-              }
-            }
-          }
+            "WorldSoundEventId": "SFX_Daggers_T2_Slash_Impact",
+            "LocalSoundEventId": "SFX_Daggers_T2_Slash_Impact"
+          },
+          "AngledDamage": []
         }
       ]
     },
@@ -241,7 +225,7 @@
       ]
     }
   },
-  "Icon": "Icons/ItemsGenerated/Ingredient_Hide_Medium.png",
+  "Icon": "Icons/Items/slash.png",
   "Recipe": {
     "Input": [
       {
