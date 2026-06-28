@@ -1,6 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "Verdant Slash"
+    "Name": "Verdant Slash",
+    "Description": "server.items.Verdant_Bear_Skin.description"
   },
   "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
   "Reticle": "MaceMelee",

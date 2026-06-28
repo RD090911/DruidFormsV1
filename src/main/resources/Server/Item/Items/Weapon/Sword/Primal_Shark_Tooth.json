@@ -1,8 +1,9 @@
 {
   "TranslationProperties": {
-    "Name": "Primal Stalker Fang"
+    "Name": "Bite",
+    "Description": "server.items.Primal_Shark_Tooth.description"
   },
-  "Icon": "Icons/ItemsGenerated/Rock_Ice_Stalactite_Large.png",
+  "Icon": "Icons/Items/stalker_bite.png",
   "Quality": "Epic",
   "ItemLevel": 50,
   "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
@@ -27,9 +28,33 @@
           "Parent": "NPC_Attack_Melee_Simple",
           "Effects": {
             "ItemPlayerAnimationsId": "Druid_Shark_Default",
-            "ItemAnimationId": "Alerted"
+            "ItemAnimationId": "Bite"
           },
           "RunTime": 0.25
+        }
+      ]
+    },
+    "Melee_Selector": {
+      "Interactions": [
+        {
+          "Parent": "NPC_Attack_Selector_Left",
+          "RunTime": 0.18,
+          "Selector": {
+            "Id": "Horizontal",
+            "Direction": "ToLeft",
+            "TestLineOfSight": true,
+            "ExtendTop": 0.75,
+            "ExtendBottom": 0.75,
+            "StartDistance": 0.2,
+            "EndDistance": 3.7,
+            "Length": 65,
+            "RollOffset": -90,
+            "YawStartOffset": -32.5
+          },
+          "Next": {
+            "Type": "Simple",
+            "RunTime": 0.17
+          }
         }
       ]
     },

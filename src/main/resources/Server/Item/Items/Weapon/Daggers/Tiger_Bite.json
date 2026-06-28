@@ -1,6 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "Bite"
+    "Name": "Bite",
+    "Description": "server.items.Tiger_Bite.description"
   },
   "Icon": "Icons/Items/bite.png",
   "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",

@@ -1,6 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "Slash"
+    "Name": "Slash",
+    "Description": "server.items.Bear_Skin.description"
   },
   "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
   "Reticle": "MaceMelee",

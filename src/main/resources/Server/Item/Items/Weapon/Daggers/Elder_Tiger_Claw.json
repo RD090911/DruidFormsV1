@@ -1,6 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "Elder Claw"
+    "Name": "Elder Claw",
+    "Description": "server.items.Elder_Tiger_Claw.description"
   },
   "Icon": "Icons/Items/claw.png",
   "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",

@@ -1,6 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "Verdant Claw"
+    "Name": "Verdant Claw",
+    "Description": "server.items.Verdant_Tiger_Claw.description"
   },
   "Icon": "Icons/Items/claw.png",
   "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",

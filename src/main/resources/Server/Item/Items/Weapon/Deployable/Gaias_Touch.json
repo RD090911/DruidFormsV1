@@ -1,7 +1,7 @@
 {
   "TranslationProperties": {
     "Name": "Gaia's Touch",
-    "Description": "A restorative focus carried by the Warden form."
+    "Description": "server.items.Gaias_Touch.description"
   },
   "Scale": 0.305,
   "Quality": "Uncommon",

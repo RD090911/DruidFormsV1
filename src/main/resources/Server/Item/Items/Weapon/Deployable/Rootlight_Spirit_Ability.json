@@ -1,7 +1,7 @@
 {
   "TranslationProperties": {
     "Name": "Rootlight Spirit",
-    "Description": "Summon or dismiss your Rootlight Spirit companion."
+    "Description": "server.items.Rootlight_Spirit_Ability.description"
   },
   "Scale": 0.305,
   "Quality": "Uncommon",

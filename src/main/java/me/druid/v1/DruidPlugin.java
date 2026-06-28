@@ -121,6 +121,8 @@ public class DruidPlugin extends JavaPlugin {
         Object playerRef = event.getPlayerRef();
         ProwlerStealthService.handleDisconnect(event.getPlayerRef());
         ProwlerPounceAbilityService.handleDisconnect(event.getPlayerRef());
+        StalkerBreachAbilityService.handleDisconnect(event.getPlayerRef());
+        StalkerHuntersMarkAbilityService.handleDisconnect(event.getPlayerRef());
         RootlightSpiritLightService.handleDisconnect(event.getPlayerRef());
         RootlightSpiritCompanionService.handleDisconnect(event.getPlayerRef());
         GuardianOakenshieldCooldownService.clearActive(event.getPlayerRef().getUuid());
@@ -171,6 +173,8 @@ public class DruidPlugin extends JavaPlugin {
         ProwlerStealthService.shutdown();
         ProwlerPounceAbilityService.shutdown();
         ProwlerStealthNpcAttitudeService.shutdown();
+        StalkerBreachAbilityService.shutdown();
+        StalkerHuntersMarkAbilityService.shutdown();
         RootlightSpiritCompanionService.shutdown();
         RootlightSpiritLightService.shutdown();
         DruidBuffDebuffHud.removeAllCached();

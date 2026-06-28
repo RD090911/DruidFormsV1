@@ -1,0 +1,10 @@
+{
+  "RequireNewClick": true,
+  "ClickQueuingTimeout": 0.15,
+  "Cooldown": {
+    "Cooldown": 8.0
+  },
+  "Interactions": [
+    "Druid_Stalker_Breach_Start"
+  ]
+}

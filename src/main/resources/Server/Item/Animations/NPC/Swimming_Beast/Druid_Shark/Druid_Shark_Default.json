@@ -1,5 +1,25 @@
 {
   "Animations": {
+    "Dive": {
+      "ThirdPerson": "NPC/Swimming_Beast/Shark_Hammerhead/Animations/Swim/Swim_Fast.blockyanim",
+      "Speed": 1.0,
+      "Looping": false
+    },
+    "Breach": {
+      "ThirdPerson": "NPC/Swimming_Beast/Shark_Hammerhead/Animations/Swim/Swim_Jump.blockyanim",
+      "Speed": 1.0,
+      "Looping": false
+    },
+    "Swim_Fast": {
+      "ThirdPerson": "NPC/Swimming_Beast/Shark_Hammerhead/Animations/Swim/Swim_Fast.blockyanim",
+      "Speed": 1.0,
+      "Looping": false
+    },
+    "Bite": {
+      "ThirdPerson": "NPC/Swimming_Beast/Shark_Hammerhead/Animations/Attacks/Bite.blockyanim",
+      "Speed": 1.0,
+      "Looping": false
+    },
     "Alerted": {
       "ThirdPerson": "NPC/Swimming_Beast/Shark_Hammerhead/Animations/Default/Spawn.blockyanim",
       "Speed": 1.0,

@@ -60,6 +60,10 @@ public class ShapeshiftHandler {
     private static final String PROWLER_BITE_ITEM = "Tiger_Bite";
     private static final String PROWLER_POUNCE_ITEM = "Tiger_Pounce";
     private static final String PROWLER_STEALTH_ITEM = "Tiger_Stealth";
+    private static final String STALKER_SURGE_ITEM = "Shark_Surge";
+    private static final String STALKER_DIVE_ITEM = "Shark_Dive";
+    private static final String STALKER_BREACH_ITEM = "Shark_Breach";
+    private static final String STALKER_HUNTERS_MARK_ITEM = "Stalker_Hunters_Mark";
     private static final String GUARDIAN_GROUND_SLAM_ITEM = "Guardian_Ground_Slam";
     private static final String VERDANT_GUARDIAN_GROUND_SLAM_ITEM = "Verdant_Guardian_Ground_Slam";
     private static final String PRIMAL_GUARDIAN_GROUND_SLAM_ITEM = "Primal_Guardian_Ground_Slam";
@@ -69,6 +73,8 @@ public class ShapeshiftHandler {
     private static final String ELDER_GUARDIAN_OAKENSHIELD_ITEM = "Elder_Guardian_Oakenshield";
     private static final String GUARDIAN_CHALLENGING_ROAR_ITEM = "Guardian_Challenging_Roar";
     private static final String ELDER_GUARDIAN_CHALLENGING_ROAR_ITEM = "Elder_Guardian_Challenging_Roar";
+    private static final String GUARDIAN_TERRIFYING_ROAR_ITEM = "Guardian_Terrifying_Roar";
+    private static final String ELDER_GUARDIAN_TERRIFYING_ROAR_ITEM = "Elder_Guardian_Terrifying_Roar";
     private static final String ROOTLIGHT_SPIRIT_ITEM = "Rootlight_Spirit_Ability";
     private static final short HOTBAR_SLOT_ONE = 0;
     private static final short HOTBAR_SIZE = 10;
@@ -586,6 +592,10 @@ public class ShapeshiftHandler {
         if ("warden".equals(previousForm) && !"warden".equals(shortName)) {
             DruidBuffDebuffHud.remove(player);
         }
+        if ("shark".equals(previousForm) && !"shark".equals(shortName)) {
+            StalkerBreachAbilityService.cleanupPlayer(player, "form-change");
+            StalkerHuntersMarkAbilityService.cleanupPlayer(player, "form-change");
+        }
 
         if (currentForm != null) {
             maintenanceActive.put(playerName, false);
@@ -693,6 +703,10 @@ public class ShapeshiftHandler {
         }
         if ("warden".equals(previousForm)) {
             DruidBuffDebuffHud.remove(player);
+        }
+        if ("shark".equals(previousForm)) {
+            StalkerBreachAbilityService.cleanupPlayer(player, "restore-human");
+            StalkerHuntersMarkAbilityService.cleanupPlayer(player, "restore-human");
         }
         maintenanceActive.put(playerName, false);
         playPoofEffect(player);
@@ -1188,6 +1202,12 @@ public class ShapeshiftHandler {
             itemIds.add(PROWLER_POUNCE_ITEM);
             itemIds.add(PROWLER_STEALTH_ITEM);
         }
+        if ("shark".equals(canonicalForm)) {
+            itemIds.add(STALKER_SURGE_ITEM);
+            itemIds.add(STALKER_DIVE_ITEM);
+            itemIds.add(STALKER_BREACH_ITEM);
+            itemIds.add(STALKER_HUNTERS_MARK_ITEM);
+        }
         if ("bear".equals(canonicalForm) && tieredForm == TieredForm.BEAR) {
             int guardianTier = getProgress(player).getTier(tieredForm);
             String groundSlamItemId = guardianGroundSlamItemForTier(guardianTier);
@@ -1201,6 +1221,10 @@ public class ShapeshiftHandler {
             String challengingRoarItemId = guardianChallengingRoarItemForTier(guardianTier);
             if (challengingRoarItemId != null) {
                 itemIds.add(challengingRoarItemId);
+            }
+            String terrifyingRoarItemId = guardianTerrifyingRoarItemForTier(guardianTier);
+            if (terrifyingRoarItemId != null) {
+                itemIds.add(terrifyingRoarItemId);
             }
         }
         if ("warden".equals(canonicalForm)) {
@@ -1233,6 +1257,10 @@ public class ShapeshiftHandler {
         return tier >= 4 ? ELDER_GUARDIAN_CHALLENGING_ROAR_ITEM : null;
     }
 
+    private String guardianTerrifyingRoarItemForTier(int tier) {
+        return tier >= 4 ? ELDER_GUARDIAN_TERRIFYING_ROAR_ITEM : null;
+    }
+
     private Short resolveLoadoutSlot(
             int defaultIndex,
             String itemId,
@@ -1244,7 +1272,7 @@ public class ShapeshiftHandler {
     ) {
         String itemKey = canonicalLoadoutItemKey(itemId);
         boolean primaryItem = defaultIndex == 0;
-        boolean movablePrimaryItem = "Tiger_Claw".equals(itemKey);
+        boolean movablePrimaryItem = "Tiger_Claw".equals(itemKey) || "Shark_Tooth".equals(itemKey);
         if (!primaryItem || movablePrimaryItem) {
             Short preferredSlot = preferredSlots.get(itemKey);
             if (preferredSlot != null
@@ -1771,11 +1799,16 @@ public class ShapeshiftHandler {
         if (GUARDIAN_GROUND_SLAM_ITEM.equals(itemKey)) return "bear";
         if (GUARDIAN_OAKENSHIELD_ITEM.equals(itemKey)) return "bear";
         if (GUARDIAN_CHALLENGING_ROAR_ITEM.equals(itemKey)) return "bear";
+        if (GUARDIAN_TERRIFYING_ROAR_ITEM.equals(itemKey)) return "bear";
         if ("Bear_Skin".equals(itemKey)) return "bear";
         if ("Tiger_Claw".equals(itemKey)) return "tiger";
         if (PROWLER_BITE_ITEM.equals(itemKey)) return "tiger";
         if (PROWLER_POUNCE_ITEM.equals(itemKey)) return "tiger";
         if (PROWLER_STEALTH_ITEM.equals(itemKey)) return "tiger";
+        if (STALKER_SURGE_ITEM.equals(itemKey)) return "shark";
+        if (STALKER_DIVE_ITEM.equals(itemKey)) return "shark";
+        if (STALKER_BREACH_ITEM.equals(itemKey)) return "shark";
+        if (STALKER_HUNTERS_MARK_ITEM.equals(itemKey)) return "shark";
         if ("Shark_Tooth".equals(itemKey)) return "shark";
         if ("Ram_Horn".equals(itemKey)) return "ram";
         return null;
@@ -1792,11 +1825,16 @@ public class ShapeshiftHandler {
         if (itemId.contains(GUARDIAN_GROUND_SLAM_ITEM)) return GUARDIAN_GROUND_SLAM_ITEM;
         if (itemId.contains(GUARDIAN_OAKENSHIELD_ITEM)) return GUARDIAN_OAKENSHIELD_ITEM;
         if (itemId.contains(GUARDIAN_CHALLENGING_ROAR_ITEM)) return GUARDIAN_CHALLENGING_ROAR_ITEM;
+        if (itemId.contains(GUARDIAN_TERRIFYING_ROAR_ITEM)) return GUARDIAN_TERRIFYING_ROAR_ITEM;
         if (itemId.contains("Bear_Skin")) return "Bear_Skin";
         if (itemId.contains("Tiger_Claw")) return "Tiger_Claw";
         if (itemId.contains(PROWLER_BITE_ITEM)) return PROWLER_BITE_ITEM;
         if (itemId.contains(PROWLER_POUNCE_ITEM)) return PROWLER_POUNCE_ITEM;
         if (itemId.contains(PROWLER_STEALTH_ITEM)) return PROWLER_STEALTH_ITEM;
+        if (itemId.contains(STALKER_SURGE_ITEM)) return STALKER_SURGE_ITEM;
+        if (itemId.contains(STALKER_DIVE_ITEM)) return STALKER_DIVE_ITEM;
+        if (itemId.contains(STALKER_BREACH_ITEM)) return STALKER_BREACH_ITEM;
+        if (itemId.contains(STALKER_HUNTERS_MARK_ITEM)) return STALKER_HUNTERS_MARK_ITEM;
         if (itemId.contains("Shark_Tooth")) return "Shark_Tooth";
         if (itemId.contains("Ram_Horn")) return "Ram_Horn";
         return null;
@@ -1852,9 +1890,14 @@ public class ShapeshiftHandler {
         if (lowerId.contains(GUARDIAN_GROUND_SLAM_ITEM.toLowerCase(Locale.ROOT))) return true;
         if (lowerId.contains(GUARDIAN_OAKENSHIELD_ITEM.toLowerCase(Locale.ROOT))) return true;
         if (lowerId.contains(GUARDIAN_CHALLENGING_ROAR_ITEM.toLowerCase(Locale.ROOT))) return true;
+        if (lowerId.contains(GUARDIAN_TERRIFYING_ROAR_ITEM.toLowerCase(Locale.ROOT))) return true;
         if (lowerId.contains(PROWLER_BITE_ITEM.toLowerCase(Locale.ROOT))) return true;
         if (lowerId.contains(PROWLER_POUNCE_ITEM.toLowerCase(Locale.ROOT))) return true;
         if (lowerId.contains(PROWLER_STEALTH_ITEM.toLowerCase(Locale.ROOT))) return true;
+        if (lowerId.contains(STALKER_SURGE_ITEM.toLowerCase(Locale.ROOT))) return true;
+        if (lowerId.contains(STALKER_DIVE_ITEM.toLowerCase(Locale.ROOT))) return true;
+        if (lowerId.contains(STALKER_BREACH_ITEM.toLowerCase(Locale.ROOT))) return true;
+        if (lowerId.contains(STALKER_HUNTERS_MARK_ITEM.toLowerCase(Locale.ROOT))) return true;
         for (TieredForm tieredForm : TieredForm.values()) {
             for (int tier = 1; tier <= 4; tier++) {
                 String itemId = tieredForm.itemForTier(tier).toLowerCase(Locale.ROOT);
@@ -2766,6 +2809,7 @@ public class ShapeshiftHandler {
     private float getTierMultiplier(Player player, String shortName) {
         TieredForm tieredForm = TieredForm.fromFormKey(canonicalizeFormKey(shortName.toLowerCase(Locale.ROOT)));
         if (tieredForm == null) return 1.0f;
+        if (tieredForm == TieredForm.SHARK) return 1.0f;
         int tier = getProgress(player).getTier(tieredForm);
         switch (tier) {
             case 2: return 1.15f;

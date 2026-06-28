@@ -8,6 +8,8 @@ import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.server.core.HytaleServer;
 import com.hypixel.hytale.server.core.asset.type.attitude.Attitude;
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
+import com.hypixel.hytale.server.core.modules.entity.damage.DamageCause;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -28,10 +30,12 @@ import java.util.concurrent.TimeUnit;
 final class GuardianChallengingRoarAbilityService {
     static final String CHALLENGING_ROAR_ITEM_ID = "Elder_Guardian_Challenging_Roar";
     static final long CHALLENGING_ROAR_COOLDOWN_MILLIS = 22_000L;
-    static final double CHALLENGING_ROAR_RADIUS_BLOCKS = 14.0d;
+    static final double CHALLENGING_ROAR_RADIUS_BLOCKS = 28.0d;
     static final double CHALLENGING_ROAR_DURATION_SECONDS = 5.0d;
+    private static final float DAMAGE_WAKE_PULSE_AMOUNT = 1.0f;
 
     private static final String LOCKED_TARGET_SLOT = "LockedTarget";
+    private static final String CHASE_STATE = "Chase";
     private static final String COMBAT_STATE = "Combat";
     private static final String COMBAT_ENTRY_SUBSTATE = "Message";
     private static final String COMBAT_DEFAULT_SUBSTATE = "Default";
@@ -161,6 +165,10 @@ final class GuardianChallengingRoarAbilityService {
         int targetWriteFailure = 0;
         int stateSuccess = 0;
         int stateFailure = 0;
+        int wakeSuccess = 0;
+        int wakeFailure = 0;
+        int damagePulse = 0;
+        int friendlySkipped = 0;
         int taunted = 0;
         int failures = 0;
         List<Ref<EntityStore>> attemptedNpcRefs = new ArrayList<>();
@@ -200,6 +208,12 @@ final class GuardianChallengingRoarAbilityService {
             if (role == null) {
                 continue;
             }
+            if (friendlyKnown && isFriendly) {
+                friendlySkipped++;
+                debug("candidate-skipped reason=friendly npc=" + describeNpc(npc)
+                        + " ref=" + targetRef);
+                continue;
+            }
             eligible++;
             attemptedNpcRefs.add(targetRef);
 
@@ -213,6 +227,14 @@ final class GuardianChallengingRoarAbilityService {
                 stateSuccess++;
             } else {
                 stateFailure++;
+            }
+            if (result.wakeSucceeded()) {
+                wakeSuccess++;
+            } else {
+                wakeFailure++;
+            }
+            if (result.damagePulseApplied()) {
+                damagePulse++;
             }
             if (result.taunted()) {
                 taunted++;
@@ -228,10 +250,14 @@ final class GuardianChallengingRoarAbilityService {
                 + " eligible=" + eligible
                 + " nonFriendly=" + nonFriendly
                 + " friendly=" + friendly
+                + " friendlySkipped=" + friendlySkipped
                 + " targetWriteSuccess=" + targetWriteSuccess
                 + " targetWriteFailure=" + targetWriteFailure
                 + " stateSuccess=" + stateSuccess
                 + " stateFailure=" + stateFailure
+                + " wakeSuccess=" + wakeSuccess
+                + " wakeFailure=" + wakeFailure
+                + " damagePulse=" + damagePulse
                 + " taunted=" + taunted
                 + " failures=" + failures);
         System.out.println("[GuardianChallengingRoar] activated player=" + describePlayerName(player)
@@ -240,6 +266,8 @@ final class GuardianChallengingRoarAbilityService {
                 + " eligible=" + eligible
                 + " targetWriteSuccess=" + targetWriteSuccess
                 + " stateSuccess=" + stateSuccess
+                + " wakeSuccess=" + wakeSuccess
+                + " damagePulse=" + damagePulse
                 + " taunted=" + taunted);
         if (failures > 0) {
             System.out.println("[GuardianChallengingRoar] taunt partial-failure count=" + failures);
@@ -307,9 +335,11 @@ final class GuardianChallengingRoarAbilityService {
         boolean attitudeOverridden = false;
         boolean pathRequested = false;
         boolean instructionsReset = false;
+        boolean chaseStateSet = false;
         boolean combatStateSet = false;
         boolean alertedStateSet = false;
         boolean sensorNotified = false;
+        boolean damagePulseApplied = false;
         String stateBefore = describeRoleState(role);
         String targetBefore = describeTargetSlots(role, playerRef);
         String attitudeBefore = describeAttitude(role, npcRef, playerRef, store);
@@ -351,7 +381,13 @@ final class GuardianChallengingRoarAbilityService {
                     + " reason=" + exception.getClass().getSimpleName());
         }
 
-        combatStateSet = trySetState(npcRef, npc, role, store, COMBAT_STATE, COMBAT_ENTRY_SUBSTATE)
+        chaseStateSet = trySetState(npcRef, npc, role, store, CHASE_STATE, null);
+        if (!chaseStateSet) {
+            damagePulseApplied = applyDamageWakePulse(npcRef, npc, playerRef, store);
+        }
+
+        combatStateSet = chaseStateSet
+                || trySetState(npcRef, npc, role, store, COMBAT_STATE, COMBAT_ENTRY_SUBSTATE)
                 || trySetState(npcRef, npc, role, store, COMBAT_STATE, COMBAT_DEFAULT_SUBSTATE)
                 || trySetState(npcRef, npc, role, store, COMBAT_STATE, null);
         if (!combatStateSet) {
@@ -381,18 +417,49 @@ final class GuardianChallengingRoarAbilityService {
                 + " attitude=" + attitudeOverridden
                 + " path=" + pathRequested
                 + " reset=" + instructionsReset
+                + " chaseState=" + chaseStateSet
                 + " combatState=" + combatStateSet
                 + " alertedState=" + alertedStateSet
-                + " sensorNotified=" + sensorNotified);
+                + " sensorNotified=" + sensorNotified
+                + " damagePulse=" + damagePulseApplied
+                + " damagePulseAmount=" + (damagePulseApplied ? DAMAGE_WAKE_PULSE_AMOUNT : 0.0f));
         return new TauntAttemptResult(
                 markedTarget,
                 attitudeOverridden,
                 pathRequested,
                 instructionsReset,
+                chaseStateSet,
                 combatStateSet,
                 alertedStateSet,
-                sensorNotified
+                sensorNotified,
+                damagePulseApplied
         );
+    }
+
+    private static boolean applyDamageWakePulse(
+            Ref<EntityStore> npcRef,
+            NPCEntity npc,
+            Ref<EntityStore> playerRef,
+            Store<EntityStore> store
+    ) {
+        if (npcRef == null || playerRef == null || store == null) {
+            return false;
+        }
+        try {
+            Damage.Source source = new Damage.EntitySource(playerRef);
+            store.invoke(npcRef, new Damage(source, DamageCause.PHYSICAL, DAMAGE_WAKE_PULSE_AMOUNT));
+            debug("damageWakePulse npc=" + describeNpc(npc)
+                    + " ref=" + npcRef
+                    + " amount=" + DAMAGE_WAKE_PULSE_AMOUNT
+                    + " success=true");
+            return true;
+        } catch (RuntimeException exception) {
+            debug("damageWakePulse-failed npc=" + describeNpc(npc)
+                    + " ref=" + npcRef
+                    + " amount=" + DAMAGE_WAKE_PULSE_AMOUNT
+                    + " reason=" + exception.getClass().getSimpleName());
+            return false;
+        }
     }
 
     private static boolean trySetState(
@@ -462,7 +529,7 @@ final class GuardianChallengingRoarAbilityService {
 
         int checked = 0;
         int stillTarget = 0;
-        int combatOrAlert = 0;
+        int chaseCombatOrAlert = 0;
         for (Ref<EntityStore> npcRef : npcRefs) {
             if (npcRef == null || !npcRef.isValid()) {
                 continue;
@@ -475,12 +542,14 @@ final class GuardianChallengingRoarAbilityService {
             checked++;
             boolean hasPlayerTarget = hasPlayerAsMarkedTarget(role, playerRef);
             String state = describeRoleState(role);
-            boolean inCombatOrAlert = state.startsWith(COMBAT_STATE) || state.startsWith(ALERTED_STATE);
+            boolean inChaseCombatOrAlert = state.startsWith(CHASE_STATE)
+                    || state.startsWith(COMBAT_STATE)
+                    || state.startsWith(ALERTED_STATE);
             if (hasPlayerTarget) {
                 stillTarget++;
             }
-            if (inCombatOrAlert) {
-                combatOrAlert++;
+            if (inChaseCombatOrAlert) {
+                chaseCombatOrAlert++;
             }
             debug("verify npc=" + describeNpc(npc)
                     + " ref=" + npcRef
@@ -488,13 +557,13 @@ final class GuardianChallengingRoarAbilityService {
                     + " targetSlots=" + describeTargetSlots(role, playerRef)
                     + " attitude=" + describeAttitude(role, npcRef, playerRef, store)
                     + " hasPlayerTarget=" + hasPlayerTarget
-                    + " combatOrAlert=" + inCombatOrAlert
+                    + " chaseCombatOrAlert=" + inChaseCombatOrAlert
                     + " pathFollowing=" + describePathFollowing(npc, npcRef, store));
         }
         System.out.println("[GuardianChallengingRoar] verify player=" + safeText(playerName)
                 + " checked=" + checked
                 + " stillTarget=" + stillTarget
-                + " combatOrAlert=" + combatOrAlert);
+                + " chaseCombatOrAlert=" + chaseCombatOrAlert);
     }
 
     private static void showCooldownHud(Player player, int slotIndex, long remainingMillis) {
@@ -677,16 +746,22 @@ final class GuardianChallengingRoarAbilityService {
             boolean attitudeSucceeded,
             boolean pathSucceeded,
             boolean resetSucceeded,
+            boolean chaseStateSucceeded,
             boolean combatStateSucceeded,
             boolean alertedStateSucceeded,
-            boolean sensorNotifySucceeded
+            boolean sensorNotifySucceeded,
+            boolean damagePulseApplied
     ) {
         boolean stateSucceeded() {
-            return combatStateSucceeded || alertedStateSucceeded;
+            return chaseStateSucceeded || combatStateSucceeded || alertedStateSucceeded;
+        }
+
+        boolean wakeSucceeded() {
+            return chaseStateSucceeded || damagePulseApplied;
         }
 
         boolean taunted() {
-            return targetWriteSucceeded && (stateSucceeded() || attitudeSucceeded || pathSucceeded);
+            return targetWriteSucceeded && (wakeSucceeded() || stateSucceeded() || attitudeSucceeded || pathSucceeded);
         }
     }
 }

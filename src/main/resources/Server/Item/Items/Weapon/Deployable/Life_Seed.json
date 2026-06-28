@@ -1,7 +1,7 @@
 {
   "TranslationProperties": {
     "Name": "Life Seed",
-    "Description": "A focus totem carried by the Warden form."
+    "Description": "server.items.Life_Seed.description"
   },
   "Scale": 0.305,
   "Quality": "Uncommon",

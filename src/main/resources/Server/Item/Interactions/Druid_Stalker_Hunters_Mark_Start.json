@@ -1,0 +1,67 @@
+{
+  "Type": "Parallel",
+  "Interactions": [
+    {
+      "Interactions": [
+        {
+          "Type": "Simple",
+          "RunTime": 0.25,
+          "Effects": {
+            "ItemPlayerAnimationsId": "Druid_Shark_Default",
+            "ItemAnimationId": "Alerted"
+          }
+        }
+      ]
+    },
+    {
+      "Interactions": [
+        {
+          "Type": "Simple",
+          "RunTime": 0.04,
+          "Next": {
+            "Type": "Selector",
+            "RunTime": 0.12,
+            "Selector": {
+              "Id": "Horizontal",
+              "Direction": "ToLeft",
+              "TestLineOfSight": true,
+              "ExtendTop": 1.25,
+              "ExtendBottom": 1.25,
+              "StartDistance": 0.2,
+              "EndDistance": 14.0,
+              "Length": 12,
+              "RollOffset": -90,
+              "YawStartOffset": -6.0
+            },
+            "HitEntity": {
+              "Interactions": [
+                {
+                  "Type": "Simple",
+                  "RunTime": 0.08,
+                  "Effects": {
+                    "Particles": [
+                      {
+                        "SystemId": "Shield_Block",
+                        "TargetEntityPart": "Entity",
+                        "TargetNodeName": "Hip",
+                        "PositionOffset": {
+                          "Y": 1.35
+                        },
+                        "Scale": 0.8
+                      }
+                    ],
+                    "WorldSoundEventId": "SFX_Unarmed_Impact"
+                  }
+                }
+              ]
+            },
+            "Next": {
+              "Type": "Simple",
+              "RunTime": 0.12
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

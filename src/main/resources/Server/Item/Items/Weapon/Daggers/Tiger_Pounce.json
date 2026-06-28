@@ -1,6 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "Pounce"
+    "Name": "Pounce",
+    "Description": "server.items.Tiger_Pounce.description"
   },
   "Icon": "Icons/Items/pounce.png",
   "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",

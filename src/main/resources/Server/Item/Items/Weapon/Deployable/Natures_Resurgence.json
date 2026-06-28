@@ -1,7 +1,7 @@
 {
   "TranslationProperties": {
     "Name": "Nature's Resurgence",
-    "Description": "A restorative pulse carried by the Warden form."
+    "Description": "server.items.Natures_Resurgence.description"
   },
   "Scale": 0.305,
   "Quality": "Uncommon",

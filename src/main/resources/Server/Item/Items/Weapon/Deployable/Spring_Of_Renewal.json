@@ -1,7 +1,7 @@
 {
   "TranslationProperties": {
     "Name": "Spring of Renewal",
-    "Description": "A restorative spring carried by the Warden form."
+    "Description": "server.items.Spring_Of_Renewal.description"
   },
   "Scale": 0.305,
   "Quality": "Uncommon",

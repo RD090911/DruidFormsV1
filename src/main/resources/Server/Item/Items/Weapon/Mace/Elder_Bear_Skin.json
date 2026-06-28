@@ -1,6 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "Elder Slash"
+    "Name": "Elder Slash",
+    "Description": "server.items.Elder_Bear_Skin.description"
   },
   "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
   "Reticle": "MaceMelee",

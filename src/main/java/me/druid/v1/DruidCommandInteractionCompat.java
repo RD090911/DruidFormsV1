@@ -93,6 +93,7 @@ final class DruidCommandInteractionCompat {
 
         for (SyncInteractionChain chain : chains.updates) {
             if (chain == null) continue;
+            StalkerHuntersMarkAbilityService.handleInteractionUpdate(playerUuid, chain);
             InteractionType interactionType = chain.interactionType;
             if (interactionType != InteractionType.Secondary && interactionType != InteractionType.Primary) continue;
 
@@ -155,6 +156,61 @@ final class DruidCommandInteractionCompat {
                 ProwlerStealthService.breakStealth(player, "pounce");
                 continue;
             }
+            if (isInitialStalkerSurgePrimary(chain)) {
+                Player player = DruidPermissions.getOnlinePlayer(playerUuid);
+                if (player == null) {
+                    System.out.println("[StalkerSurge] blocked reason=player-unavailable");
+                    cancelInteractionChain(playerRef, chain);
+                    return true;
+                }
+                if (!StalkerSurgeAbilityService.tryStart(player, chain.activeHotbarSlot)) {
+                    cancelInteractionChain(playerRef, chain);
+                    return true;
+                }
+                continue;
+            }
+            if (isInitialStalkerDivePrimary(chain)) {
+                Player player = DruidPermissions.getOnlinePlayer(playerUuid);
+                if (player == null) {
+                    System.out.println("[StalkerDive] blocked reason=player-unavailable");
+                    cancelInteractionChain(playerRef, chain);
+                    return true;
+                }
+                if (!StalkerDiveAbilityService.tryStart(player, chain.activeHotbarSlot)) {
+                    cancelInteractionChain(playerRef, chain);
+                    return true;
+                }
+                continue;
+            }
+            if (isInitialStalkerBreachPrimary(chain)) {
+                Player player = DruidPermissions.getOnlinePlayer(playerUuid);
+                if (player == null) {
+                    System.out.println("[StalkerBreach] blocked reason=player-unavailable");
+                    cancelInteractionChain(playerRef, chain);
+                    return true;
+                }
+                if (!StalkerBreachAbilityService.tryStart(player, chain.activeHotbarSlot)) {
+                    cancelInteractionChain(playerRef, chain);
+                    return true;
+                }
+                continue;
+            }
+            if (isInitialStalkerBitePrimary(chain)) {
+                StalkerHuntersMarkAbilityService.armBiteBonusChain(playerUuid, chain.chainId, chain.itemInHandId);
+            }
+            if (isInitialStalkerHuntersMarkPrimary(chain)) {
+                Player player = DruidPermissions.getOnlinePlayer(playerUuid);
+                if (player == null) {
+                    System.out.println("[StalkerHuntersMark] blocked reason=player-unavailable");
+                    cancelInteractionChain(playerRef, chain);
+                    return true;
+                }
+                if (!StalkerHuntersMarkAbilityService.tryStart(player, chain.activeHotbarSlot, chain.chainId)) {
+                    cancelInteractionChain(playerRef, chain);
+                    return true;
+                }
+                continue;
+            }
             if (isInitialGuardianGroundSlamPrimary(chain)) {
                 Player player = DruidPermissions.getOnlinePlayer(playerUuid);
                 if (player != null) {
@@ -177,6 +233,19 @@ final class DruidCommandInteractionCompat {
                     return true;
                 }
                 if (!GuardianChallengingRoarAbilityService.tryStart(player, chain.activeHotbarSlot)) {
+                    cancelInteractionChain(playerRef, chain);
+                    return true;
+                }
+                continue;
+            }
+            if (isInitialGuardianTerrifyingRoarPrimary(chain)) {
+                Player player = DruidPermissions.getOnlinePlayer(playerUuid);
+                if (player == null) {
+                    System.out.println("[GuardianTerrifyingRoar] blocked reason=player-unavailable");
+                    cancelInteractionChain(playerRef, chain);
+                    return true;
+                }
+                if (!GuardianTerrifyingRoarAbilityService.tryStart(player, chain.activeHotbarSlot)) {
                     cancelInteractionChain(playerRef, chain);
                     return true;
                 }
@@ -313,6 +382,42 @@ final class DruidCommandInteractionCompat {
                 && ProwlerStealthService.STEALTH_ITEM_ID.equals(chain.itemInHandId);
     }
 
+    private static boolean isInitialStalkerSurgePrimary(SyncInteractionChain chain) {
+        return chain != null
+                && chain.initial
+                && chain.interactionType == InteractionType.Primary
+                && StalkerSurgeAbilityService.isSurgeItemId(chain.itemInHandId);
+    }
+
+    private static boolean isInitialStalkerDivePrimary(SyncInteractionChain chain) {
+        return chain != null
+                && chain.initial
+                && chain.interactionType == InteractionType.Primary
+                && StalkerDiveAbilityService.isDiveItemId(chain.itemInHandId);
+    }
+
+    private static boolean isInitialStalkerBreachPrimary(SyncInteractionChain chain) {
+        return chain != null
+                && chain.initial
+                && chain.interactionType == InteractionType.Primary
+                && StalkerBreachAbilityService.isBreachItemId(chain.itemInHandId);
+    }
+
+    private static boolean isInitialStalkerHuntersMarkPrimary(SyncInteractionChain chain) {
+        return chain != null
+                && chain.initial
+                && chain.interactionType == InteractionType.Primary
+                && StalkerHuntersMarkAbilityService.isHuntersMarkItemId(chain.itemInHandId);
+    }
+
+    private static boolean isInitialStalkerBitePrimary(SyncInteractionChain chain) {
+        return chain != null
+                && chain.initial
+                && chain.interactionType == InteractionType.Primary
+                && chain.itemInHandId != null
+                && chain.itemInHandId.toLowerCase().contains("shark_tooth");
+    }
+
     private static boolean isInitialProwlerClawPrimary(SyncInteractionChain chain) {
         return chain != null
                 && chain.initial
@@ -340,6 +445,13 @@ final class DruidCommandInteractionCompat {
                 && chain.initial
                 && chain.interactionType == InteractionType.Primary
                 && GuardianChallengingRoarAbilityService.isChallengingRoarItemId(chain.itemInHandId);
+    }
+
+    private static boolean isInitialGuardianTerrifyingRoarPrimary(SyncInteractionChain chain) {
+        return chain != null
+                && chain.initial
+                && chain.interactionType == InteractionType.Primary
+                && GuardianTerrifyingRoarAbilityService.isTerrifyingRoarItemId(chain.itemInHandId);
     }
 
     private static void cancelInteractionChain(PlayerRef playerRef, SyncInteractionChain chain) {

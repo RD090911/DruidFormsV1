@@ -1,0 +1,8 @@
+{
+  "Type": "Simple",
+  "RunTime": 0.35,
+  "Effects": {
+    "ItemPlayerAnimationsId": "Druid_Shark_Default",
+    "ItemAnimationId": "Breach"
+  }
+}

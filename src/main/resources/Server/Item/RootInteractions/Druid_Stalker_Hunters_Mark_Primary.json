@@ -1,0 +1,7 @@
+{
+  "RequireNewClick": true,
+  "ClickQueuingTimeout": 0.15,
+  "Interactions": [
+    "Druid_Stalker_Hunters_Mark_Start"
+  ]
+}
