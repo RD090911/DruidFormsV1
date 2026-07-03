@@ -10,6 +10,7 @@ import com.hypixel.hytale.server.core.entity.effect.EffectControllerComponent;
 import com.hypixel.hytale.server.core.entity.entities.player.movement.MovementManager;
 import com.hypixel.hytale.server.core.modules.entity.damage.DeathComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import me.druid.v1.forms.FormId;
@@ -18,6 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
@@ -29,13 +31,19 @@ final class ProwlerStealthService {
 
     private static final long RECENT_COMBAT_LOCKOUT_MILLIS = 6_000L;
     private static final long WATCHDOG_INTERVAL_MILLIS = 1_000L;
+    private static final long RECENT_COMBAT_AUTO_ACTIVATE_WINDOW_MILLIS = 1_500L;
+    private static final long RECENT_COMBAT_AUTO_ACTIVATE_DELAY_BUFFER_MILLIS = 25L;
     private static final int STEALTH_FALLBACK_SLOT_INDEX = 3;
     private static final float STEALTH_SPEED_MULTIPLIER = 0.5f;
     private static final String STEALTH_VISUAL_EFFECT_ID = "Druid_Prowler_Stealth_Visual";
+    private static final String STEALTH_WORLD_SOUND_EVENT_ID = "SFX_Avatar_Powers_Enable";
+    private static final String STEALTH_LOCAL_SOUND_EVENT_ID = "SFX_Avatar_Powers_Enable_Local";
     private static final Map<UUID, Long> ACTIVE_STARTED_MILLIS_BY_PLAYER = new ConcurrentHashMap<>();
     private static final Map<UUID, Long> COOLDOWN_END_BY_PLAYER = new ConcurrentHashMap<>();
     private static final Map<UUID, Long> RECENT_COMBAT_MILLIS_BY_PLAYER = new ConcurrentHashMap<>();
     private static final Map<UUID, MovementSettings> MOVEMENT_SNAPSHOT_BY_PLAYER = new ConcurrentHashMap<>();
+    private static final Map<UUID, ScheduledFuture<?>> PENDING_RECENT_COMBAT_ACTIVATION_TASK_BY_PLAYER = new ConcurrentHashMap<>();
+    private static final Map<UUID, Set<UUID>> STEALTH_HIDDEN_VIEWERS_BY_PLAYER = new ConcurrentHashMap<>();
     private static final Object WATCHDOG_LOCK = new Object();
     private static ScheduledFuture<?> watchdog;
 
@@ -50,6 +58,9 @@ final class ProwlerStealthService {
         UUID playerUuid = player.getUuid();
         if (playerUuid == null) {
             return false;
+        }
+        if (PENDING_RECENT_COMBAT_ACTIVATION_TASK_BY_PLAYER.containsKey(playerUuid)) {
+            return true;
         }
 
         World world = player.getWorld();
@@ -96,15 +107,21 @@ final class ProwlerStealthService {
 
         Long recentCombatMillis = RECENT_COMBAT_MILLIS_BY_PLAYER.get(playerUuid);
         if (recentCombatMillis != null && nowMillis - recentCombatMillis < RECENT_COMBAT_LOCKOUT_MILLIS) {
+            long remainingMillis = RECENT_COMBAT_LOCKOUT_MILLIS - (nowMillis - recentCombatMillis);
+            if (remainingMillis <= RECENT_COMBAT_AUTO_ACTIVATE_WINDOW_MILLIS) {
+                scheduleRecentCombatAutoActivation(player, playerUuid, hudSlotIndex, remainingMillis);
+            }
             System.out.println("[ProwlerStealth] blocked reason=recent-combat remainingMs="
-                    + (RECENT_COMBAT_LOCKOUT_MILLIS - (nowMillis - recentCombatMillis)));
+                    + remainingMillis);
             return;
         }
 
-        ACTIVE_STARTED_MILLIS_BY_PLAYER.put(playerUuid, nowMillis);
+        cancelPendingRecentCombatAutoActivation(playerUuid);
         if (!activateOnWorldThread(player, playerUuid)) {
             return;
         }
+        ACTIVE_STARTED_MILLIS_BY_PLAYER.put(playerUuid, nowMillis);
+        hideFromOtherPlayers(playerUuid);
         ensureWatchdogRunning();
         System.out.println("[ProwlerStealth] active slot=" + hudSlotIndex);
     }
@@ -163,9 +180,11 @@ final class ProwlerStealthService {
             return;
         }
         Player player = DruidPermissions.getOnlinePlayer(playerUuid);
+        cancelPendingRecentCombatAutoActivation(playerUuid);
+        ACTIVE_STARTED_MILLIS_BY_PLAYER.remove(playerUuid);
         scheduleRestoreMovement(player, playerUuid);
         scheduleRemoveStealthVisual(player);
-        ACTIVE_STARTED_MILLIS_BY_PLAYER.remove(playerUuid);
+        restorePlayerVisibility(playerUuid);
         ProwlerStealthNpcAttitudeService.refreshWorldAttitudeCaches(player, "disconnect");
         COOLDOWN_END_BY_PLAYER.remove(playerUuid);
         RECENT_COMBAT_MILLIS_BY_PLAYER.remove(playerUuid);
@@ -176,16 +195,25 @@ final class ProwlerStealthService {
     static void shutdown() {
         ArrayList<UUID> activePlayers = new ArrayList<>(ACTIVE_STARTED_MILLIS_BY_PLAYER.keySet());
         for (UUID playerUuid : activePlayers) {
-                Player player = DruidPermissions.getOnlinePlayer(playerUuid);
+            ACTIVE_STARTED_MILLIS_BY_PLAYER.remove(playerUuid);
+            Player player = DruidPermissions.getOnlinePlayer(playerUuid);
             if (player != null) {
                 scheduleRestoreMovement(player, playerUuid);
                 scheduleRemoveStealthVisual(player);
             }
+            restorePlayerVisibility(playerUuid);
         }
         ACTIVE_STARTED_MILLIS_BY_PLAYER.clear();
         COOLDOWN_END_BY_PLAYER.clear();
         RECENT_COMBAT_MILLIS_BY_PLAYER.clear();
         MOVEMENT_SNAPSHOT_BY_PLAYER.clear();
+        STEALTH_HIDDEN_VIEWERS_BY_PLAYER.clear();
+        for (ScheduledFuture<?> task : PENDING_RECENT_COMBAT_ACTIVATION_TASK_BY_PLAYER.values()) {
+            if (task != null) {
+                task.cancel(false);
+            }
+        }
+        PENDING_RECENT_COMBAT_ACTIVATION_TASK_BY_PLAYER.clear();
         stopWatchdog();
     }
 
@@ -201,6 +229,8 @@ final class ProwlerStealthService {
 
         scheduleRestoreMovement(player, playerUuid);
         scheduleRemoveStealthVisual(player);
+        restorePlayerVisibility(playerUuid);
+        DruidSoundFeedback.playForPlayer(player, STEALTH_LOCAL_SOUND_EVENT_ID, STEALTH_WORLD_SOUND_EVENT_ID);
         ProwlerStealthNpcAttitudeService.refreshWorldAttitudeCaches(player, reason);
 
         System.out.println("[ProwlerStealth] ended reason=" + sanitizeReason(reason)
@@ -213,17 +243,14 @@ final class ProwlerStealthService {
     private static boolean activateOnWorldThread(Player player, UUID playerUuid) {
         if (player == null
                 || playerUuid == null
-                || !ACTIVE_STARTED_MILLIS_BY_PLAYER.containsKey(playerUuid)
                 || ShapeshiftHandler.getActiveFormId(player) != FormId.FORM_PROWLER
                 || isDeadOrInvalid(player)) {
-            ACTIVE_STARTED_MILLIS_BY_PLAYER.remove(playerUuid);
             return false;
         }
 
         MovementManager movementManager = getMovementManager(player);
         MovementSettings settings = movementManager == null ? null : movementManager.getSettings();
         if (settings == null) {
-            ACTIVE_STARTED_MILLIS_BY_PLAYER.remove(playerUuid);
             System.out.println("[ProwlerStealth] activation failed reason=movement-unavailable");
             return false;
         }
@@ -232,8 +259,79 @@ final class ProwlerStealthService {
         settings.baseSpeed *= STEALTH_SPEED_MULTIPLIER;
         updateMovement(player, movementManager);
         applyStealthVisual(player);
+        DruidSoundFeedback.playForPlayer(player, STEALTH_LOCAL_SOUND_EVENT_ID, STEALTH_WORLD_SOUND_EVENT_ID);
         ProwlerStealthNpcAttitudeService.refreshWorldAttitudeCaches(player, "activate");
         return true;
+    }
+
+    private static void scheduleRecentCombatAutoActivation(
+            Player player,
+            UUID playerUuid,
+            int hudSlotIndex,
+            long remainingMillis
+    ) {
+        if (player == null || playerUuid == null) {
+            return;
+        }
+
+        World world = player.getWorld();
+        if (world == null || !world.isAlive()) {
+            return;
+        }
+
+        ScheduledFuture<?> previousTask = PENDING_RECENT_COMBAT_ACTIVATION_TASK_BY_PLAYER.remove(playerUuid);
+        if (previousTask != null) {
+            previousTask.cancel(false);
+        }
+
+        long delayMillis = Math.max(remainingMillis + RECENT_COMBAT_AUTO_ACTIVATE_DELAY_BUFFER_MILLIS, 1L);
+        ScheduledFuture<?> activationTask = HytaleServer.SCHEDULED_EXECUTOR.schedule(() -> {
+            try {
+                world.execute(() -> tryAutoActivateAfterRecentCombatOnWorldThread(player, playerUuid, hudSlotIndex));
+            } catch (RuntimeException ignored) {
+                cancelPendingRecentCombatAutoActivation(playerUuid);
+            }
+        }, delayMillis, TimeUnit.MILLISECONDS);
+        PENDING_RECENT_COMBAT_ACTIVATION_TASK_BY_PLAYER.put(playerUuid, activationTask);
+    }
+
+    private static void tryAutoActivateAfterRecentCombatOnWorldThread(Player player, UUID playerUuid, int hudSlotIndex) {
+        cancelPendingRecentCombatAutoActivation(playerUuid);
+        if (player == null || playerUuid == null || isStealthed(player)) {
+            return;
+        }
+
+        long nowMillis = System.currentTimeMillis();
+        Long cooldownEndMillis = COOLDOWN_END_BY_PLAYER.get(playerUuid);
+        if (cooldownEndMillis != null && cooldownEndMillis > nowMillis) {
+            long remainingMillis = cooldownEndMillis - nowMillis;
+            showCooldownHud(player, hudSlotIndex, remainingMillis);
+            return;
+        }
+        COOLDOWN_END_BY_PLAYER.remove(playerUuid, cooldownEndMillis);
+
+        Long recentCombatMillis = RECENT_COMBAT_MILLIS_BY_PLAYER.get(playerUuid);
+        if (recentCombatMillis != null && nowMillis - recentCombatMillis < RECENT_COMBAT_LOCKOUT_MILLIS) {
+            return;
+        }
+
+        if (!activateOnWorldThread(player, playerUuid)) {
+            return;
+        }
+        ACTIVE_STARTED_MILLIS_BY_PLAYER.put(playerUuid, nowMillis);
+        hideFromOtherPlayers(playerUuid);
+        ensureWatchdogRunning();
+        System.out.println("[ProwlerStealth] active slot=" + hudSlotIndex);
+    }
+
+    private static void cancelPendingRecentCombatAutoActivation(UUID playerUuid) {
+        if (playerUuid == null) {
+            return;
+        }
+        ScheduledFuture<?> pendingTask = PENDING_RECENT_COMBAT_ACTIVATION_TASK_BY_PLAYER.remove(playerUuid);
+        if (pendingTask != null) {
+            pendingTask.cancel(false);
+        }
     }
 
     private static void scheduleRestoreMovement(Player player, UUID playerUuid) {
@@ -268,6 +366,109 @@ final class ProwlerStealthService {
             world.execute(() -> removeStealthVisualOnWorldThread(player));
         } catch (RuntimeException exception) {
             System.out.println("[ProwlerStealth] visual remove failed reason=world-rejected-task");
+        }
+    }
+
+    private static void hideFromOtherPlayers(UUID playerUuid) {
+        if (playerUuid == null) {
+            return;
+        }
+
+        Universe universe = Universe.get();
+        if (universe == null || universe.getWorlds() == null) {
+            return;
+        }
+
+        Set<UUID> hiddenViewerUuids = STEALTH_HIDDEN_VIEWERS_BY_PLAYER.computeIfAbsent(
+                playerUuid,
+                ignored -> ConcurrentHashMap.newKeySet()
+        );
+        for (World world : universe.getWorlds().values()) {
+            if (world == null || !world.isAlive()) {
+                continue;
+            }
+            try {
+                world.execute(() -> hideFromOtherPlayersInWorld(playerUuid, hiddenViewerUuids, world));
+            } catch (RuntimeException exception) {
+                System.out.println("[ProwlerStealth] visibility hide failed reason=world-rejected-task");
+            }
+        }
+    }
+
+    private static void hideFromOtherPlayersInWorld(UUID playerUuid, Set<UUID> hiddenViewerUuids, World world) {
+        if (playerUuid == null || hiddenViewerUuids == null || world == null || !world.isAlive()) {
+            return;
+        }
+        if (!ACTIVE_STARTED_MILLIS_BY_PLAYER.containsKey(playerUuid)
+                || STEALTH_HIDDEN_VIEWERS_BY_PLAYER.get(playerUuid) != hiddenViewerUuids) {
+            return;
+        }
+
+        for (PlayerRef viewerPlayerRef : world.getPlayerRefs()) {
+            UUID viewerUuid = viewerPlayerRef == null ? null : viewerPlayerRef.getUuid();
+            if (viewerUuid == null || viewerUuid.equals(playerUuid)) {
+                continue;
+            }
+
+            Ref<EntityStore> viewerRef = viewerPlayerRef.getReference();
+            if (viewerRef == null || !viewerRef.isValid()) {
+                continue;
+            }
+
+            if (!viewerPlayerRef.getHiddenPlayersManager().isPlayerHidden(playerUuid)) {
+                viewerPlayerRef.getHiddenPlayersManager().hidePlayer(playerUuid);
+                hiddenViewerUuids.add(viewerUuid);
+            }
+        }
+    }
+
+    private static void restorePlayerVisibility(UUID playerUuid) {
+        if (playerUuid == null) {
+            return;
+        }
+
+        Set<UUID> hiddenViewerUuids = STEALTH_HIDDEN_VIEWERS_BY_PLAYER.remove(playerUuid);
+        if (hiddenViewerUuids == null || hiddenViewerUuids.isEmpty()) {
+            return;
+        }
+
+        Universe universe = Universe.get();
+        if (universe == null || universe.getWorlds() == null) {
+            return;
+        }
+
+        for (World world : universe.getWorlds().values()) {
+            if (world == null || !world.isAlive()) {
+                continue;
+            }
+            try {
+                world.execute(() -> restorePlayerVisibilityInWorld(playerUuid, hiddenViewerUuids, world));
+            } catch (RuntimeException exception) {
+                System.out.println("[ProwlerStealth] visibility restore failed reason=world-rejected-task");
+            }
+        }
+    }
+
+    private static void restorePlayerVisibilityInWorld(UUID playerUuid, Set<UUID> hiddenViewerUuids, World world) {
+        if (playerUuid == null || hiddenViewerUuids == null || world == null || !world.isAlive()) {
+            return;
+        }
+        if (ACTIVE_STARTED_MILLIS_BY_PLAYER.containsKey(playerUuid)) {
+            return;
+        }
+
+        for (PlayerRef viewerPlayerRef : world.getPlayerRefs()) {
+            UUID viewerUuid = viewerPlayerRef == null ? null : viewerPlayerRef.getUuid();
+            if (viewerUuid == null || !hiddenViewerUuids.contains(viewerUuid)) {
+                continue;
+            }
+
+            Ref<EntityStore> viewerRef = viewerPlayerRef.getReference();
+            if (viewerRef == null || !viewerRef.isValid()) {
+                continue;
+            }
+
+            viewerPlayerRef.getHiddenPlayersManager().showPlayer(playerUuid);
         }
     }
 
@@ -472,12 +673,14 @@ final class ProwlerStealthService {
             if (player == null) {
                 ACTIVE_STARTED_MILLIS_BY_PLAYER.remove(playerUuid);
                 MOVEMENT_SNAPSHOT_BY_PLAYER.remove(playerUuid);
+                restorePlayerVisibility(playerUuid);
                 continue;
             }
             World world = player.getWorld();
             if (world == null || !world.isAlive()) {
                 ACTIVE_STARTED_MILLIS_BY_PLAYER.remove(playerUuid);
                 MOVEMENT_SNAPSHOT_BY_PLAYER.remove(playerUuid);
+                restorePlayerVisibility(playerUuid);
                 continue;
             }
             try {
@@ -492,6 +695,7 @@ final class ProwlerStealthService {
         if (!isStealthed(player)) {
             return;
         }
+        hideFromOtherPlayers(player.getUuid());
         if (isDeadOrInvalid(player)) {
             breakStealth(player, "death-or-invalid");
             return;
@@ -521,5 +725,4 @@ final class ProwlerStealthService {
                 ? "unknown"
                 : reason.replaceAll("[^A-Za-z0-9_-]", "-");
     }
-
 }

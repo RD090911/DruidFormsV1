@@ -1,0 +1,48 @@
+{
+  "TranslationProperties": {
+    "Name": "Ground Slam",
+    "Description": "server.items.Guardian_Ground_Slam.description"
+  },
+  "Icon": "Icons/Items/ground_slam.png",
+  "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
+  "Reticle": "MaceMelee",
+  "Quality": "Uncommon",
+  "ItemSoundSetId": "ISS_Weapon_Blunt_Large",
+  "ItemLevel": 20,
+  "Model": "Items/Armors/Druid/Hidden_Armor.blockymodel",
+  "MaxStack": 1,
+  "Categories": [
+    "Items.Weapons"
+  ],
+  "Utility": {
+    "Compatible": false
+  },
+  "Interactions": {
+    "Primary": "Druid_Guardian_Ground_Slam_Primary",
+    "Secondary": "Druid_Open_Radial_Menu"
+  },
+  "Tags": {
+    "Type": [
+      "Weapon"
+    ],
+    "Family": [
+      "Mace"
+    ]
+  },
+  "MaxDurability": 400,
+  "DurabilityLossOnHit": 0,
+  "InteractionVars": {
+    "Groundslam_Damage": {
+      "Interactions": [
+        {
+          "Parent": "Druid_Guardian_Ground_Slam_Damage",
+          "DamageCalculator": {
+            "BaseDamage": {
+              "Physical": 14
+            }
+          }
+        }
+      ]
+    }
+  }
+}

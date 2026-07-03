@@ -1,0 +1,84 @@
+{
+    "TranslationProperties":  {
+                                  "Name":  "Bite",
+                                  "Description":  "server.items.Tiger_Bite.description"
+                              },
+    "Icon":  "Icons/Items/bite.png",
+    "DroppedItemAnimation":  "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
+    "Reticle":  "DefaultMelee",
+    "Quality":  "Legendary",
+    "ItemSoundSetId":  "ISS_Weapon_Blade_Small",
+    "ItemLevel":  65,
+    "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
+    "MaxStack":  1,
+    "Categories":  [
+                       "Items.Weapons"
+                   ],
+    "Utility":  {
+                    "Compatible":  false
+                },
+    "Interactions":  {
+                         "Primary":  "Druid_Prowler_Bite_Primary",
+                         "Secondary":  "Druid_Open_Radial_Menu"
+                     },
+    "Tags":  {
+                 "Type":  [
+                              "Weapon"
+                          ],
+                 "Family":  [
+                                "Dagger"
+                            ]
+             },
+    "MaxDurability":  400,
+    "DurabilityLossOnHit":  0,
+    "InteractionVars":  {
+                            "Melee_Start":  {
+                                                "Interactions":  [
+                                                                     {
+                                                                         "Parent":  "NPC_Attack_Melee_Simple",
+                                                                         "Effects":  {
+                                                                                         "ItemPlayerAnimationsId":  "Tiger_Sabertooth_Default",
+                                                                                         "ItemAnimationId":  "Bite"
+                                                                                     },
+                                                                         "RunTime":  0.28
+                                                                     }
+                                                                 ]
+                                            },
+                            "Melee_Selector":  {
+                                                   "Interactions":  [
+                                                                        {
+                                                                            "Parent":  "NPC_Attack_Selector_Left",
+                                                                            "RunTime":  0.1,
+                                                                            "Selector":  {
+                                                                                             "Id":  "Stab",
+                                                                                             "TestLineOfSight":  true,
+                                                                                             "StartDistance":  0.1,
+                                                                                             "EndDistance":  2.6,
+                                                                                             "ExtendTop":  0.7,
+                                                                                             "ExtendBottom":  0.7,
+                                                                                             "ExtendLeft":  0.7,
+                                                                                             "ExtendRight":  0.7
+                                                                                         },
+                                                                            "Next":  {
+                                                                                         "Type":  "Simple",
+                                                                                         "RunTime":  0.25
+                                                                                     }
+                                                                        }
+                                                                    ]
+                                               },
+                            "Melee_Damage":  {
+                                                 "Interactions":  [
+                                                                      {
+                                                                          "Parent":  "NPC_Attack_Melee_Damage",
+                                                                          "DamageCalculator":  {
+                                                                                                   "Type":  "Absolute",
+                                                                                                   "BaseDamage":  {
+                                                                                                                      "Physical":  24
+                                                                                                                  },
+                                                                                                   "RandomPercentageModifier":  0.1
+                                                                                               }
+                                                                      }
+                                                                  ]
+                                             }
+                        }
+}

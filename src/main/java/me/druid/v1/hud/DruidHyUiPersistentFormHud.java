@@ -29,7 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class DruidHyUiPersistentFormHud {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final ConcurrentHashMap<UUID, HyUIHud> HUD_BY_PLAYER = new ConcurrentHashMap<>();
     private static final String BEAR_FORM = "Bear";
     private static final String TIGER_FORM = "Tiger";
@@ -40,6 +40,19 @@ public final class DruidHyUiPersistentFormHud {
     private static final String AQUATIC_FORM = "Aquatic";
     private static final String RABBIT_FORM = "Rabbit";
     private static final String ANTELOPE_FORM = "Antelope";
+    private static final String BEAR_TIER_KEY = "bear";
+    private static final String TIGER_TIER_KEY = "tiger";
+    private static final String SHARK_TIER_KEY = "shark";
+    private static final String WARDEN_TIER_KEY = "warden";
+    private static final String RAM_TIER_KEY = "ram";
+    private static final String BASE_TIER_OUTLINE_COLOR = "#3E9049FF";
+    private static final String BASE_TIER_FILL_COLOR = "#3E90494D";
+    private static final String VERDANT_TIER_OUTLINE_COLOR = "#2770B7FF";
+    private static final String VERDANT_TIER_FILL_COLOR = "#2770B74D";
+    private static final String PRIMAL_TIER_OUTLINE_COLOR = "#8B339EFF";
+    private static final String PRIMAL_TIER_FILL_COLOR = "#8B339E4D";
+    private static final String ELDER_TIER_OUTLINE_COLOR = "#BB8A2CFF";
+    private static final String ELDER_TIER_FILL_COLOR = "#BB8A2C4D";
     private static final String BEAR_ICON_TEXTURE_PATH = "forms/bear.png";
     private static final String BEAR_ICON_CLASSPATH_PATH = "Common/UI/Custom/forms/bear.png";
     private static final String TIGER_ICON_TEXTURE_PATH = "forms/tiger.png";
@@ -82,7 +95,7 @@ public final class DruidHyUiPersistentFormHud {
         if (playerUuid == null) return;
 
         String activeForm = resolveActiveFormName(player);
-        HudBuilder builder = createHudBuilder(playerRef, activeForm);
+        HudBuilder builder = createHudBuilder(player, playerRef, activeForm);
 
         try {
             HyUIHud existingHud = HUD_BY_PLAYER.get(playerUuid);
@@ -113,7 +126,7 @@ public final class DruidHyUiPersistentFormHud {
         }
     }
 
-    private static HudBuilder createHudBuilder(PlayerRef playerRef, String activeForm) {
+    private static HudBuilder createHudBuilder(Player player, PlayerRef playerRef, String activeForm) {
         HyUIAnchor rootAnchor = new HyUIAnchor()
                 .setLeft(0)
                 .setRight(0)
@@ -151,7 +164,7 @@ public final class DruidHyUiPersistentFormHud {
                                 .withStyle(labelStyle)
                                 .withText("")
                 )
-                .addChild(createBearSlot(activeForm, labelStyle))
+                .addChild(createBearSlot(activeForm, labelStyle, resolveTierForHud(player, BEAR_TIER_KEY)))
                 .addChild(
                         LabelBuilder.label()
                                 .withRawId("druidPersistentFormHudSeparator3")
@@ -159,7 +172,7 @@ public final class DruidHyUiPersistentFormHud {
                                 .withStyle(labelStyle)
                                 .withText("")
                 )
-                .addChild(createTigerSlot(activeForm, labelStyle))
+                .addChild(createTigerSlot(activeForm, labelStyle, resolveTierForHud(player, TIGER_TIER_KEY)))
                 .addChild(
                         LabelBuilder.label()
                                 .withRawId("druidPersistentFormHudSeparator4")
@@ -167,7 +180,7 @@ public final class DruidHyUiPersistentFormHud {
                                 .withStyle(labelStyle)
                                 .withText("")
                 )
-                .addChild(createSharkSlot(activeForm, labelStyle))
+                .addChild(createSharkSlot(activeForm, labelStyle, resolveTierForHud(player, SHARK_TIER_KEY)))
                 .addChild(
                         LabelBuilder.label()
                                 .withRawId("druidPersistentFormHudSeparator5")
@@ -175,7 +188,7 @@ public final class DruidHyUiPersistentFormHud {
                                 .withStyle(labelStyle)
                                 .withText("")
                 )
-                .addChild(createWardenSlot(activeForm, labelStyle))
+                .addChild(createWardenSlot(activeForm, labelStyle, resolveTierForHud(player, WARDEN_TIER_KEY)))
                 .addChild(
                         LabelBuilder.label()
                                 .withRawId("druidPersistentFormHudSeparatorWarden")
@@ -183,7 +196,7 @@ public final class DruidHyUiPersistentFormHud {
                                 .withStyle(labelStyle)
                                 .withText("")
                 )
-                .addChild(createRamSlot(activeForm, labelStyle))
+                .addChild(createRamSlot(activeForm, labelStyle, resolveTierForHud(player, RAM_TIER_KEY)))
                 .addChild(
                         LabelBuilder.label()
                                 .withRawId("druidPersistentFormHudSeparator6")
@@ -212,7 +225,7 @@ public final class DruidHyUiPersistentFormHud {
                 .addElement(root);
     }
 
-    private static GroupBuilder createBearSlot(String activeForm, HyUIStyle labelStyle) {
+    private static GroupBuilder createBearSlot(String activeForm, HyUIStyle labelStyle, int tier) {
         boolean bearHighlighted = BEAR_FORM.equalsIgnoreCase(activeForm);
         GroupBuilder bearSlot = GroupBuilder.group()
                 .withRawId("druidPersistentFormHudBearSlot")
@@ -231,6 +244,7 @@ public final class DruidHyUiPersistentFormHud {
             if (bearHighlighted) {
                 bearOverlay.addChild(createSquareHighlight("druidPersistentFormHudBearHighlight"));
             }
+            bearOverlay.addChild(createTierBorder("druidPersistentFormHudBearTierBorder", tier));
 
             bearOverlay.addChild(
                     GroupBuilder.group()
@@ -259,7 +273,7 @@ public final class DruidHyUiPersistentFormHud {
         return bearSlot;
     }
 
-    private static GroupBuilder createTigerSlot(String activeForm, HyUIStyle labelStyle) {
+    private static GroupBuilder createTigerSlot(String activeForm, HyUIStyle labelStyle, int tier) {
         boolean tigerHighlighted = TIGER_FORM.equalsIgnoreCase(activeForm);
         GroupBuilder tigerSlot = GroupBuilder.group()
                 .withRawId("druidPersistentFormHudTigerSlot")
@@ -278,6 +292,7 @@ public final class DruidHyUiPersistentFormHud {
             if (tigerHighlighted) {
                 tigerOverlay.addChild(createSquareHighlight("druidPersistentFormHudTigerHighlight"));
             }
+            tigerOverlay.addChild(createTierBorder("druidPersistentFormHudTigerTierBorder", tier));
 
             tigerOverlay.addChild(
                     GroupBuilder.group()
@@ -353,7 +368,7 @@ public final class DruidHyUiPersistentFormHud {
         return hawkSlot;
     }
 
-    private static GroupBuilder createSharkSlot(String activeForm, HyUIStyle labelStyle) {
+    private static GroupBuilder createSharkSlot(String activeForm, HyUIStyle labelStyle, int tier) {
         boolean sharkHighlighted = SHARK_FORM.equalsIgnoreCase(activeForm);
         GroupBuilder sharkSlot = GroupBuilder.group()
                 .withRawId("druidPersistentFormHudSharkSlot")
@@ -372,6 +387,7 @@ public final class DruidHyUiPersistentFormHud {
             if (sharkHighlighted) {
                 sharkOverlay.addChild(createSquareHighlight("druidPersistentFormHudSharkHighlight"));
             }
+            sharkOverlay.addChild(createTierBorder("druidPersistentFormHudSharkTierBorder", tier));
 
             sharkOverlay.addChild(
                     GroupBuilder.group()
@@ -400,7 +416,7 @@ public final class DruidHyUiPersistentFormHud {
         return sharkSlot;
     }
 
-    private static GroupBuilder createWardenSlot(String activeForm, HyUIStyle labelStyle) {
+    private static GroupBuilder createWardenSlot(String activeForm, HyUIStyle labelStyle, int tier) {
         boolean wardenHighlighted = WARDEN_FORM.equalsIgnoreCase(activeForm);
         GroupBuilder wardenSlot = GroupBuilder.group()
                 .withRawId("druidPersistentFormHudWardenSlot")
@@ -419,6 +435,7 @@ public final class DruidHyUiPersistentFormHud {
             if (wardenHighlighted) {
                 wardenOverlay.addChild(createSquareHighlight("druidPersistentFormHudWardenHighlight"));
             }
+            wardenOverlay.addChild(createTierBorder("druidPersistentFormHudWardenTierBorder", tier));
 
             wardenOverlay.addChild(
                     GroupBuilder.group()
@@ -447,7 +464,7 @@ public final class DruidHyUiPersistentFormHud {
         return wardenSlot;
     }
 
-    private static GroupBuilder createRamSlot(String activeForm, HyUIStyle labelStyle) {
+    private static GroupBuilder createRamSlot(String activeForm, HyUIStyle labelStyle, int tier) {
         boolean ramHighlighted = RAM_FORM.equalsIgnoreCase(activeForm);
         GroupBuilder ramSlot = GroupBuilder.group()
                 .withRawId("druidPersistentFormHudRamSlot")
@@ -466,6 +483,7 @@ public final class DruidHyUiPersistentFormHud {
             if (ramHighlighted) {
                 ramOverlay.addChild(createSquareHighlight("druidPersistentFormHudRamHighlight"));
             }
+            ramOverlay.addChild(createTierBorder("druidPersistentFormHudRamTierBorder", tier));
 
             ramOverlay.addChild(
                     GroupBuilder.group()
@@ -642,6 +660,40 @@ public final class DruidHyUiPersistentFormHud {
                 .withBackground(new HyUIPatchStyle().setColor("#26FFB347"))
                 .withOutlineColor("#FFFFB347")
                 .withOutlineSize(3.5f);
+    }
+
+    private static GroupBuilder createTierBorder(String rawId, int tier) {
+        return GroupBuilder.group()
+                .withRawId(rawId)
+                .withAnchor(new HyUIAnchor().setLeft(2).setTop(2).setWidth(64).setHeight(64))
+                .withBackground(new HyUIPatchStyle().setColor(resolveTierFillColor(tier)))
+                .withOutlineColor(resolveTierOutlineColor(tier))
+                .withOutlineSize(4.0f);
+    }
+
+    private static int resolveTierForHud(Player player, String canonicalFormKey) {
+        if (player == null || canonicalFormKey == null || canonicalFormKey.isBlank()) {
+            return 1;
+        }
+        return ShapeshiftHandler.getStoredTierForHud(player, canonicalFormKey);
+    }
+
+    private static String resolveTierOutlineColor(int tier) {
+        return switch (tier) {
+            case 2 -> VERDANT_TIER_OUTLINE_COLOR;
+            case 3 -> PRIMAL_TIER_OUTLINE_COLOR;
+            case 4 -> ELDER_TIER_OUTLINE_COLOR;
+            default -> BASE_TIER_OUTLINE_COLOR;
+        };
+    }
+
+    private static String resolveTierFillColor(int tier) {
+        return switch (tier) {
+            case 2 -> VERDANT_TIER_FILL_COLOR;
+            case 3 -> PRIMAL_TIER_FILL_COLOR;
+            case 4 -> ELDER_TIER_FILL_COLOR;
+            default -> BASE_TIER_FILL_COLOR;
+        };
     }
 
     private static String resolveBearTexturePath() {

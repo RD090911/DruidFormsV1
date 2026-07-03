@@ -1,17 +1,24 @@
 package me.druid.v1;
 
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.protocol.SoundCategory;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.PlayerConnectEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerDisconnectEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.MaterialQuantity;
+import com.hypixel.hytale.server.core.universe.world.ParticleUtil;
+import com.hypixel.hytale.server.core.universe.world.SoundUtil;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import me.druid.v1.forms.FormAbilityProfile;
 import me.druid.v1.forms.FormAbilityResolver;
 import me.druid.v1.forms.FormId;
 import me.druid.v1.forms.FormRuntimeBridge;
 import com.hypixel.hytale.protocol.BenchRequirement;
 import org.bson.BsonDocument;
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,6 +83,9 @@ public class ShapeshiftHandler {
     private static final String GUARDIAN_TERRIFYING_ROAR_ITEM = "Guardian_Terrifying_Roar";
     private static final String ELDER_GUARDIAN_TERRIFYING_ROAR_ITEM = "Elder_Guardian_Terrifying_Roar";
     private static final String ROOTLIGHT_SPIRIT_ITEM = "Rootlight_Spirit_Ability";
+    private static final boolean SHAPESHIFT_FX_DEBUG = false;
+    private static final String SHAPESHIFT_PARTICLE_SYSTEM_ID = "Potion_Morph_Burst";
+    private static final String SHAPESHIFT_SOUND_EVENT_ID = "SFX_Portal_Neutral_Teleport_Local";
     private static final short HOTBAR_SLOT_ONE = 0;
     private static final short HOTBAR_SIZE = 10;
 
@@ -163,6 +173,13 @@ public class ShapeshiftHandler {
         return getProgress(player).getTier(tieredForm);
     }
 
+    public static int getStoredTierForHud(Player player, String formName) {
+        if (player == null || formName == null || formName.isBlank()) {
+            return 1;
+        }
+        return new ShapeshiftHandler().getTier(player, formName);
+    }
+
     public boolean canUpgradeTier(Player player, String formName) {
         TieredForm tieredForm = TieredForm.fromFormKey(canonicalizeFormKey(formName.toLowerCase(Locale.ROOT)));
         if (tieredForm == null) return false;
@@ -191,7 +208,7 @@ public class ShapeshiftHandler {
 
         DruidFormProgress progress = getProgress(player);
         int previousTier = progress.getTier(upgradeResult.form());
-        if (previousTier >= upgradeResult.tier()) {
+        if (previousTier >= upgradeResult.tier() || upgradeResult.tier() > previousTier + 1) {
             return false;
         }
 
@@ -200,6 +217,13 @@ public class ShapeshiftHandler {
         }
 
         saveFormProgress();
+        boolean currentForm = isCurrentForm(player, upgradeResult.form().formKey);
+        removeShrineUpgradeAbilityItemsFromInventory(player, upgradeResult, craftedItemId, true);
+        if (currentForm) {
+            animalArmorService.refreshActiveFormArmor(player, upgradeResult.form().formKey, upgradeResult.tier());
+            reconcileUpgradedFormAbilityItems(player, upgradeResult.form());
+        }
+        scheduleShrineOutputCleanup(player, upgradeResult, craftedItemId, currentForm);
         return true;
     }
 
@@ -610,7 +634,8 @@ public class ShapeshiftHandler {
             }
         }
 
-        playPoofEffect(player);
+        debugShapeshiftFx("trigger transform player=" + playerName + " from=" + previousForm + " to=" + shortName);
+        playPoofEffect(player, "transform:" + previousForm + "->" + shortName);
 
         if (swapModel(player, targetModelID)) {
             if ("Horse".equals(targetModelID) || "Camel".equals(targetModelID) || "Horse_Skeleton".equals(targetModelID)) {
@@ -709,7 +734,8 @@ public class ShapeshiftHandler {
             StalkerHuntersMarkAbilityService.cleanupPlayer(player, "restore-human");
         }
         maintenanceActive.put(playerName, false);
-        playPoofEffect(player);
+        debugShapeshiftFx("trigger restore player=" + playerName + " from=" + previousForm + " to=human");
+        playPoofEffect(player, "restore:" + previousForm + "->human");
 
         updateCapabilities(player, "human");
 
@@ -1104,7 +1130,9 @@ public class ShapeshiftHandler {
         try {
             Method getItemId = itemStack.getClass().getMethod("getItemId");
             Object rawItemId = getItemId.invoke(itemStack);
-            return rawItemId instanceof String ? (String) rawItemId : null;
+            return rawItemId instanceof String
+                    ? DruidAbilityItemIds.normalizeItemId((String) rawItemId)
+                    : null;
         } catch (Exception e) {
             return null;
         }
@@ -1192,48 +1220,60 @@ public class ShapeshiftHandler {
 
         List<String> itemIds = new ArrayList<>();
         TieredForm tieredForm = TieredForm.fromFormKey(canonicalForm);
+        int formTier = tieredForm == null ? 1 : getProgress(player).getTier(tieredForm);
         if (tieredForm != null) {
-            itemIds.add(tieredForm.itemForTier(getProgress(player).getTier(tieredForm)));
+            itemIds.add(tieredForm.itemForTier(formTier));
         } else {
             itemIds.add(DRUID_ITEM);
         }
         if ("tiger".equals(canonicalForm)) {
-            itemIds.add(PROWLER_BITE_ITEM);
-            itemIds.add(PROWLER_POUNCE_ITEM);
-            itemIds.add(PROWLER_STEALTH_ITEM);
+            itemIds.add(tieredAbilityItem(PROWLER_BITE_ITEM, formTier));
+            itemIds.add(tieredAbilityItem(PROWLER_POUNCE_ITEM, formTier));
+            itemIds.add(tieredAbilityItem(PROWLER_STEALTH_ITEM, formTier));
         }
         if ("shark".equals(canonicalForm)) {
-            itemIds.add(STALKER_SURGE_ITEM);
-            itemIds.add(STALKER_DIVE_ITEM);
-            itemIds.add(STALKER_BREACH_ITEM);
-            itemIds.add(STALKER_HUNTERS_MARK_ITEM);
+            itemIds.add(tieredAbilityItem(STALKER_SURGE_ITEM, formTier));
+            itemIds.add(tieredAbilityItem(STALKER_DIVE_ITEM, formTier));
+            itemIds.add(tieredAbilityItem(STALKER_BREACH_ITEM, formTier));
+            itemIds.add(tieredAbilityItem(STALKER_HUNTERS_MARK_ITEM, formTier));
         }
         if ("bear".equals(canonicalForm) && tieredForm == TieredForm.BEAR) {
-            int guardianTier = getProgress(player).getTier(tieredForm);
-            String groundSlamItemId = guardianGroundSlamItemForTier(guardianTier);
-            if (groundSlamItemId != null) {
-                itemIds.add(groundSlamItemId);
-            }
-            String oakenshieldItemId = guardianOakenshieldItemForTier(guardianTier);
-            if (oakenshieldItemId != null) {
-                itemIds.add(oakenshieldItemId);
-            }
-            String challengingRoarItemId = guardianChallengingRoarItemForTier(guardianTier);
-            if (challengingRoarItemId != null) {
-                itemIds.add(challengingRoarItemId);
-            }
-            String terrifyingRoarItemId = guardianTerrifyingRoarItemForTier(guardianTier);
-            if (terrifyingRoarItemId != null) {
-                itemIds.add(terrifyingRoarItemId);
-            }
+            itemIds.add(guardianGroundSlamItemForTier(formTier));
+            itemIds.add(guardianOakenshieldItemForTier(formTier));
+            itemIds.add(guardianChallengingRoarItemForTier(formTier));
+            itemIds.add(guardianTerrifyingRoarItemForTier(formTier));
         }
         if ("warden".equals(canonicalForm)) {
-            itemIds.add(WARDEN_GAIAS_TOUCH_ITEM);
-            itemIds.add(WARDEN_SPRING_OF_RENEWAL_ITEM);
-            itemIds.add(WARDEN_NATURES_RESURGENCE_ITEM);
+            itemIds.add(tieredAbilityItem(WARDEN_GAIAS_TOUCH_ITEM, formTier));
+            itemIds.add(tieredAbilityItem(WARDEN_SPRING_OF_RENEWAL_ITEM, formTier));
+            itemIds.add(tieredAbilityItem(WARDEN_NATURES_RESURGENCE_ITEM, formTier));
         }
         itemIds.add(ROOTLIGHT_SPIRIT_ITEM);
         return itemIds;
+    }
+
+    private List<String> resolveExpectedFormAbilityItemIds(Player player, String canonicalForm) {
+        List<String> expectedItemIds = new ArrayList<>();
+        for (String itemId : resolveFormLoadoutItemIds(player, canonicalForm)) {
+            if (itemId == null) {
+                continue;
+            }
+            String itemKey = canonicalLoadoutItemKey(itemId);
+            if (ROOTLIGHT_SPIRIT_ITEM.equals(itemKey)) {
+                continue;
+            }
+            expectedItemIds.add(itemId);
+        }
+        return expectedItemIds;
+    }
+
+    private String tieredAbilityItem(String baseItemId, int tier) {
+        return switch (tier) {
+            case 2 -> "Verdant_" + baseItemId;
+            case 3 -> "Primal_" + baseItemId;
+            case 4 -> "Elder_" + baseItemId;
+            default -> baseItemId;
+        };
     }
 
     private String guardianGroundSlamItemForTier(int tier) {
@@ -1241,24 +1281,35 @@ public class ShapeshiftHandler {
             case 2 -> VERDANT_GUARDIAN_GROUND_SLAM_ITEM;
             case 3 -> PRIMAL_GUARDIAN_GROUND_SLAM_ITEM;
             case 4 -> ELDER_GUARDIAN_GROUND_SLAM_ITEM;
-            default -> null;
+            default -> GUARDIAN_GROUND_SLAM_ITEM;
         };
     }
 
     private String guardianOakenshieldItemForTier(int tier) {
         return switch (tier) {
+            case 2 -> "Verdant_" + GUARDIAN_OAKENSHIELD_ITEM;
             case 3 -> PRIMAL_GUARDIAN_OAKENSHIELD_ITEM;
             case 4 -> ELDER_GUARDIAN_OAKENSHIELD_ITEM;
-            default -> null;
+            default -> GUARDIAN_OAKENSHIELD_ITEM;
         };
     }
 
     private String guardianChallengingRoarItemForTier(int tier) {
-        return tier >= 4 ? ELDER_GUARDIAN_CHALLENGING_ROAR_ITEM : null;
+        return switch (tier) {
+            case 2 -> "Verdant_" + GUARDIAN_CHALLENGING_ROAR_ITEM;
+            case 3 -> "Primal_" + GUARDIAN_CHALLENGING_ROAR_ITEM;
+            case 4 -> ELDER_GUARDIAN_CHALLENGING_ROAR_ITEM;
+            default -> GUARDIAN_CHALLENGING_ROAR_ITEM;
+        };
     }
 
     private String guardianTerrifyingRoarItemForTier(int tier) {
-        return tier >= 4 ? ELDER_GUARDIAN_TERRIFYING_ROAR_ITEM : null;
+        return switch (tier) {
+            case 2 -> "Verdant_" + GUARDIAN_TERRIFYING_ROAR_ITEM;
+            case 3 -> "Primal_" + GUARDIAN_TERRIFYING_ROAR_ITEM;
+            case 4 -> ELDER_GUARDIAN_TERRIFYING_ROAR_ITEM;
+            default -> GUARDIAN_TERRIFYING_ROAR_ITEM;
+        };
     }
 
     private Short resolveLoadoutSlot(
@@ -1272,7 +1323,7 @@ public class ShapeshiftHandler {
     ) {
         String itemKey = canonicalLoadoutItemKey(itemId);
         boolean primaryItem = defaultIndex == 0;
-        boolean movablePrimaryItem = "Tiger_Claw".equals(itemKey) || "Shark_Tooth".equals(itemKey);
+        boolean movablePrimaryItem = isMovablePrimaryLoadoutItem(itemKey);
         if (!primaryItem || movablePrimaryItem) {
             Short preferredSlot = preferredSlots.get(itemKey);
             if (preferredSlot != null
@@ -1293,6 +1344,402 @@ public class ShapeshiftHandler {
         }
 
         return findFirstAvailableLoadoutSlot(usedSlots, hotbarContainer, getStack, allowOccupiedSlot);
+    }
+
+    private boolean isMovablePrimaryLoadoutItem(String itemKey) {
+        return "Tiger_Claw".equals(itemKey)
+                || "Shark_Tooth".equals(itemKey)
+                || "Bear_Skin".equals(itemKey)
+                || WARDEN_ITEM.equals(itemKey)
+                || "Ram_Horn".equals(itemKey);
+    }
+
+    private void reconcileUpgradedFormAbilityItems(Player player, TieredForm upgradedForm) {
+        if (player == null || upgradedForm == null) {
+            return;
+        }
+
+        String formKey = upgradedForm.formKey;
+        List<String> expectedItemIds = resolveExpectedFormAbilityItemIds(player, formKey);
+        if (expectedItemIds.isEmpty()) {
+            return;
+        }
+
+        try {
+            Method getInventory = player.getClass().getMethod("getInventory");
+            Object inventory = getInventory.invoke(player);
+            if (inventory == null) {
+                return;
+            }
+
+            Method getHotbar = inventory.getClass().getMethod("getHotbar");
+            Object hotbarContainer = getHotbar.invoke(inventory);
+            Method hotbarGetStack = hotbarContainer == null ? null : findGetStackMethod(hotbarContainer);
+            Method hotbarSetStack = hotbarContainer == null ? null : findSetStackMethod(hotbarContainer);
+
+            UUID playerUuid = safePlayerUuid(player);
+            if (playerUuid != null && hotbarContainer != null && hotbarGetStack != null) {
+                snapshotAbilitySlotPreferences(playerUuid, hotbarContainer, hotbarGetStack, formKey);
+            }
+
+            removeFormAbilityItemsFromInventory(inventory, hotbarContainer, formKey);
+
+            if (isCurrentForm(player, formKey)
+                    && playerUuid != null
+                    && hotbarContainer != null
+                    && hotbarGetStack != null
+                    && hotbarSetStack != null) {
+                placeExpectedFormItemsInHotbar(
+                        playerUuid,
+                        formKey,
+                        expectedItemIds,
+                        hotbarContainer,
+                        hotbarGetStack,
+                        hotbarSetStack,
+                        true
+                );
+                snapshotAbilitySlotPreferences(playerUuid, hotbarContainer, hotbarGetStack, formKey);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private List<String> placeExpectedFormItemsInHotbar(
+            UUID playerUuid,
+            String formKey,
+            List<String> expectedItemIds,
+            Object hotbarContainer,
+            Method getStack,
+            Method setStack,
+            boolean allowOccupiedSlot
+    ) throws Exception {
+        Class<?> itemStackClass = Class.forName("com.hypixel.hytale.server.core.inventory.ItemStack");
+        Constructor<?> constructor = itemStackClass.getConstructor(String.class, int.class);
+        Map<String, Short> preferredSlots = getAbilitySlotPreferences(playerUuid, formKey);
+        Map<Short, String> placedItems = new LinkedHashMap<>();
+        List<String> pendingInventoryItems = new ArrayList<>();
+
+        for (int index = 0; index < expectedItemIds.size() && index < HOTBAR_SIZE; index++) {
+            String itemId = expectedItemIds.get(index);
+            Short targetSlot = resolveLoadoutSlot(
+                    index,
+                    itemId,
+                    preferredSlots,
+                    placedItems.keySet(),
+                    hotbarContainer,
+                    getStack,
+                    allowOccupiedSlot
+            );
+            if (targetSlot == null) {
+                pendingInventoryItems.add(itemId);
+                continue;
+            }
+
+            Object newItemStack = constructor.newInstance(itemId, 1);
+            if (trySetItemVerified(hotbarContainer, setStack, getStack, targetSlot, newItemStack, itemId)) {
+                placedItems.put(targetSlot, itemId);
+            } else {
+                pendingInventoryItems.add(itemId);
+            }
+        }
+
+        if (!pendingInventoryItems.isEmpty()) {
+            return pendingInventoryItems;
+        }
+        return Collections.emptyList();
+    }
+
+    private void removeFormAbilityItemsFromInventory(Player player, String formKey) {
+        if (player == null || formKey == null || formKey.isBlank()) {
+            return;
+        }
+        try {
+            Method getInventory = player.getClass().getMethod("getInventory");
+            Object inventory = getInventory.invoke(player);
+            if (inventory == null) {
+                return;
+            }
+
+            Method getHotbar = inventory.getClass().getMethod("getHotbar");
+            Object hotbarContainer = getHotbar.invoke(inventory);
+            removeFormAbilityItemsFromInventory(inventory, hotbarContainer, formKey);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void scheduleShrineOutputCleanup(
+            Player player,
+            ShrineUpgradeResult upgradeResult,
+            String craftedItemId,
+            boolean preserveActiveHotbar
+    ) {
+        if (player == null || upgradeResult == null || craftedItemId == null || craftedItemId.isBlank()) {
+            return;
+        }
+        long[] cleanupDelaysMs = {50L, 250L, 1000L};
+        for (long delayMs : cleanupDelaysMs) {
+            scheduler.schedule(() -> {
+                try {
+                    if (player.getWorld() != null) {
+                        player.getWorld().execute(() -> removeShrineUpgradeAbilityItemsFromInventory(
+                                player,
+                                upgradeResult,
+                                craftedItemId,
+                                !preserveActiveHotbar
+                        ));
+                        return;
+                    }
+                } catch (Exception ignored) {
+                }
+                removeShrineUpgradeAbilityItemsFromInventory(player, upgradeResult, craftedItemId, !preserveActiveHotbar);
+            }, delayMs, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    private void removeShrineUpgradeAbilityItemsFromInventory(
+            Player player,
+            ShrineUpgradeResult upgradeResult,
+            String craftedItemId,
+            boolean includeHotbar
+    ) {
+        if (player == null || upgradeResult == null) {
+            return;
+        }
+        try {
+            Method getInventory = player.getClass().getMethod("getInventory");
+            Object inventory = getInventory.invoke(player);
+            if (inventory == null) {
+                return;
+            }
+
+            Method getHotbar = inventory.getClass().getMethod("getHotbar");
+            Object hotbarContainer = getHotbar.invoke(inventory);
+            removeShrineUpgradeAbilityItemsFromInventory(inventory, hotbarContainer, upgradeResult, craftedItemId, includeHotbar);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void removeShrineUpgradeAbilityItemsFromInventory(
+            Object inventory,
+            Object hotbarContainer,
+            ShrineUpgradeResult upgradeResult,
+            String craftedItemId,
+            boolean includeHotbar
+    ) {
+        if (inventory == null || upgradeResult == null) {
+            return;
+        }
+
+        for (Object container : collectItemContainers(inventory)) {
+            if (!includeHotbar && (container == hotbarContainer || isCombinedItemContainer(container))) {
+                continue;
+            }
+            Method getStack = findGetStackMethod(container);
+            Method setStack = findSetStackMethod(container);
+            if (getStack == null || setStack == null) {
+                continue;
+            }
+
+            int size = getContainerSize(container);
+            if (size <= 0) {
+                size = HOTBAR_SIZE;
+            }
+
+            for (short slot = 0; slot < size; slot++) {
+                clearShrineUpgradeAbilityItemAtSlot(container, getStack, setStack, slot, upgradeResult, craftedItemId);
+            }
+            for (short slot = 1; slot <= size; slot++) {
+                clearShrineUpgradeAbilityItemAtSlot(container, getStack, setStack, slot, upgradeResult, craftedItemId);
+            }
+        }
+    }
+
+    private void clearShrineUpgradeAbilityItemAtSlot(
+            Object container,
+            Method getStack,
+            Method setStack,
+            short slot,
+            ShrineUpgradeResult upgradeResult,
+            String craftedItemId
+    ) {
+        try {
+            String itemId = getItemIdFromStack(invokeGetStack(container, getStack, slot));
+            if (!isShrineUpgradeAbilityItem(itemId, upgradeResult, craftedItemId)) {
+                return;
+            }
+            invokeSetStack(container, setStack, slot, null);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private boolean isShrineUpgradeAbilityItem(String itemId, ShrineUpgradeResult upgradeResult, String craftedItemId) {
+        if (itemId == null || upgradeResult == null) {
+            return false;
+        }
+        if (matchesItemId(itemId, craftedItemId)) {
+            return true;
+        }
+        if (isFormAbilityItem(itemId, upgradeResult.form().formKey)) {
+            return true;
+        }
+        for (int tier = 1; tier <= 4; tier++) {
+            if (matchesItemId(itemId, upgradeResult.form().itemForTier(tier))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean matchesItemId(String actualItemId, String expectedItemId) {
+        if (actualItemId == null || expectedItemId == null) {
+            return false;
+        }
+        String actual = itemIdForMatch(actualItemId);
+        String expected = itemIdForMatch(expectedItemId);
+        return actual.equals(expected)
+                || actual.endsWith(":" + expected)
+                || actual.endsWith("/" + expected)
+                || actual.contains(expected);
+    }
+
+    private String itemIdForMatch(String itemId) {
+        return DruidAbilityItemIds.normalizeItemId(itemId).toLowerCase(Locale.ROOT);
+    }
+
+    private boolean isCombinedItemContainer(Object container) {
+        return container != null && container.getClass().getName().toLowerCase(Locale.ROOT).contains("combined");
+    }
+
+    private void placeExpectedFormItemsInInventory(
+            Object inventory,
+            Object hotbarContainer,
+            List<String> expectedItemIds,
+            boolean allowHotbarFallback
+    ) throws Exception {
+        Class<?> itemStackClass = Class.forName("com.hypixel.hytale.server.core.inventory.ItemStack");
+        Constructor<?> constructor = itemStackClass.getConstructor(String.class, int.class);
+        List<Object> containers = collectItemContainers(inventory);
+        for (String itemId : expectedItemIds) {
+            placeItemInAvailableContainerSlot(containers, hotbarContainer, constructor, itemId, allowHotbarFallback);
+        }
+    }
+
+    private boolean placeItemInAvailableContainerSlot(
+            List<Object> containers,
+            Object hotbarContainer,
+            Constructor<?> itemStackConstructor,
+            String itemId,
+            boolean allowHotbarFallback
+    ) throws Exception {
+        if (tryPlaceItemInContainers(containers, hotbarContainer, itemStackConstructor, itemId, false)) {
+            return true;
+        }
+        return allowHotbarFallback && tryPlaceItemInContainers(containers, hotbarContainer, itemStackConstructor, itemId, true);
+    }
+
+    private boolean tryPlaceItemInContainers(
+            List<Object> containers,
+            Object hotbarContainer,
+            Constructor<?> itemStackConstructor,
+            String itemId,
+            boolean includeHotbar
+    ) throws Exception {
+        for (Object container : containers) {
+            if (container == null) {
+                continue;
+            }
+            boolean isHotbar = container == hotbarContainer;
+            if (isHotbar != includeHotbar) {
+                continue;
+            }
+            if (tryPlaceItemInContainer(container, itemStackConstructor, itemId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean tryPlaceItemInContainer(Object container, Constructor<?> itemStackConstructor, String itemId) throws Exception {
+        Method getStack = findGetStackMethod(container);
+        Method setStack = findSetStackMethod(container);
+        if (getStack == null || setStack == null) {
+            return false;
+        }
+
+        int size = getContainerSize(container);
+        if (size <= 0) {
+            size = HOTBAR_SIZE;
+        }
+
+        for (short slot = 0; slot < size; slot++) {
+            if (invokeGetStack(container, getStack, slot) != null) {
+                continue;
+            }
+            Object newItemStack = itemStackConstructor.newInstance(itemId, 1);
+            if (trySetItemVerified(container, setStack, getStack, slot, newItemStack, itemId)) {
+                return true;
+            }
+        }
+
+        for (short slot = 1; slot <= size; slot++) {
+            if (invokeGetStack(container, getStack, slot) != null) {
+                continue;
+            }
+            Object newItemStack = itemStackConstructor.newInstance(itemId, 1);
+            if (trySetItemVerified(container, setStack, getStack, slot, newItemStack, itemId)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void removeFormAbilityItemsFromInventory(Object inventory, Object hotbarContainer, String formKey) {
+        if (inventory == null || formKey == null || formKey.isBlank()) {
+            return;
+        }
+
+        for (Object container : collectItemContainers(inventory)) {
+            Method getStack = findGetStackMethod(container);
+            Method setStack = findSetStackMethod(container);
+            if (getStack == null || setStack == null) {
+                continue;
+            }
+
+            int size = getContainerSize(container);
+            if (size <= 0) {
+                size = HOTBAR_SIZE;
+            }
+
+            for (short slot = 0; slot < size; slot++) {
+                clearFormAbilityItemAtSlot(container, getStack, setStack, slot, formKey);
+            }
+            for (short slot = 1; slot <= size; slot++) {
+                clearFormAbilityItemAtSlot(container, getStack, setStack, slot, formKey);
+            }
+        }
+    }
+
+    private void clearFormAbilityItemAtSlot(Object container, Method getStack, Method setStack, short slot, String formKey) {
+        try {
+            String itemId = getItemIdFromStack(invokeGetStack(container, getStack, slot));
+            if (!isFormAbilityItem(itemId, formKey)) {
+                return;
+            }
+            invokeSetStack(container, setStack, slot, null);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private boolean isFormAbilityItem(String itemId, String formKey) {
+        if (itemId == null || formKey == null) {
+            return false;
+        }
+        String itemKey = canonicalLoadoutItemKey(itemId);
+        if (itemKey == null || ROOTLIGHT_SPIRIT_ITEM.equals(itemKey)) {
+            return false;
+        }
+        return formKey.equals(resolveLoadoutFormForItemId(itemId));
     }
 
     private Short findFirstAvailableLoadoutSlot(
@@ -1701,7 +2148,7 @@ public class ShapeshiftHandler {
         if (properties == null || prefix == null) {
             return null;
         }
-        String itemId = decodeText(properties.getProperty(prefix + ".id"));
+        String itemId = DruidAbilityItemIds.normalizeItemId(decodeText(properties.getProperty(prefix + ".id")));
         Integer quantity = parseInteger(properties.getProperty(prefix + ".quantity"));
         Double durability = parseDouble(properties.getProperty(prefix + ".durability"));
         Double maxDurability = parseDouble(properties.getProperty(prefix + ".maxDurability"));
@@ -1816,6 +2263,7 @@ public class ShapeshiftHandler {
 
     private String canonicalLoadoutItemKey(String itemId) {
         if (itemId == null || itemId.isBlank()) return null;
+        itemId = DruidAbilityItemIds.normalizeItemId(itemId);
         if (itemId.contains(DRUID_ITEM)) return DRUID_ITEM;
         if (itemId.contains("Life_Seed")) return WARDEN_ITEM;
         if (itemId.contains("Gaias_Touch")) return WARDEN_GAIAS_TOUCH_ITEM;
@@ -1880,6 +2328,7 @@ public class ShapeshiftHandler {
 
     private boolean isDruidAbilityItemId(String lowerId) {
         if (lowerId == null) return false;
+        lowerId = DruidAbilityItemIds.normalizeItemId(lowerId).toLowerCase(Locale.ROOT);
         if (lowerId.contains("druid_totem")) return true;
         if (lowerId.contains("druid") && lowerId.contains("totem")) return true;
         if (lowerId.contains("life_seed")) return true;
@@ -2411,7 +2860,7 @@ public class ShapeshiftHandler {
             Constructor<?> setStatesCtor = setStatesClass.getConstructor(savedStatesClass);
             Object packet = setStatesCtor.newInstance(savedStates);
 
-            sendPacket(player, packet);
+            sendPacket(player, packet, true, "flight-state");
             System.out.println("[Druid] Synced Flight State Packet: " + isFlying);
         } catch (Exception e) {
             System.out.println("[Druid] Packet Sync Error: " + e.getMessage());
@@ -2419,60 +2868,67 @@ public class ShapeshiftHandler {
         }
     }
 
-    private void playPoofEffect(Player player) {
+    private void playPoofEffect(Player player, String reason) {
         try {
             Object transform = getTransformComponent(player);
             Method getPos = transform.getClass().getMethod("getPosition");
             Object vec3d = getPos.invoke(transform);
+            if (!(vec3d instanceof Vector3dc positionVector)) {
+                throw new IllegalStateException("Unexpected transform position type: " + (vec3d == null ? "null" : vec3d.getClass().getName()));
+            }
+            Object rawStore = getEntityStore(player);
+            if (!(rawStore instanceof Store<?> rawTypedStore)) {
+                throw new IllegalStateException("Unexpected entity store type: " + (rawStore == null ? "null" : rawStore.getClass().getName()));
+            }
+            @SuppressWarnings("unchecked")
+            Store<EntityStore> store = (Store<EntityStore>) rawTypedStore;
 
-            double x = (double) vec3d.getClass().getMethod("getX").invoke(vec3d);
-            double y = (double) vec3d.getClass().getMethod("getY").invoke(vec3d);
-            double z = (double) vec3d.getClass().getMethod("getZ").invoke(vec3d);
+            double x = positionVector.x();
+            double y = positionVector.y();
+            double z = positionVector.z();
+            debugShapeshiftFx("playPoofEffect start reason=" + reason + " pos=" + x + "," + y + "," + z);
+            Vector3d effectPosition = new Vector3d(x, y + 1.0d, z);
+            sendShapeshiftParticle(store, effectPosition, reason);
+            sendShapeshiftSound(store, effectPosition, reason);
+        } catch (Exception e) {
+            debugShapeshiftFx("playPoofEffect failed reason=" + reason + " error=" + e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+    }
 
-            Class<?> posClass = Class.forName("com.hypixel.hytale.protocol.Position");
-            Object position = posClass.getConstructor(double.class, double.class, double.class)
-                    .newInstance(x, y + 1.0, z);
+    private void sendShapeshiftParticle(Store<EntityStore> store, Vector3d position, String reason) {
+        try {
+            ParticleUtil.spawnParticleEffect(
+                    SHAPESHIFT_PARTICLE_SYSTEM_ID,
+                    position,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    0.9f,
+                    store);
+            debugShapeshiftFx("particle helper success reason=" + reason + " system=" + SHAPESHIFT_PARTICLE_SYSTEM_ID);
+        } catch (Exception exception) {
+            debugShapeshiftFx("particle helper failed reason=" + reason + " system=" + SHAPESHIFT_PARTICLE_SYSTEM_ID + " error=" + exception.getClass().getSimpleName() + ": " + exception.getMessage());
+        }
+    }
 
-            Class<?> particlePacketClass = Class.forName("com.hypixel.hytale.protocol.packets.world.SpawnParticleSystem");
-            Class<?> dirClass = Class.forName("com.hypixel.hytale.protocol.Direction");
-            Class<?> colorClass = Class.forName("com.hypixel.hytale.protocol.Color");
-
-            Object particlePacket = particlePacketClass.getConstructor(String.class, posClass, dirClass, float.class, colorClass)
-                    .newInstance("Potion_Morph_Burst", position, null, 1.0f, null);
-
-            sendPacket(player, particlePacket);
-
+    private void sendShapeshiftSound(Store<EntityStore> store, Vector3d position, String reason) {
+        try {
             Class<?> soundConfigClass = Class.forName("com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent");
             Method getAssetMap = soundConfigClass.getMethod("getAssetMap");
             Object assetMap = getAssetMap.invoke(null);
             Method getIndex = assetMap.getClass().getMethod("getIndex", Object.class);
 
-            int soundIndex = (int) getIndex.invoke(assetMap, "SFX_Portal_Neutral_Teleport_Local");
-
-            if (soundIndex != -1) {
-                Class<?> soundPacketClass = Class.forName("com.hypixel.hytale.protocol.packets.world.PlaySoundEvent3D");
-                Class<?> soundCatClass = Class.forName("com.hypixel.hytale.protocol.SoundCategory");
-
-                Object[] enums = (Object[]) soundCatClass.getEnumConstants();
-                Object targetCategory = (enums.length > 0) ? enums[0] : null;
-
-                if (targetCategory != null) {
-                    for (Object e : enums) {
-                        String name = e.toString().toLowerCase(Locale.ROOT);
-                        if (name.contains("sfx") || name.contains("effect") || name.contains("master")) {
-                            targetCategory = e;
-                            break;
-                        }
-                    }
-
-                    Object soundPacket = soundPacketClass.getConstructor(int.class, soundCatClass, posClass, float.class, float.class)
-                            .newInstance(soundIndex, targetCategory, position, 1.0f, 1.0f);
-
-                    sendPacket(player, soundPacket);
-                }
+            int soundIndex = (int) getIndex.invoke(assetMap, SHAPESHIFT_SOUND_EVENT_ID);
+            debugShapeshiftFx("sound lookup reason=" + reason + " id=" + SHAPESHIFT_SOUND_EVENT_ID + " index=" + soundIndex);
+            if (soundIndex <= 0) {
+                return;
             }
-
-        } catch (Exception e) {}
+            SoundUtil.playSoundEvent3d(soundIndex, SoundCategory.SFX, position, store);
+            debugShapeshiftFx("sound helper success reason=" + reason + " id=" + SHAPESHIFT_SOUND_EVENT_ID + " index=" + soundIndex + " pos=" + position.x + "," + position.y + "," + position.z);
+        } catch (Exception exception) {
+            debugShapeshiftFx("sound helper failed reason=" + reason + " id=" + SHAPESHIFT_SOUND_EVENT_ID + " error=" + exception.getClass().getSimpleName() + ": " + exception.getMessage());
+        }
     }
 
     private void setDuckOxygenBonus(String playerName, Player player, boolean apply) {
@@ -2580,14 +3036,49 @@ public class ShapeshiftHandler {
         return null;
     }
 
-    private void sendPacket(Player player, Object packet) {
+    private void debugShapeshiftFx(String message) {
+        if (!SHAPESHIFT_FX_DEBUG) return;
+        System.out.println("[Druid][ShapeshiftFX] " + message);
+    }
+
+    private boolean sendPacket(Player player, Object packet, boolean preferNoCache, String label) {
         try {
             Object playerRef = getPlayerRef(player);
+            if (playerRef == null) {
+                return false;
+            }
             Method getPacketHandler = playerRef.getClass().getMethod("getPacketHandler");
             Object handler = getPacketHandler.invoke(playerRef);
-            Method write = handler.getClass().getMethod("writeNoCache", Class.forName("com.hypixel.hytale.protocol.ToClientPacket"));
-            write.invoke(handler, packet);
-        } catch (Exception e) {}
+            if (handler == null) {
+                return false;
+            }
+
+            Method primary = findPacketWriteMethod(handler.getClass(), preferNoCache ? "writeNoCache" : "write");
+            Method fallback = findPacketWriteMethod(handler.getClass(), preferNoCache ? "write" : "writeNoCache");
+
+            if (primary != null) {
+                primary.invoke(handler, packet);
+                return true;
+            }
+            if (fallback != null) {
+                fallback.invoke(handler, packet);
+                return true;
+            }
+            return false;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private Method findPacketWriteMethod(Class<?> handlerClass, String methodName) {
+        if (handlerClass == null || methodName == null) return null;
+        for (Method method : handlerClass.getMethods()) {
+            if (!method.getName().equals(methodName) || method.getParameterCount() != 1) continue;
+            Class<?> parameterType = method.getParameterTypes()[0];
+            if (parameterType.isArray()) continue;
+            return method;
+        }
+        return null;
     }
 
     private void modifyStat(Player player, String statName, boolean increase, float amount) {

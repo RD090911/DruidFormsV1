@@ -253,6 +253,22 @@
         "Quantity": 1
       },
       {
+        "ItemId": "Shark_Surge",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Shark_Dive",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Shark_Breach",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Stalker_Hunters_Mark",
+        "Quantity": 1
+      },
+      {
         "ItemId": "Ingredient_Water_Essence",
         "Quantity": 5
       },

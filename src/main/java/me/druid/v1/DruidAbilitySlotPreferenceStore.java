@@ -48,9 +48,16 @@ final class DruidAbilitySlotPreferenceStore {
                 continue;
             }
 
+            String normalizedFormKey = DruidAbilityItemIds.normalizeFormKey(parts[1]);
+            String normalizedItemKey = DruidAbilityItemIds.normalizeItemId(parts[2]);
+            if (normalizedFormKey == null || normalizedFormKey.isBlank()
+                    || normalizedItemKey == null || normalizedItemKey.isBlank()) {
+                continue;
+            }
+
             target.computeIfAbsent(playerUuid, unusedPlayer -> new ConcurrentHashMap<>())
-                    .computeIfAbsent(parts[1], unusedForm -> new ConcurrentHashMap<>())
-                    .put(parts[2], slot);
+                    .computeIfAbsent(normalizedFormKey, unusedForm -> new ConcurrentHashMap<>())
+                    .put(normalizedItemKey, slot);
         }
     }
 

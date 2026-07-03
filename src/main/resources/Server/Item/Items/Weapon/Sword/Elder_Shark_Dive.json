@@ -1,0 +1,34 @@
+{
+    "TranslationProperties":  {
+                                  "Name":  "Dive",
+                                  "Description":  "server.items.Shark_Dive.description"
+                              },
+    "Icon":  "Icons/Items/dive.png",
+    "DroppedItemAnimation":  "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
+    "Reticle":  "DefaultMelee",
+    "Quality":  "Legendary",
+    "ItemSoundSetId":  "ISS_Weapons_Blade_Large",
+    "ItemLevel":  65,
+    "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
+    "MaxStack":  1,
+    "Categories":  [
+                       "Items.Weapons"
+                   ],
+    "Utility":  {
+                    "Compatible":  false
+                },
+    "Interactions":  {
+                         "Primary":  "Druid_Stalker_Dive_Primary",
+                         "Secondary":  "Druid_Open_Radial_Menu"
+                     },
+    "Tags":  {
+                 "Type":  [
+                              "Weapon"
+                          ],
+                 "Family":  [
+                                "Sword"
+                            ]
+             },
+    "MaxDurability":  400,
+    "DurabilityLossOnHit":  0
+}

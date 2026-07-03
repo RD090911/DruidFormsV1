@@ -25,6 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 final class StalkerSurgeAbilityService {
     static final String SURGE_ITEM_ID = "Shark_Surge";
     static final long SURGE_COOLDOWN_MILLIS = 7_500L;
+    private static final String SURGE_SOUND_EVENT_ID = "SFX_Player_Swim_Jump";
+    private static final float SURGE_SOUND_VOLUME_MODIFIER = 7.9432823f;
 
     private static final int SURGE_FALLBACK_SLOT_INDEX = 1;
     private static final double WATER_SURGE_SPEED = 16.0d;
@@ -83,7 +85,7 @@ final class StalkerSurgeAbilityService {
     }
 
     static boolean isSurgeItemId(String itemId) {
-        return SURGE_ITEM_ID.equals(itemId);
+        return itemId != null && itemId.contains(SURGE_ITEM_ID);
     }
 
     private static SurgeContext resolveSurgeContext(Player player) {
@@ -172,6 +174,12 @@ final class StalkerSurgeAbilityService {
             return;
         }
 
+        DruidSoundFeedback.playForPlayer(
+                player,
+                SURGE_SOUND_EVENT_ID,
+                SURGE_SOUND_EVENT_ID,
+                SURGE_SOUND_VOLUME_MODIFIER
+        );
         Velocity velocity = store.ensureAndGetComponent(ref, Velocity.getComponentType());
         velocity.addInstruction(
                 new Vector3d(impulse),

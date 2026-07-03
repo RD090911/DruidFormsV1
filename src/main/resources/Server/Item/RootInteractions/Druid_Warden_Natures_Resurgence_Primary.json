@@ -10,7 +10,8 @@
       "RunTime": 0.1,
       "Effects": {
         "ItemPlayerAnimationsId": "Item",
-        "ItemAnimationId": "Throw"
+        "ItemAnimationId": "Throw",
+        "WorldSoundEventId": "SFX_Deployable_Totem_Heal_Spawn"
       }
     }
   ]

@@ -17,7 +17,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 final class DruidHyUiClassCooldownOverlayHud {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final Map<UUID, HyUIHud> HUD_BY_PLAYER = new ConcurrentHashMap<>();
     private static final Map<UUID, Long> OVERLAY_START_TIME_BY_PLAYER = new ConcurrentHashMap<>();
 

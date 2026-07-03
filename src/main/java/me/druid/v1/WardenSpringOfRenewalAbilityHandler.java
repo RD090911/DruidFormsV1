@@ -36,7 +36,10 @@ final class WardenSpringOfRenewalAbilityHandler {
     private static final long SPRING_TICK_INTERVAL_MILLIS = 1_000L;
     private static final double SPRING_RADIUS = 5.0d;
     private static final double SPRING_RADIUS_SQUARED = SPRING_RADIUS * SPRING_RADIUS;
-    private static final float SPRING_HEAL_AMOUNT = 5.0f;
+    private static final float SPRING_BASE_HEAL_AMOUNT = 5.0f;
+    private static final float SPRING_VERDANT_HEAL_AMOUNT = 6.0f;
+    private static final float SPRING_PRIMAL_HEAL_AMOUNT = 7.0f;
+    private static final float SPRING_ELDER_HEAL_AMOUNT = 8.0f;
     private static final String SPRING_HEAL_EFFECT_ID = "Healing_Totem_Heal";
     private static final String SPRING_GROUND_VISUAL_SYSTEM_ID = "Totem_Heal_Simple_Test";
 
@@ -172,6 +175,7 @@ final class WardenSpringOfRenewalAbilityHandler {
         }
 
         EntityEffect healingEffect = EntityEffect.getAssetMap().getAsset(SPRING_HEAL_EFFECT_ID);
+        float healAmount = resolveSpringHealAmount(owner);
         List<Player> players = DruidPermissions.getOnlinePlayersSnapshot();
         int targets = 0;
         for (Player candidate : players) {
@@ -192,16 +196,17 @@ final class WardenSpringOfRenewalAbilityHandler {
                 continue;
             }
 
-            boolean healed = applyHeal(candidate);
+            boolean healed = applyHeal(candidate, healAmount);
             boolean visualApplied = applyHealVisual(candidate, healingEffect);
             if (healed) {
                 targets++;
             }
             System.out.println(String.format(Locale.ROOT,
-                    "[WardenSpringOfRenewal] tick target=%s healed=%s visual=%s",
+                    "[WardenSpringOfRenewal] tick target=%s healed=%s visual=%s healAmount=%.1f",
                     DruidPlayerCompat.getPlayerNameOrUnknown(candidate),
                     healed,
-                    visualApplied));
+                    visualApplied,
+                    healAmount));
         }
 
         System.out.println(String.format(Locale.ROOT, "[WardenSpringOfRenewal] tick targets=%d", targets));
@@ -221,17 +226,60 @@ final class WardenSpringOfRenewalAbilityHandler {
         return position == null ? null : new Vector3d(position);
     }
 
-    private static boolean applyHeal(Player player) {
+    private static boolean applyHeal(Player player, float healAmount) {
         try {
             EntityStatMap stats = EntityStatsModule.get(player);
             if (stats == null) {
                 return false;
             }
-            stats.addStatValue(DefaultEntityStatTypes.getHealth(), SPRING_HEAL_AMOUNT);
+            stats.addStatValue(DefaultEntityStatTypes.getHealth(), healAmount);
             return true;
         } catch (Exception exception) {
             System.out.println("[WardenSpringOfRenewal] heal failed reason=" + exception.getClass().getSimpleName());
             return false;
+        }
+    }
+
+    private static float resolveSpringHealAmount(Player owner) {
+        String lowerHeldItemId = getHeldItemIdLower(owner);
+        if (lowerHeldItemId == null) {
+            return SPRING_BASE_HEAL_AMOUNT;
+        }
+        if (lowerHeldItemId.contains("elder_spring_of_renewal")) {
+            return SPRING_ELDER_HEAL_AMOUNT;
+        }
+        if (lowerHeldItemId.contains("primal_spring_of_renewal")) {
+            return SPRING_PRIMAL_HEAL_AMOUNT;
+        }
+        if (lowerHeldItemId.contains("verdant_spring_of_renewal")) {
+            return SPRING_VERDANT_HEAL_AMOUNT;
+        }
+        if (lowerHeldItemId.contains("spring_of_renewal")) {
+            return SPRING_BASE_HEAL_AMOUNT;
+        }
+        return SPRING_BASE_HEAL_AMOUNT;
+    }
+
+    private static String getHeldItemIdLower(Player owner) {
+        if (owner == null) {
+            return null;
+        }
+        try {
+            Object inventory = owner.getClass().getMethod("getInventory").invoke(owner);
+            if (inventory == null) {
+                return null;
+            }
+            Object held = inventory.getClass().getMethod("getItemInHand").invoke(inventory);
+            if (held == null) {
+                return null;
+            }
+            Object itemId = held.getClass().getMethod("getItemId").invoke(held);
+            if (!(itemId instanceof String)) {
+                return null;
+            }
+            return ((String) itemId).toLowerCase(Locale.ROOT);
+        } catch (Exception ignored) {
+            return null;
         }
     }
 

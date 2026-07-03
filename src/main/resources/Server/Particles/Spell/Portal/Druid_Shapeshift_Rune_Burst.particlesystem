@@ -1,0 +1,35 @@
+{
+  "CullDistance": 50.0,
+  "IsImportant": true,
+  "Spawners": [
+    {
+      "SpawnerId": "Druid_Shrine_Whisp_Effect",
+      "PositionOffset": {
+        "Y": -0.2
+      }
+    },
+    {
+      "SpawnerId": "Druid_Rune_Wind_Effect",
+      "PositionOffset": {
+        "Y": 0.0,
+        "Z": -0.1
+      }
+    },
+    {
+      "SpawnerId": "Druid_Rune_Fire_Effect",
+      "PositionOffset": {
+        "X": 0.45,
+        "Y": -0.15,
+        "Z": -0.1
+      }
+    },
+    {
+      "SpawnerId": "Druid_Rune_Water_Effect",
+      "PositionOffset": {
+        "X": -0.45,
+        "Y": -0.15,
+        "Z": -0.1
+      }
+    }
+  ]
+}

@@ -34,8 +34,12 @@ import java.util.concurrent.TimeUnit;
 final class ProwlerPounceAbilityService {
     static final String POUNCE_ITEM_ID = "Tiger_Pounce";
     static final long POUNCE_COOLDOWN_MILLIS = 12_000L;
+    private static final String POUNCE_LAUNCH_WORLD_SOUND_EVENT_ID = "SFX_Daggers_T1_Pounce";
+    private static final String POUNCE_LAUNCH_LOCAL_SOUND_EVENT_ID = "SFX_Daggers_T1_Pounce_Local";
+    private static final String POUNCE_CLAW_SOUND_EVENT_ID = "SFX_Daggers_T2_Slash_Impact";
 
     private static final int POUNCE_FALLBACK_SLOT_INDEX = 2;
+    private static final long POUNCE_CLAW_SOUND_DELAY_MILLIS = 700L;
     private static final long POUNCE_DAMAGE_TIMEOUT_MILLIS = 2_000L;
     private static final float NORMAL_DAMAGE = 16.0f;
     private static final float AMBUSH_DAMAGE = 24.0f;
@@ -44,6 +48,7 @@ final class ProwlerPounceAbilityService {
     private static final Map<UUID, Long> COOLDOWN_END_BY_PLAYER = new ConcurrentHashMap<>();
     private static final Map<UUID, PendingPounceDamage> PENDING_DAMAGE_BY_PLAYER = new ConcurrentHashMap<>();
     private static final Map<UUID, ScheduledFuture<?>> PENDING_CLEAR_TASK_BY_PLAYER = new ConcurrentHashMap<>();
+    private static final Map<UUID, ScheduledFuture<?>> PENDING_CLAW_SOUND_TASK_BY_PLAYER = new ConcurrentHashMap<>();
 
     private ProwlerPounceAbilityService() {
     }
@@ -140,6 +145,7 @@ final class ProwlerPounceAbilityService {
         UUID playerUuid = player == null ? null : player.getUuid();
         if (playerUuid != null) {
             clearPendingDamage(playerUuid, reason);
+            cancelPendingClawSound(playerUuid);
         }
     }
 
@@ -147,6 +153,7 @@ final class ProwlerPounceAbilityService {
         UUID playerUuid = playerRef == null ? null : playerRef.getUuid();
         if (playerUuid != null) {
             clearPendingDamage(playerUuid, "disconnect");
+            cancelPendingClawSound(playerUuid);
         }
     }
 
@@ -158,6 +165,12 @@ final class ProwlerPounceAbilityService {
             }
         }
         PENDING_CLEAR_TASK_BY_PLAYER.clear();
+        for (ScheduledFuture<?> task : PENDING_CLAW_SOUND_TASK_BY_PLAYER.values()) {
+            if (task != null) {
+                task.cancel(false);
+            }
+        }
+        PENDING_CLAW_SOUND_TASK_BY_PLAYER.clear();
     }
 
     private static PounceContext resolvePounceContext(Player player) {
@@ -236,8 +249,43 @@ final class ProwlerPounceAbilityService {
             return;
         }
 
+        DruidSoundFeedback.playForPlayer(player, POUNCE_LAUNCH_LOCAL_SOUND_EVENT_ID, POUNCE_LAUNCH_WORLD_SOUND_EVENT_ID);
+        scheduleClawSound(player, expectedWorld);
         Velocity velocity = store.ensureAndGetComponent(ref, Velocity.getComponentType());
         velocity.addInstruction(new Vector3d(impulse), createVelocityConfig(), ChangeVelocityType.Set);
+    }
+
+    private static void scheduleClawSound(Player player, World expectedWorld) {
+        UUID playerUuid = player == null ? null : player.getUuid();
+        if (playerUuid == null || expectedWorld == null || !expectedWorld.isAlive()) {
+            return;
+        }
+
+        cancelPendingClawSound(playerUuid);
+        ScheduledFuture<?> clawTask = HytaleServer.SCHEDULED_EXECUTOR.schedule(() -> {
+            try {
+                expectedWorld.execute(() -> playClawSoundOnWorldThread(player, expectedWorld, playerUuid));
+            } catch (RuntimeException ignored) {
+                cancelPendingClawSound(playerUuid);
+            }
+        }, POUNCE_CLAW_SOUND_DELAY_MILLIS, TimeUnit.MILLISECONDS);
+        PENDING_CLAW_SOUND_TASK_BY_PLAYER.put(playerUuid, clawTask);
+    }
+
+    private static void playClawSoundOnWorldThread(Player player, World expectedWorld, UUID playerUuid) {
+        cancelPendingClawSound(playerUuid);
+        if (player == null
+                || expectedWorld == null
+                || !expectedWorld.isAlive()
+                || player.getWorld() != expectedWorld
+                || ShapeshiftHandler.getActiveFormId(player) != FormId.FORM_PROWLER) {
+            return;
+        }
+        Ref<EntityStore> ref = player.getReference();
+        if (ref == null || !ref.isValid()) {
+            return;
+        }
+        DruidSoundFeedback.playForPlayer(player, POUNCE_CLAW_SOUND_EVENT_ID);
     }
 
     private static void armPendingDamage(UUID playerUuid, int chainId, boolean wasStealthedAtPounceStart) {
@@ -267,6 +315,16 @@ final class ProwlerPounceAbilityService {
         ScheduledFuture<?> clearTask = PENDING_CLEAR_TASK_BY_PLAYER.remove(playerUuid);
         if (clearTask != null) {
             clearTask.cancel(false);
+        }
+    }
+
+    private static void cancelPendingClawSound(UUID playerUuid) {
+        if (playerUuid == null) {
+            return;
+        }
+        ScheduledFuture<?> clawTask = PENDING_CLAW_SOUND_TASK_BY_PLAYER.remove(playerUuid);
+        if (clawTask != null) {
+            clawTask.cancel(false);
         }
     }
 

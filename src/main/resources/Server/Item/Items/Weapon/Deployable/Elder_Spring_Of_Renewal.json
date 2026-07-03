@@ -1,0 +1,29 @@
+{
+    "TranslationProperties":  {
+                                  "Name":  "Spring of Renewal",
+                                  "Description":  "server.items.Spring_Of_Renewal.description"
+                              },
+    "Scale":  0.305,
+    "Quality":  "Legendary",
+    "ItemLevel":  65,
+    "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
+    "MaxStack":  1,
+    "IconProperties":  {
+                           "Rotation":  [
+                                            22.5,
+                                            45,
+                                            22.5
+                                        ],
+                           "Scale":  0.305,
+                           "Translation":  [
+                                               0,
+                                               -39.6
+                                           ]
+                       },
+    "Icon":  "Icons/Items/spring_of_renewal.png",
+    "DroppedItemAnimation":  "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
+    "Interactions":  {
+                         "Primary":  "Druid_Warden_Spring_Of_Renewal_Primary",
+                         "Secondary":  "Druid_Open_Radial_Menu"
+                     }
+}

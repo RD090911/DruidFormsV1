@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 final class GuardianOakenshieldCooldownService {
     static final String OAKENSHIELD_ITEM_ID = "Guardian_Oakenshield";
+    static final String VERDANT_OAKENSHIELD_ITEM_ID = "Verdant_Guardian_Oakenshield";
     static final String PRIMAL_OAKENSHIELD_ITEM_ID = "Primal_Guardian_Oakenshield";
     static final String ELDER_OAKENSHIELD_ITEM_ID = "Elder_Guardian_Oakenshield";
     static final long OAKENSHIELD_COOLDOWN_MILLIS = 25_000L;
@@ -95,7 +96,9 @@ final class GuardianOakenshieldCooldownService {
     }
 
     static boolean isOakenshieldItemId(String itemId) {
-        return PRIMAL_OAKENSHIELD_ITEM_ID.equals(itemId)
+        return OAKENSHIELD_ITEM_ID.equals(itemId)
+                || VERDANT_OAKENSHIELD_ITEM_ID.equals(itemId)
+                || PRIMAL_OAKENSHIELD_ITEM_ID.equals(itemId)
                 || ELDER_OAKENSHIELD_ITEM_ID.equals(itemId);
     }
 }

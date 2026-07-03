@@ -32,6 +32,8 @@ final class RootlightSpiritCompanionService {
     private static final String OWNER_TARGET_SLOT = "LockedTarget";
     private static final String WALK_MOTION_CONTROLLER = "Walk";
     private static final String FLY_MOTION_CONTROLLER = "Fly";
+    private static final String ROOTLIGHT_COMPANION_SPAWN_SOUND_EVENT_ID = "SFX_Spirit_Root_Spawn";
+    private static final String ROOTLIGHT_COMPANION_DESPAWN_SOUND_EVENT_ID = "SFX_Avatar_Powers_Disable";
     private static final long WATCHDOG_INTERVAL_MILLIS = 2_000L;
     private static final long REFRESH_COOLDOWN_MILLIS = 2_500L;
     private static final double REFRESH_DISTANCE_SQUARED = 20.0 * 20.0;
@@ -95,6 +97,7 @@ final class RootlightSpiritCompanionService {
             clearRefreshState(playerId);
             removeCompanion(existingCompanion);
             stopWatchdogIfIdle();
+            DruidSoundFeedback.playAtPlayer(player, ROOTLIGHT_COMPANION_DESPAWN_SOUND_EVENT_ID);
             sendPlayerMessage(player, "Rootlight Spirit returns to the earth.");
             System.out.println("[RootlightSpiritCompanion] disabled owner="
                     + DruidPlayerCompat.getPlayerNameOrUnknown(player));
@@ -138,6 +141,7 @@ final class RootlightSpiritCompanionService {
 
         ACTIVE_COMPANIONS.put(playerId, companionRef);
         ensureWatchdogRunning();
+        DruidSoundFeedback.playAtPlayer(player, ROOTLIGHT_COMPANION_SPAWN_SOUND_EVENT_ID);
         sendPlayerMessage(player, "Rootlight Spirit answers your call.");
         System.out.println("[RootlightSpiritCompanion] enabled owner="
                 + DruidPlayerCompat.getPlayerNameOrUnknown(player)
@@ -191,6 +195,7 @@ final class RootlightSpiritCompanionService {
                 clearRefreshState(playerId);
                 removeCompanion(companionRef);
                 stopWatchdogIfIdle();
+                DruidSoundFeedback.playAtPlayer(player, ROOTLIGHT_COMPANION_DESPAWN_SOUND_EVENT_ID);
                 System.out.println("[RootlightSpiritCompanion] watchdog cleanup owner="
                         + DruidPlayerCompat.getPlayerNameOrUnknown(player));
             }

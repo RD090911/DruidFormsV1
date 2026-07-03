@@ -1,6 +1,6 @@
 {
   "TranslationProperties": {
-    "Name": "Elder Life Seed",
+    "Name": "Life Seed",
     "Description": "server.items.Elder_Life_Seed.description"
   },
   "Scale": 0.305,
@@ -26,6 +26,18 @@
     "Input": [
       {
         "ItemId": "Primal_Life_Seed",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Primal_Gaias_Touch",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Primal_Spring_Of_Renewal",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Primal_Natures_Resurgence",
         "Quantity": 1
       },
       {

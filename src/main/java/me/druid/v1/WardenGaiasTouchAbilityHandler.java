@@ -22,7 +22,10 @@ import java.util.concurrent.ConcurrentHashMap;
 final class WardenGaiasTouchAbilityHandler {
     private static final Map<UUID, Long> COOLDOWN_END_BY_OWNER = new ConcurrentHashMap<>();
     private static final long GAIAS_TOUCH_COOLDOWN_MILLIS = 30_000L;
-    private static final float GAIAS_TOUCH_HEAL_AMOUNT = 75.0f;
+    private static final float GAIAS_TOUCH_BASE_HEAL_AMOUNT = 50.0f;
+    private static final float GAIAS_TOUCH_VERDANT_HEAL_AMOUNT = 60.0f;
+    private static final float GAIAS_TOUCH_PRIMAL_HEAL_AMOUNT = 70.0f;
+    private static final float GAIAS_TOUCH_ELDER_HEAL_AMOUNT = 80.0f;
     private static final String GAIAS_TOUCH_HEAL_EFFECT_ID = "Healing_Totem_Heal";
 
     private WardenGaiasTouchAbilityHandler() {
@@ -55,7 +58,8 @@ final class WardenGaiasTouchAbilityHandler {
             return;
         }
 
-        if (applyHeal(player)) {
+        float healAmount = resolveGaiasTouchHealAmount(player);
+        if (applyHeal(player, healAmount)) {
             UUID ownerId = player.getUuid();
             if (ownerId != null) {
                 COOLDOWN_END_BY_OWNER.put(ownerId, System.currentTimeMillis() + GAIAS_TOUCH_COOLDOWN_MILLIS);
@@ -64,7 +68,7 @@ final class WardenGaiasTouchAbilityHandler {
             applyHealVisual(player);
             System.out.println(String.format(Locale.ROOT,
                     "Warden Gaia's Touch ability triggered heal=%.1f owner=%s",
-                    GAIAS_TOUCH_HEAL_AMOUNT,
+                    healAmount,
                     DruidPlayerCompat.getPlayerNameOrUnknown(player)));
             sendPlayerMessage(player, "Gaia's Touch restores your vitality.");
         }
@@ -99,17 +103,60 @@ final class WardenGaiasTouchAbilityHandler {
         return false;
     }
 
-    private static boolean applyHeal(Player player) {
+    private static boolean applyHeal(Player player, float healAmount) {
         try {
             EntityStatMap stats = EntityStatsModule.get(player);
             if (stats == null) {
                 return false;
             }
-            stats.addStatValue(DefaultEntityStatTypes.getHealth(), GAIAS_TOUCH_HEAL_AMOUNT);
+            stats.addStatValue(DefaultEntityStatTypes.getHealth(), healAmount);
             return true;
         } catch (Exception exception) {
             System.out.println("GaiasTouch heal failed reason=" + exception.getClass().getSimpleName());
             return false;
+        }
+    }
+
+    private static float resolveGaiasTouchHealAmount(Player owner) {
+        String lowerHeldItemId = getHeldItemIdLower(owner);
+        if (lowerHeldItemId == null) {
+            return GAIAS_TOUCH_BASE_HEAL_AMOUNT;
+        }
+        if (lowerHeldItemId.contains("elder_gaias_touch")) {
+            return GAIAS_TOUCH_ELDER_HEAL_AMOUNT;
+        }
+        if (lowerHeldItemId.contains("primal_gaias_touch")) {
+            return GAIAS_TOUCH_PRIMAL_HEAL_AMOUNT;
+        }
+        if (lowerHeldItemId.contains("verdant_gaias_touch")) {
+            return GAIAS_TOUCH_VERDANT_HEAL_AMOUNT;
+        }
+        if (lowerHeldItemId.contains("gaias_touch")) {
+            return GAIAS_TOUCH_BASE_HEAL_AMOUNT;
+        }
+        return GAIAS_TOUCH_BASE_HEAL_AMOUNT;
+    }
+
+    private static String getHeldItemIdLower(Player owner) {
+        if (owner == null) {
+            return null;
+        }
+        try {
+            Object inventory = owner.getClass().getMethod("getInventory").invoke(owner);
+            if (inventory == null) {
+                return null;
+            }
+            Object held = inventory.getClass().getMethod("getItemInHand").invoke(inventory);
+            if (held == null) {
+                return null;
+            }
+            Object itemId = held.getClass().getMethod("getItemId").invoke(held);
+            if (!(itemId instanceof String)) {
+                return null;
+            }
+            return ((String) itemId).toLowerCase(Locale.ROOT);
+        } catch (Exception ignored) {
+            return null;
         }
     }
 

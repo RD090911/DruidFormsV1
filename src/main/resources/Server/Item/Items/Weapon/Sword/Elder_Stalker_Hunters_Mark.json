@@ -1,0 +1,34 @@
+{
+    "TranslationProperties":  {
+                                  "Name":  "Hunter\u0027s Mark",
+                                  "Description":  "server.items.Stalker_Hunters_Mark.description"
+                              },
+    "Icon":  "Icons/Items/hunters_mark.png",
+    "DroppedItemAnimation":  "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
+    "Reticle":  "DefaultMelee",
+    "Quality":  "Legendary",
+    "ItemSoundSetId":  "ISS_Weapons_Blade_Large",
+    "ItemLevel":  65,
+    "Model":  "Items/Armors/Druid/Hidden_Armor.blockymodel",
+    "MaxStack":  1,
+    "Categories":  [
+                       "Items.Weapons"
+                   ],
+    "Utility":  {
+                    "Compatible":  false
+                },
+    "Interactions":  {
+                         "Primary":  "Druid_Stalker_Hunters_Mark_Primary",
+                         "Secondary":  "Druid_Open_Radial_Menu"
+                     },
+    "Tags":  {
+                 "Type":  [
+                              "Weapon"
+                          ],
+                 "Family":  [
+                                "Sword"
+                            ]
+             },
+    "MaxDurability":  400,
+    "DurabilityLossOnHit":  0
+}

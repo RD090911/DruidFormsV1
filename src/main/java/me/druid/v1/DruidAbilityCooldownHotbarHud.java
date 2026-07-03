@@ -387,18 +387,8 @@ final class DruidAbilityCooldownHotbarHud {
         if (itemId == null || itemId.isBlank()) {
             return "unknown";
         }
-        if ("Elder_Life_Seed".equals(itemId)
-                || "Primal_Life_Seed".equals(itemId)
-                || "Verdant_Life_Seed".equals(itemId)) {
-            return "Life_Seed";
-        }
-        if (GuardianGroundSlamCooldownService.isGroundSlamItemId(itemId)) {
-            return GuardianGroundSlamCooldownService.GROUND_SLAM_ITEM_ID;
-        }
-        if (GuardianOakenshieldCooldownService.isOakenshieldItemId(itemId)) {
-            return GuardianOakenshieldCooldownService.OAKENSHIELD_ITEM_ID;
-        }
-        return itemId;
+        String canonicalKey = DruidAbilityItemIds.canonicalCooldownItemId(itemId);
+        return canonicalKey == null || canonicalKey.isBlank() ? itemId : canonicalKey;
     }
 
     private static String rawIdSuffix(String abilityKey) {
@@ -508,24 +498,7 @@ final class DruidAbilityCooldownHotbarHud {
     }
 
     private static boolean matchesCooldownItem(String slotItemId, String cooldownItemId) {
-        if (slotItemId == null || cooldownItemId == null) {
-            return false;
-        }
-        if (slotItemId.equals(cooldownItemId)) {
-            return true;
-        }
-        if ("Life_Seed".equals(cooldownItemId)) {
-            return "Elder_Life_Seed".equals(slotItemId)
-                    || "Primal_Life_Seed".equals(slotItemId)
-                    || "Verdant_Life_Seed".equals(slotItemId);
-        }
-        if (GuardianGroundSlamCooldownService.GROUND_SLAM_ITEM_ID.equals(cooldownItemId)) {
-            return GuardianGroundSlamCooldownService.isGroundSlamItemId(slotItemId);
-        }
-        if (GuardianOakenshieldCooldownService.OAKENSHIELD_ITEM_ID.equals(cooldownItemId)) {
-            return GuardianOakenshieldCooldownService.isOakenshieldItemId(slotItemId);
-        }
-        return false;
+        return DruidAbilityItemIds.matchesCanonicalCooldownItem(slotItemId, cooldownItemId);
     }
 
     private static Method findGetStackMethod(Object hotbar) {

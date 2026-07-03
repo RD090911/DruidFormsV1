@@ -5,11 +5,6 @@
     "Cooldown": 0.7
   },
   "Interactions": [
-    "Weapon_Daggers_Primary",
-    {
-      "Type": "ApplyEffect",
-      "Entity": "Target",
-      "EffectId": "Poison_T1"
-    }
+    "Weapon_Daggers_Primary"
   ]
 }

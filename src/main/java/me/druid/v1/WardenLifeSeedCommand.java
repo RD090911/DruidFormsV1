@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class WardenLifeSeedCommand extends AbstractCommand {
     public WardenLifeSeedCommand() {
-        super("wardenlifeseed", "Warden Life Seed ability stub hook", false);
+        super("wardenlifeseed", "Trigger Warden Life Seed.", false);
     }
 
     @Override

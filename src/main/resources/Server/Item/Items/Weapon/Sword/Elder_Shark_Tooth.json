@@ -253,6 +253,22 @@
         "Quantity": 1
       },
       {
+        "ItemId": "Primal_Shark_Surge",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Primal_Shark_Dive",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Primal_Shark_Breach",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Primal_Stalker_Hunters_Mark",
+        "Quantity": 1
+      },
+      {
         "ItemId": "Ingredient_Life_Essence_Concentrated",
         "Quantity": 2
       },

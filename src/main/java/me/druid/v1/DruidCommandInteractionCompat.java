@@ -93,6 +93,7 @@ final class DruidCommandInteractionCompat {
 
         for (SyncInteractionChain chain : chains.updates) {
             if (chain == null) continue;
+            ProwlerBiteCooldownService.handleInteractionUpdate(playerUuid, chain);
             StalkerHuntersMarkAbilityService.handleInteractionUpdate(playerUuid, chain);
             InteractionType interactionType = chain.interactionType;
             if (interactionType != InteractionType.Secondary && interactionType != InteractionType.Primary) continue;
@@ -131,6 +132,12 @@ final class DruidCommandInteractionCompat {
                     cancelInteractionChain(playerRef, chain);
                     return true;
                 }
+                ProwlerBiteCooldownService.armPendingHit(
+                        playerUuid,
+                        chain.chainId,
+                        chain.itemInHandId,
+                        chain.activeHotbarSlot
+                );
                 ProwlerStealthService.recordCombat(player);
                 ProwlerStealthService.breakStealth(player, "bite");
                 continue;
@@ -232,7 +239,7 @@ final class DruidCommandInteractionCompat {
                     cancelInteractionChain(playerRef, chain);
                     return true;
                 }
-                if (!GuardianChallengingRoarAbilityService.tryStart(player, chain.activeHotbarSlot)) {
+                if (!GuardianChallengingRoarAbilityService.tryStart(player, chain.activeHotbarSlot, chain.itemInHandId)) {
                     cancelInteractionChain(playerRef, chain);
                     return true;
                 }
@@ -245,7 +252,7 @@ final class DruidCommandInteractionCompat {
                     cancelInteractionChain(playerRef, chain);
                     return true;
                 }
-                if (!GuardianTerrifyingRoarAbilityService.tryStart(player, chain.activeHotbarSlot)) {
+                if (!GuardianTerrifyingRoarAbilityService.tryStart(player, chain.activeHotbarSlot, chain.itemInHandId)) {
                     cancelInteractionChain(playerRef, chain);
                     return true;
                 }
@@ -333,6 +340,7 @@ final class DruidCommandInteractionCompat {
         if ((itemId == null || itemId.isBlank()) && fallbackItemId != null && !fallbackItemId.isBlank()) {
             itemId = fallbackItemId;
         }
+        itemId = DruidAbilityItemIds.normalizeItemId(itemId);
         if (itemId == null) return null;
 
         if ("Druid_Totem".equals(itemId) && interactionType == InteractionType.Secondary) return "shapeshift ui";
@@ -345,10 +353,13 @@ final class DruidCommandInteractionCompat {
         if ("Gaias_Touch".equals(itemId)) {
             return interactionType == InteractionType.Primary ? "wardengaiastouch" : null;
         }
-        if ("Spring_Of_Renewal".equals(itemId)) {
+        if (itemId.contains("Gaias_Touch")) {
+            return interactionType == InteractionType.Primary ? "wardengaiastouch" : null;
+        }
+        if (itemId.contains("Spring_Of_Renewal")) {
             return interactionType == InteractionType.Primary ? "wardenspringofrenewal" : null;
         }
-        if ("Natures_Resurgence".equals(itemId)) {
+        if (itemId.contains("Natures_Resurgence")) {
             return interactionType == InteractionType.Primary ? "wardennaturesresurgence" : null;
         }
         if ("Rootlight_Spirit_Ability".equals(itemId)) {
@@ -365,21 +376,24 @@ final class DruidCommandInteractionCompat {
         return chain != null
                 && chain.initial
                 && chain.interactionType == InteractionType.Primary
-                && ProwlerBiteCooldownService.BITE_ITEM_ID.equals(chain.itemInHandId);
+                && chain.itemInHandId != null
+                && chain.itemInHandId.contains(ProwlerBiteCooldownService.BITE_ITEM_ID);
     }
 
     private static boolean isInitialProwlerPouncePrimary(SyncInteractionChain chain) {
         return chain != null
                 && chain.initial
                 && chain.interactionType == InteractionType.Primary
-                && ProwlerPounceAbilityService.POUNCE_ITEM_ID.equals(chain.itemInHandId);
+                && chain.itemInHandId != null
+                && chain.itemInHandId.contains(ProwlerPounceAbilityService.POUNCE_ITEM_ID);
     }
 
     private static boolean isInitialProwlerStealthPrimary(SyncInteractionChain chain) {
         return chain != null
                 && chain.initial
                 && chain.interactionType == InteractionType.Primary
-                && ProwlerStealthService.STEALTH_ITEM_ID.equals(chain.itemInHandId);
+                && chain.itemInHandId != null
+                && chain.itemInHandId.contains(ProwlerStealthService.STEALTH_ITEM_ID);
     }
 
     private static boolean isInitialStalkerSurgePrimary(SyncInteractionChain chain) {
@@ -501,7 +515,7 @@ final class DruidCommandInteractionCompat {
             Object held = inventory.getClass().getMethod("getItemInHand").invoke(inventory);
             if (held == null) return null;
             Object itemId = held.getClass().getMethod("getItemId").invoke(held);
-            return itemId instanceof String ? (String) itemId : null;
+            return itemId instanceof String ? DruidAbilityItemIds.normalizeItemId((String) itemId) : null;
         } catch (Exception ignored) {
             return null;
         }
@@ -531,7 +545,7 @@ final class DruidCommandInteractionCompat {
         if (itemStack == null) return null;
         try {
             Object itemId = itemStack.getClass().getMethod("getItemId").invoke(itemStack);
-            return itemId instanceof String ? (String) itemId : null;
+            return itemId instanceof String ? DruidAbilityItemIds.normalizeItemId((String) itemId) : null;
         } catch (Exception ignored) {
             return null;
         }
@@ -562,6 +576,9 @@ final class DruidCommandInteractionCompat {
     private static Map<String, String> createRootToCommandMap() {
         Map<String, String> mapping = new HashMap<>();
         mapping.put("Druid_Open_Radial_Menu", "shapeshift ui");
+        // Legacy radial root aliases retained for old Druid weapon/control items.
+        // Current items use Druid_Open_Radial_Menu, but these preserve shapeshift UI fallback
+        // if old saved/cached items still report weapon-specific radial root IDs.
         mapping.put("Druid_Sword_Ability1_Radial_Menu", "shapeshift ui");
         mapping.put("Druid_Mace_Ability1_Radial_Menu", "shapeshift ui");
         mapping.put("Druid_Daggers_Ability1_Radial_Menu", "shapeshift ui");

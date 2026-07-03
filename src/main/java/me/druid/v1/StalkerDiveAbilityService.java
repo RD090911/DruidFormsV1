@@ -25,6 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 final class StalkerDiveAbilityService {
     static final String DIVE_ITEM_ID = "Shark_Dive";
     static final long DIVE_COOLDOWN_MILLIS = 6_500L;
+    private static final String DIVE_SOUND_EVENT_ID = "SFX_Water_MoveIn";
+    private static final float DIVE_SOUND_VOLUME_MODIFIER = 5.6234133f;
 
     private static final int DIVE_FALLBACK_SLOT_INDEX = 2;
     private static final double DIVE_DOWNWARD_SPEED = 16.5d;
@@ -83,7 +85,7 @@ final class StalkerDiveAbilityService {
     }
 
     static boolean isDiveItemId(String itemId) {
-        return DIVE_ITEM_ID.equals(itemId);
+        return itemId != null && itemId.contains(DIVE_ITEM_ID);
     }
 
     private static DiveContext resolveDiveContext(Player player) {
@@ -153,6 +155,12 @@ final class StalkerDiveAbilityService {
             return;
         }
 
+        DruidSoundFeedback.playForPlayer(
+                player,
+                DIVE_SOUND_EVENT_ID,
+                DIVE_SOUND_EVENT_ID,
+                DIVE_SOUND_VOLUME_MODIFIER
+        );
         Velocity velocity = store.ensureAndGetComponent(ref, Velocity.getComponentType());
         velocity.addInstruction(new Vector3d(impulse), createVelocityConfig(), ChangeVelocityType.Set);
     }

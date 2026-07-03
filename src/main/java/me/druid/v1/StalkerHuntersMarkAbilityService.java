@@ -27,6 +27,10 @@ import java.util.concurrent.TimeUnit;
 final class StalkerHuntersMarkAbilityService {
     static final String HUNTERS_MARK_ITEM_ID = "Stalker_Hunters_Mark";
     static final long HUNTERS_MARK_COOLDOWN_MILLIS = 24_000L;
+    private static final String HUNTERS_MARK_SOUND_EVENT_ID = "SFX_Crocodile_Alerted";
+    private static final String STALKER_BITE_SOUND_EVENT_ID = "SFX_Rex_Bite";
+    private static final float HUNTERS_MARK_SOUND_VOLUME_MODIFIER = 5.6234133f;
+    private static final float STALKER_BITE_SOUND_VOLUME_MODIFIER = 5.6234133f;
 
     private static final int HUNTERS_MARK_FALLBACK_SLOT_INDEX = 4;
     private static final long MARK_DURATION_MILLIS = 25_000L;
@@ -84,6 +88,16 @@ final class StalkerHuntersMarkAbilityService {
             return;
         }
 
+        Player player = DruidPermissions.getOnlinePlayer(playerUuid);
+        if (player != null && ShapeshiftHandler.getActiveFormId(player) == FormId.FORM_STALKER) {
+            DruidSoundFeedback.playForPlayer(
+                    player,
+                    STALKER_BITE_SOUND_EVENT_ID,
+                    STALKER_BITE_SOUND_EVENT_ID,
+                    STALKER_BITE_SOUND_VOLUME_MODIFIER
+            );
+        }
+
         ActiveMark activeMark = ACTIVE_MARK_BY_PLAYER.get(playerUuid);
         if (activeMark == null) {
             return;
@@ -120,7 +134,7 @@ final class StalkerHuntersMarkAbilityService {
     }
 
     static boolean isHuntersMarkItemId(String itemId) {
-        return HUNTERS_MARK_ITEM_ID.equals(itemId);
+        return itemId != null && itemId.contains(HUNTERS_MARK_ITEM_ID);
     }
 
     static void cleanupPlayer(Player player, String reason) {
@@ -318,6 +332,12 @@ final class StalkerHuntersMarkAbilityService {
         }
 
         clearActiveMark(playerUuid, "replaced", false);
+        DruidSoundFeedback.playForPlayer(
+                player,
+                HUNTERS_MARK_SOUND_EVENT_ID,
+                HUNTERS_MARK_SOUND_EVENT_ID,
+                HUNTERS_MARK_SOUND_VOLUME_MODIFIER
+        );
 
         long expiresAtMillis = System.currentTimeMillis() + MARK_DURATION_MILLIS;
         ACTIVE_MARK_BY_PLAYER.put(playerUuid, new ActiveMark(targetNetworkId, targetRef, world, expiresAtMillis));

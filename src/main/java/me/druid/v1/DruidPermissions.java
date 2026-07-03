@@ -96,7 +96,11 @@ final class DruidPermissions {
     }
 
     static boolean shouldShowHud(Player player) {
-        return canUseDruidFeatures(player) && isHudToggleEnabled(player);
+        if (!canUseDruidFeatures(player)) {
+            return false;
+        }
+        HudPreference preference = getHudPreference(player);
+        return preference != HudPreference.OFF;
     }
 
     static void sendDenied(CommandSender sender) {
@@ -218,6 +222,18 @@ final class DruidPermissions {
             if (playerId == null) return null;
             ensureLoaded();
             return accessOverrides.get(playerId);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private static HudPreference getHudPreference(Player player) {
+        if (player == null) return null;
+        try {
+            UUID playerId = player.getUuid();
+            if (playerId == null) return null;
+            ensureLoaded();
+            return hudPreferences.get(playerId);
         } catch (Exception ignored) {
             return null;
         }

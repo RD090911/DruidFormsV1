@@ -30,9 +30,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 final class GuardianTerrifyingRoarAbilityService {
-    static final String TERRIFYING_ROAR_ITEM_ID = "Elder_Guardian_Terrifying_Roar";
-    // Temporary live-test cooldown. Restore to 30_000L when Terrifying Roar behavior tuning is complete.
-    static final long TERRIFYING_ROAR_COOLDOWN_MILLIS = 5_000L;
+    static final String TERRIFYING_ROAR_ITEM_ID = "Guardian_Terrifying_Roar";
+    static final String VERDANT_TERRIFYING_ROAR_ITEM_ID = "Verdant_Guardian_Terrifying_Roar";
+    static final String PRIMAL_TERRIFYING_ROAR_ITEM_ID = "Primal_Guardian_Terrifying_Roar";
+    static final String ELDER_TERRIFYING_ROAR_ITEM_ID = "Elder_Guardian_Terrifying_Roar";
+    static final long TERRIFYING_ROAR_COOLDOWN_MILLIS = 30_000L;
     static final double TERRIFYING_ROAR_RADIUS_BLOCKS = 28.0d;
     static final double TERRIFYING_ROAR_DURATION_SECONDS = 4.0d;
 
@@ -52,13 +54,14 @@ final class GuardianTerrifyingRoarAbilityService {
     private GuardianTerrifyingRoarAbilityService() {
     }
 
-    static boolean tryStart(Player player, int activeHotbarSlot) {
+    static boolean tryStart(Player player, int activeHotbarSlot, String itemId) {
+        String cooldownItemId = isTerrifyingRoarItemId(itemId) ? itemId : TERRIFYING_ROAR_ITEM_ID;
         debug("detected player=" + describePlayer(player)
                 + " form=" + ShapeshiftHandler.getActiveFormId(player)
-                + " item=" + TERRIFYING_ROAR_ITEM_ID
+                + " item=" + cooldownItemId
                 + " slot=" + activeHotbarSlot);
 
-        if (!isEligibleElderGuardian(player)) {
+        if (!isEligibleGuardian(player)) {
             System.out.println("[GuardianTerrifyingRoar] blocked reason=invalid-form-or-tier");
             return false;
         }
@@ -84,7 +87,7 @@ final class GuardianTerrifyingRoarAbilityService {
             debug("cooldown-denied player=" + describePlayer(player)
                     + " remainingMs=" + remainingMillis
                     + " slot=" + hudSlotIndex);
-            showCooldownHud(player, hudSlotIndex, remainingMillis);
+            showCooldownHud(player, hudSlotIndex, cooldownItemId, remainingMillis);
             return false;
         }
 
@@ -107,23 +110,19 @@ final class GuardianTerrifyingRoarAbilityService {
                 + " cooldownMs=" + TERRIFYING_ROAR_COOLDOWN_MILLIS
                 + " radius=" + TERRIFYING_ROAR_RADIUS_BLOCKS
                 + " durationSeconds=" + TERRIFYING_ROAR_DURATION_SECONDS);
-        showCooldownHud(player, hudSlotIndex, remainingMillis);
+        showCooldownHud(player, hudSlotIndex, cooldownItemId, remainingMillis);
         return true;
     }
 
     static boolean isTerrifyingRoarItemId(String itemId) {
-        return TERRIFYING_ROAR_ITEM_ID.equals(itemId);
+        return TERRIFYING_ROAR_ITEM_ID.equals(itemId)
+                || VERDANT_TERRIFYING_ROAR_ITEM_ID.equals(itemId)
+                || PRIMAL_TERRIFYING_ROAR_ITEM_ID.equals(itemId)
+                || ELDER_TERRIFYING_ROAR_ITEM_ID.equals(itemId);
     }
 
-    private static boolean isEligibleElderGuardian(Player player) {
-        if (player == null || ShapeshiftHandler.getActiveFormId(player) != FormId.FORM_GUARDIAN) {
-            return false;
-        }
-        try {
-            return new ShapeshiftHandler().getTier(player, "guardian") >= 4;
-        } catch (RuntimeException exception) {
-            return false;
-        }
+    private static boolean isEligibleGuardian(Player player) {
+        return player != null && ShapeshiftHandler.getActiveFormId(player) == FormId.FORM_GUARDIAN;
     }
 
     private static void applyFearOnWorldThread(Player player, World expectedWorld) {
@@ -131,7 +130,7 @@ final class GuardianTerrifyingRoarAbilityService {
                 || expectedWorld == null
                 || !expectedWorld.isAlive()
                 || player.getWorld() != expectedWorld
-                || !isEligibleElderGuardian(player)) {
+                || !isEligibleGuardian(player)) {
             return;
         }
 
@@ -1085,15 +1084,15 @@ final class GuardianTerrifyingRoarAbilityService {
         return -1;
     }
 
-    private static void showCooldownHud(Player player, int slotIndex, long remainingMillis) {
+    private static void showCooldownHud(Player player, int slotIndex, String itemId, long remainingMillis) {
         if (remainingMillis <= 0L) {
-            DruidAbilityCooldownHotbarHud.remove(player, TERRIFYING_ROAR_ITEM_ID);
+            DruidAbilityCooldownHotbarHud.remove(player, itemId);
             return;
         }
         DruidAbilityCooldownHotbarHud.showOrUpdate(
                 player,
                 slotIndex,
-                TERRIFYING_ROAR_ITEM_ID,
+                itemId,
                 remainingMillis,
                 TERRIFYING_ROAR_COOLDOWN_MILLIS
         );

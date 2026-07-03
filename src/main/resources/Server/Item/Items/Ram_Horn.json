@@ -1,6 +1,7 @@
 {
   "TranslationProperties": {
-    "Name": "Forager Horn"
+    "Name": "Forager Horn",
+    "Description": "server.items.Ram_Horn.description"
   },
   "Icon": "Icons/Items/forager_horn.png",
   "Quality": "Uncommon",

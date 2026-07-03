@@ -30,7 +30,10 @@ final class WardenNaturesResurgenceAbilityHandler {
     private static final double NATURES_RESURGENCE_OUTER_VISUAL_OFFSET = 3.0d;
     private static final double NATURES_RESURGENCE_DIAGONAL_VISUAL_OFFSET = 2.15d;
     private static final double NATURES_RESURGENCE_OUTER_DIAGONAL_VISUAL_OFFSET = 3.0d;
-    private static final float NATURES_RESURGENCE_HEAL_AMOUNT = 25.0f;
+    private static final float NATURES_RESURGENCE_BASE_HEAL_AMOUNT = 25.0f;
+    private static final float NATURES_RESURGENCE_VERDANT_HEAL_AMOUNT = 30.0f;
+    private static final float NATURES_RESURGENCE_PRIMAL_HEAL_AMOUNT = 35.0f;
+    private static final float NATURES_RESURGENCE_ELDER_HEAL_AMOUNT = 45.0f;
     private static final String NATURES_RESURGENCE_VISUAL_SYSTEM_ID = "HealthStick_Spin";
     private static final float NATURES_RESURGENCE_VISUAL_SCALE = 4.0f;
 
@@ -71,8 +74,9 @@ final class WardenNaturesResurgenceAbilityHandler {
             return;
         }
 
+        float healAmount = resolveNaturesResurgenceHealAmount(player);
         spawnPulseVisual(player, pulsePosition);
-        int targets = applyPulseHeal(world, pulsePosition);
+        int targets = applyPulseHeal(world, pulsePosition, healAmount);
         COOLDOWN_END_BY_OWNER.put(ownerId, System.currentTimeMillis() + NATURES_RESURGENCE_COOLDOWN_MILLIS);
         showCooldownHud(player);
         sendPlayerMessage(player, "Nature's Resurgence washes over nearby allies.");
@@ -80,7 +84,7 @@ final class WardenNaturesResurgenceAbilityHandler {
                 "[WardenNaturesResurgence] cast owner=%s targets=%d heal=%.1f radius=%.1f",
                 DruidPlayerCompat.getPlayerNameOrUnknown(player),
                 targets,
-                NATURES_RESURGENCE_HEAL_AMOUNT,
+                healAmount,
                 NATURES_RESURGENCE_RADIUS));
     }
 
@@ -113,7 +117,7 @@ final class WardenNaturesResurgenceAbilityHandler {
         return false;
     }
 
-    private static int applyPulseHeal(World ownerWorld, Vector3d pulsePosition) {
+    private static int applyPulseHeal(World ownerWorld, Vector3d pulsePosition, float healAmount) {
         List<Player> players = DruidPermissions.getOnlinePlayersSnapshot();
         int targets = 0;
         for (Player candidate : players) {
@@ -134,29 +138,73 @@ final class WardenNaturesResurgenceAbilityHandler {
                 continue;
             }
 
-            boolean healed = applyHeal(candidate);
+            boolean healed = applyHeal(candidate, healAmount);
             if (healed) {
                 targets++;
             }
             System.out.println(String.format(Locale.ROOT,
-                    "[WardenNaturesResurgence] pulse target=%s healed=%s",
+                    "[WardenNaturesResurgence] pulse target=%s healed=%s healAmount=%.1f",
                     DruidPlayerCompat.getPlayerNameOrUnknown(candidate),
-                    healed));
+                    healed,
+                    healAmount));
         }
         return targets;
     }
 
-    private static boolean applyHeal(Player player) {
+    private static boolean applyHeal(Player player, float healAmount) {
         try {
             EntityStatMap stats = EntityStatsModule.get(player);
             if (stats == null) {
                 return false;
             }
-            stats.addStatValue(DefaultEntityStatTypes.getHealth(), NATURES_RESURGENCE_HEAL_AMOUNT);
+            stats.addStatValue(DefaultEntityStatTypes.getHealth(), healAmount);
             return true;
         } catch (Exception exception) {
             System.out.println("[WardenNaturesResurgence] heal failed reason=" + exception.getClass().getSimpleName());
             return false;
+        }
+    }
+
+    private static float resolveNaturesResurgenceHealAmount(Player owner) {
+        String lowerHeldItemId = getHeldItemIdLower(owner);
+        if (lowerHeldItemId == null) {
+            return NATURES_RESURGENCE_BASE_HEAL_AMOUNT;
+        }
+        if (lowerHeldItemId.contains("elder_natures_resurgence")) {
+            return NATURES_RESURGENCE_ELDER_HEAL_AMOUNT;
+        }
+        if (lowerHeldItemId.contains("primal_natures_resurgence")) {
+            return NATURES_RESURGENCE_PRIMAL_HEAL_AMOUNT;
+        }
+        if (lowerHeldItemId.contains("verdant_natures_resurgence")) {
+            return NATURES_RESURGENCE_VERDANT_HEAL_AMOUNT;
+        }
+        if (lowerHeldItemId.contains("natures_resurgence")) {
+            return NATURES_RESURGENCE_BASE_HEAL_AMOUNT;
+        }
+        return NATURES_RESURGENCE_BASE_HEAL_AMOUNT;
+    }
+
+    private static String getHeldItemIdLower(Player owner) {
+        if (owner == null) {
+            return null;
+        }
+        try {
+            Object inventory = owner.getClass().getMethod("getInventory").invoke(owner);
+            if (inventory == null) {
+                return null;
+            }
+            Object held = inventory.getClass().getMethod("getItemInHand").invoke(inventory);
+            if (held == null) {
+                return null;
+            }
+            Object itemId = held.getClass().getMethod("getItemId").invoke(held);
+            if (!(itemId instanceof String)) {
+                return null;
+            }
+            return ((String) itemId).toLowerCase(Locale.ROOT);
+        } catch (Exception ignored) {
+            return null;
         }
     }
 

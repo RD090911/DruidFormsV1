@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class RootlightSpiritCommand extends AbstractCommand {
     public RootlightSpiritCommand() {
-        super("wardenrootlight", "Toggle the Warden Rootlight Spirit test light", false);
+        super("wardenrootlight", "Toggle the Rootlight Spirit light.", false);
     }
 
     @Override

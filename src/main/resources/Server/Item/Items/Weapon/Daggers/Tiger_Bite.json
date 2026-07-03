@@ -53,11 +53,11 @@
             "Id": "Stab",
             "TestLineOfSight": true,
             "StartDistance": 0.1,
-            "EndDistance": 2.2,
-            "ExtendTop": 0.5,
-            "ExtendBottom": 0.5,
-            "ExtendLeft": 0.5,
-            "ExtendRight": 0.5
+            "EndDistance": 2.6,
+            "ExtendTop": 0.7,
+            "ExtendBottom": 0.7,
+            "ExtendLeft": 0.7,
+            "ExtendRight": 0.7
           },
           "Next": {
             "Type": "Simple",

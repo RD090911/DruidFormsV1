@@ -54,7 +54,8 @@ final class GuardianGroundSlamCooldownService {
     }
 
     static boolean isGroundSlamItemId(String itemId) {
-        return VERDANT_GROUND_SLAM_ITEM_ID.equals(itemId)
+        return GROUND_SLAM_ITEM_ID.equals(itemId)
+                || VERDANT_GROUND_SLAM_ITEM_ID.equals(itemId)
                 || PRIMAL_GROUND_SLAM_ITEM_ID.equals(itemId)
                 || ELDER_GROUND_SLAM_ITEM_ID.equals(itemId);
     }

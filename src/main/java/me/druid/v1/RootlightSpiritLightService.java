@@ -27,6 +27,7 @@ final class RootlightSpiritLightService {
     private static final byte LIGHT_GREEN = (byte) 0x8f;
     private static final byte LIGHT_BLUE = (byte) 0x45;
     private static final long WATCHDOG_INTERVAL_MILLIS = 2_000L;
+    private static final String ROOTLIGHT_ACTIVATE_SOUND_EVENT_ID = "SFX_Spirit_Root_Alerted";
 
     private static final Set<UUID> ACTIVE_PLAYERS = ConcurrentHashMap.newKeySet();
     private static final Object WATCHDOG_LOCK = new Object();
@@ -121,6 +122,7 @@ final class RootlightSpiritLightService {
         store.putComponent(playerRef, DynamicLight.getComponentType(), new DynamicLight(colorLight));
         ACTIVE_PLAYERS.add(playerId);
         ensureWatchdogRunning();
+        DruidSoundFeedback.playAtPlayer(player, ROOTLIGHT_ACTIVATE_SOUND_EVENT_ID);
         sendPlayerMessage(player, "Rootlight Spirit glows around you.");
         System.out.println("[RootlightSpirit] enabled owner="
                 + DruidPlayerCompat.getPlayerNameOrUnknown(player)

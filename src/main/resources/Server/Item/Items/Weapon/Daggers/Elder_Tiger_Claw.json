@@ -1,6 +1,6 @@
 {
   "TranslationProperties": {
-    "Name": "Elder Claw",
+    "Name": "Claw",
     "Description": "server.items.Elder_Tiger_Claw.description"
   },
   "Icon": "Icons/Items/claw.png",
@@ -292,6 +292,18 @@
     "Input": [
       {
         "ItemId": "Primal_Tiger_Claw",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Primal_Tiger_Bite",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Primal_Tiger_Pounce",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Primal_Tiger_Stealth",
         "Quantity": 1
       },
       {

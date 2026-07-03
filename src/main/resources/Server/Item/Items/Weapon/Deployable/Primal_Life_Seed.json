@@ -1,6 +1,6 @@
 {
   "TranslationProperties": {
-    "Name": "Primal Life Seed",
+    "Name": "Life Seed",
     "Description": "server.items.Primal_Life_Seed.description"
   },
   "Scale": 0.305,
@@ -26,6 +26,18 @@
     "Input": [
       {
         "ItemId": "Verdant_Life_Seed",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Verdant_Gaias_Touch",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Verdant_Spring_Of_Renewal",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Verdant_Natures_Resurgence",
         "Quantity": 1
       },
       {

@@ -1,6 +1,6 @@
 {
   "TranslationProperties": {
-    "Name": "Primal Claw",
+    "Name": "Claw",
     "Description": "server.items.Primal_Tiger_Claw.description"
   },
   "Icon": "Icons/Items/claw.png",
@@ -292,6 +292,18 @@
     "Input": [
       {
         "ItemId": "Verdant_Tiger_Claw",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Verdant_Tiger_Bite",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Verdant_Tiger_Pounce",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Verdant_Tiger_Stealth",
         "Quantity": 1
       },
       {

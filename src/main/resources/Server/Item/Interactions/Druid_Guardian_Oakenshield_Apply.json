@@ -2,6 +2,8 @@
   "Type": "Simple",
   "RunTime": 0.15,
   "Effects": {
+    "WorldSoundEventId": "SFX_Shield_T1_Raise",
+    "LocalSoundEventId": "SFX_Shield_T1_Raise_Local",
     "Particles": [
       {
         "SystemId": "Shield_Block",

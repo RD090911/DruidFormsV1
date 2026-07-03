@@ -28,7 +28,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 final class GuardianChallengingRoarAbilityService {
-    static final String CHALLENGING_ROAR_ITEM_ID = "Elder_Guardian_Challenging_Roar";
+    static final String CHALLENGING_ROAR_ITEM_ID = "Guardian_Challenging_Roar";
+    static final String VERDANT_CHALLENGING_ROAR_ITEM_ID = "Verdant_Guardian_Challenging_Roar";
+    static final String PRIMAL_CHALLENGING_ROAR_ITEM_ID = "Primal_Guardian_Challenging_Roar";
+    static final String ELDER_CHALLENGING_ROAR_ITEM_ID = "Elder_Guardian_Challenging_Roar";
     static final long CHALLENGING_ROAR_COOLDOWN_MILLIS = 22_000L;
     static final double CHALLENGING_ROAR_RADIUS_BLOCKS = 28.0d;
     static final double CHALLENGING_ROAR_DURATION_SECONDS = 5.0d;
@@ -48,13 +51,14 @@ final class GuardianChallengingRoarAbilityService {
     private GuardianChallengingRoarAbilityService() {
     }
 
-    static boolean tryStart(Player player, int activeHotbarSlot) {
+    static boolean tryStart(Player player, int activeHotbarSlot, String itemId) {
+        String cooldownItemId = isChallengingRoarItemId(itemId) ? itemId : CHALLENGING_ROAR_ITEM_ID;
         debug("detected player=" + describePlayer(player)
                 + " form=" + ShapeshiftHandler.getActiveFormId(player)
-                + " item=" + CHALLENGING_ROAR_ITEM_ID
+                + " item=" + cooldownItemId
                 + " slot=" + activeHotbarSlot);
 
-        if (!isEligibleElderGuardian(player)) {
+        if (!isEligibleGuardian(player)) {
             System.out.println("[GuardianChallengingRoar] blocked reason=invalid-form-or-tier");
             return false;
         }
@@ -80,7 +84,7 @@ final class GuardianChallengingRoarAbilityService {
             debug("cooldown-denied player=" + describePlayer(player)
                     + " remainingMs=" + remainingMillis
                     + " slot=" + hudSlotIndex);
-            showCooldownHud(player, hudSlotIndex, remainingMillis);
+            showCooldownHud(player, hudSlotIndex, cooldownItemId, remainingMillis);
             return false;
         }
 
@@ -103,23 +107,19 @@ final class GuardianChallengingRoarAbilityService {
                 + " cooldownMs=" + CHALLENGING_ROAR_COOLDOWN_MILLIS
                 + " radius=" + CHALLENGING_ROAR_RADIUS_BLOCKS
                 + " durationSeconds=" + CHALLENGING_ROAR_DURATION_SECONDS);
-        showCooldownHud(player, hudSlotIndex, remainingMillis);
+        showCooldownHud(player, hudSlotIndex, cooldownItemId, remainingMillis);
         return true;
     }
 
     static boolean isChallengingRoarItemId(String itemId) {
-        return CHALLENGING_ROAR_ITEM_ID.equals(itemId);
+        return CHALLENGING_ROAR_ITEM_ID.equals(itemId)
+                || VERDANT_CHALLENGING_ROAR_ITEM_ID.equals(itemId)
+                || PRIMAL_CHALLENGING_ROAR_ITEM_ID.equals(itemId)
+                || ELDER_CHALLENGING_ROAR_ITEM_ID.equals(itemId);
     }
 
-    private static boolean isEligibleElderGuardian(Player player) {
-        if (player == null || ShapeshiftHandler.getActiveFormId(player) != FormId.FORM_GUARDIAN) {
-            return false;
-        }
-        try {
-            return new ShapeshiftHandler().getTier(player, "guardian") >= 4;
-        } catch (RuntimeException exception) {
-            return false;
-        }
+    private static boolean isEligibleGuardian(Player player) {
+        return player != null && ShapeshiftHandler.getActiveFormId(player) == FormId.FORM_GUARDIAN;
     }
 
     private static void applyTauntOnWorldThread(Player player, World expectedWorld) {
@@ -127,7 +127,7 @@ final class GuardianChallengingRoarAbilityService {
                 || expectedWorld == null
                 || !expectedWorld.isAlive()
                 || player.getWorld() != expectedWorld
-                || !isEligibleElderGuardian(player)) {
+                || !isEligibleGuardian(player)) {
             return;
         }
 
@@ -566,15 +566,15 @@ final class GuardianChallengingRoarAbilityService {
                 + " chaseCombatOrAlert=" + chaseCombatOrAlert);
     }
 
-    private static void showCooldownHud(Player player, int slotIndex, long remainingMillis) {
+    private static void showCooldownHud(Player player, int slotIndex, String itemId, long remainingMillis) {
         if (remainingMillis <= 0L) {
-            DruidAbilityCooldownHotbarHud.remove(player, CHALLENGING_ROAR_ITEM_ID);
+            DruidAbilityCooldownHotbarHud.remove(player, itemId);
             return;
         }
         DruidAbilityCooldownHotbarHud.showOrUpdate(
                 player,
                 slotIndex,
-                CHALLENGING_ROAR_ITEM_ID,
+                itemId,
                 remainingMillis,
                 CHALLENGING_ROAR_COOLDOWN_MILLIS
         );

@@ -37,7 +37,7 @@ public class DruidPlugin extends JavaPlugin {
 
     @Override
     protected void setup() {
-        System.out.println("[DruidPlugin] Initializing V1 (Command Mode)...");
+        System.out.println("[DruidPlugin] Initializing Druid Forms V1...");
 
         this.shapeshiftHandler = new ShapeshiftHandler();
         DruidPermissions.initializeStorage(getDataDirectory());
@@ -121,6 +121,7 @@ public class DruidPlugin extends JavaPlugin {
         Object playerRef = event.getPlayerRef();
         ProwlerStealthService.handleDisconnect(event.getPlayerRef());
         ProwlerPounceAbilityService.handleDisconnect(event.getPlayerRef());
+        ProwlerBiteCooldownService.handleDisconnect(event.getPlayerRef());
         StalkerBreachAbilityService.handleDisconnect(event.getPlayerRef());
         StalkerHuntersMarkAbilityService.handleDisconnect(event.getPlayerRef());
         RootlightSpiritLightService.handleDisconnect(event.getPlayerRef());
@@ -165,13 +166,18 @@ public class DruidPlugin extends JavaPlugin {
         }
 
         String outputItemId = ShapeshiftHandler.getCraftedRecipePrimaryOutputItemId(recipe);
-        shapeshiftHandler.persistShrineUpgradeResult(player, outputItemId);
+        boolean upgraded = shapeshiftHandler.persistShrineUpgradeResult(player, outputItemId);
+        if (upgraded && DruidPermissions.shouldShowHud(player)) {
+            DruidHyUiCurrentFormHud.detach(player.getUuid());
+            DruidHyUiCurrentFormHud.attachOrRefresh(player);
+        }
     }
 
     @Override
     protected void shutdown() {
         ProwlerStealthService.shutdown();
         ProwlerPounceAbilityService.shutdown();
+        ProwlerBiteCooldownService.shutdown();
         ProwlerStealthNpcAttitudeService.shutdown();
         StalkerBreachAbilityService.shutdown();
         StalkerHuntersMarkAbilityService.shutdown();

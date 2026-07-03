@@ -1,6 +1,6 @@
 {
   "TranslationProperties": {
-    "Name": "Primal Slash",
+    "Name": "Slash",
     "Description": "server.items.Primal_Bear_Skin.description"
   },
   "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
@@ -231,6 +231,22 @@
     "Input": [
       {
         "ItemId": "Verdant_Bear_Skin",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Verdant_Guardian_Ground_Slam",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Verdant_Guardian_Oakenshield",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Verdant_Guardian_Challenging_Roar",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Verdant_Guardian_Terrifying_Roar",
         "Quantity": 1
       },
       {

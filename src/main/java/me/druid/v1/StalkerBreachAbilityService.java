@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 final class StalkerBreachAbilityService {
     static final String BREACH_ITEM_ID = "Shark_Breach";
     static final long BREACH_COOLDOWN_MILLIS = 8_000L;
+    private static final String BREACH_SOUND_EVENT_ID = "SFX_Water_MoveOut";
+    private static final float BREACH_SOUND_VOLUME_MODIFIER = 5.6234133f;
 
     private static final int BREACH_FALLBACK_SLOT_INDEX = 3;
     private static final double BREACH_UPWARD_SPEED = 20.0d;
@@ -91,7 +93,7 @@ final class StalkerBreachAbilityService {
     }
 
     static boolean isBreachItemId(String itemId) {
-        return BREACH_ITEM_ID.equals(itemId);
+        return itemId != null && itemId.contains(BREACH_ITEM_ID);
     }
 
     static void cleanupPlayer(Player player, String reason) {
@@ -195,6 +197,12 @@ final class StalkerBreachAbilityService {
             return;
         }
 
+        DruidSoundFeedback.playForPlayer(
+                player,
+                BREACH_SOUND_EVENT_ID,
+                BREACH_SOUND_EVENT_ID,
+                BREACH_SOUND_VOLUME_MODIFIER
+        );
         Velocity velocity = store.ensureAndGetComponent(ref, Velocity.getComponentType());
         velocity.addInstruction(new Vector3d(impulse), createVelocityConfig(), ChangeVelocityType.Set);
         startSurfaceMonitor(player, expectedWorld);

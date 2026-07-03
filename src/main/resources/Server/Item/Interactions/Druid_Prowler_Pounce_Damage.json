@@ -9,8 +9,6 @@
   },
   "EntityStatsOnHit": [],
   "DamageEffects": {
-    "WorldSoundEventId": "SFX_Unarmed_Impact",
-    "LocalSoundEventId": "SFX_Unarmed_Impact",
     "WorldParticles": [
       {
         "SystemId": "Impact_Sword_Basic"
